@@ -19,7 +19,7 @@
 	// ---- 配色（暗色科技风：高亮绿 / 蓝绿用于连线，节点为白色平面圆）----
 	var COLOR_A = new THREE.Color('#4ec9b0'); // 高亮薄荷绿
 	var COLOR_B = new THREE.Color('#4ea1ff'); // 冷调亮蓝
-	var EDGE_BASE = new THREE.Color('#3a4a55');
+	var EDGE_BASE = new THREE.Color('#cececeff');
 	var NODE_WHITE = new THREE.Color('#ffffff');
 
 	// ---- 场景 / 相机 / 渲染器 ----
@@ -27,8 +27,8 @@
 	scene.background = new THREE.Color('#0f1115');
 	scene.fog = new THREE.Fog('#0f1115', 90, 240);
 
-	var width = window.innerWidth;
-	var height = window.innerHeight;
+	var width = container.clientWidth || window.innerWidth;
+	var height = container.clientHeight || window.innerHeight;
 
 	var camera = new THREE.PerspectiveCamera(55, width / height, 0.1, 1000);
 	camera.position.set(0, 0, 90);
@@ -177,8 +177,8 @@
 
 	// ---- 自适应尺寸 ----
 	function onResize() {
-		var w = window.innerWidth;
-		var h = window.innerHeight;
+		var w = container.clientWidth || window.innerWidth;
+		var h = container.clientHeight || window.innerHeight;
 		camera.aspect = w / h;
 		camera.updateProjectionMatrix();
 		renderer.setSize(w, h);

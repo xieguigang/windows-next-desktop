@@ -155,8 +155,8 @@ if ( ! function_exists( 'twentytwentytwo_lsci_front_page_styles' ) ) :
 	left: 0;
 	right: 0;
 	bottom: 0;
-	width: 100vw;
-	height: 100vh;
+	width: 100%;
+	height: 100%;
 	overflow: hidden;
 	background:
 		radial-gradient(1200px 800px at 50% 40%, #161b22 0%, rgba(22,27,34,0) 60%),
