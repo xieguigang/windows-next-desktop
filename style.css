@@ -184,11 +184,9 @@ body > .is-root-container > .wp-block-template-part > .wp-block-cover,
 
 :root {
 	--vscode-card-radius: 6px;
-	--vscode-card-border: #e5e5e5;
-	--vscode-card-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-	--vscode-card-shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.12);
-	--vscode-hover-bg: #e8e8e8;
-	--vscode-subtle-bg: #f3f3f3;
+	--vscode-card-border: #2a2f37;
+	--vscode-hover-bg: #1c1f24;
+	--vscode-subtle-bg: #1c1f24;
 }
 
 /* 通用卡片基类：圆角 + 浅边框 + 柔和阴影 */
@@ -214,7 +212,6 @@ body > .is-root-container > .wp-block-template-part > .wp-block-cover,
 .wp-block-columns {
 	border: 1px solid var(--vscode-card-border);
 	border-radius: var(--vscode-card-radius);
-	box-shadow: var(--vscode-card-shadow);
 }
 
 /* 带背景的区块额外加内边距，避免内容贴边 */
@@ -228,23 +225,21 @@ body > .is-root-container > .wp-block-template-part > .wp-block-cover,
 	padding: 1.25rem;
 }
 
-/* 文章卡片悬停轻微抬升 */
+/* 文章卡片悬停轻微高亮 */
 .wp-block-post,
 .wp-block-post-template li,
 .wp-block-latest-posts li {
-	transition: box-shadow 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
-	background-color: #ffffff;
+	transition: background-color 0.2s ease, border-color 0.2s ease;
+	background-color: var(--vscode-subtle-bg);
 }
 
 .wp-block-post:hover,
 .wp-block-post-template li:hover,
 .wp-block-latest-posts li:hover {
-	box-shadow: var(--vscode-card-shadow-hover);
-	transform: translateY(-2px);
-	border-color: #d4d4d4;
+	border-color: var(--wp--preset--color--primary);
 }
 
-/* 引用块：左侧蓝色竖线 + 浅底 */
+/* 引用块：左侧蓝色竖线 + 暗底 */
 .wp-block-quote,
 .wp-block-pullquote {
 	border-left: 3px solid var(--wp--preset--color--primary);
@@ -256,22 +251,21 @@ body > .is-root-container > .wp-block-template-part > .wp-block-cover,
 	border-width: 0 0 0 3px;
 }
 
-/* 页头 / 页脚卡片化 */
+/* 页头 / 页脚卡片化（无阴影） */
 .wp-site-blocks > header,
 .wp-site-blocks > footer,
 .wp-block-template-part > * {
 	border: 1px solid var(--vscode-card-border);
 	border-radius: var(--vscode-card-radius);
-	box-shadow: var(--vscode-card-shadow);
 }
 
-/* 导航项与按钮卡片化 */
+/* 导航项与按钮卡片化（无阴影） */
 .wp-block-navigation .wp-block-navigation-item a,
 .wp-block-button__link,
 .wp-block-search__button,
 .wp-block-file .wp-block-file__button {
 	border-radius: var(--vscode-card-radius);
-	transition: background-color 0.2s ease, box-shadow 0.2s ease;
+	transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
 .wp-block-navigation .wp-block-navigation-item a:hover,
@@ -279,7 +273,7 @@ body > .is-root-container > .wp-block-template-part > .wp-block-cover,
 	background-color: var(--vscode-hover-bg);
 }
 
-/* 代码块：等宽字体 + 浅灰底卡片 */
+/* 代码块：等宽字体 + 暗灰底卡片 */
 :where(pre),
 :where(code),
 .wp-block-code,
@@ -288,7 +282,6 @@ body > .is-root-container > .wp-block-template-part > .wp-block-cover,
 	background-color: var(--vscode-subtle-bg);
 	border: 1px solid var(--vscode-card-border);
 	border-radius: var(--vscode-card-radius);
-	box-shadow: var(--vscode-card-shadow);
 	padding: 1rem 1.25rem;
 }
 
@@ -309,12 +302,11 @@ body > .is-root-container > .wp-block-template-part > .wp-block-cover,
 	border: 1px solid var(--vscode-card-border);
 }
 
-/* 评论卡片 */
+/* 评论卡片（无阴影） */
 .wp-block-post-comments .comment,
 .wp-block-post-comments .commentlist li {
 	border: 1px solid var(--vscode-card-border);
 	border-radius: var(--vscode-card-radius);
-	box-shadow: var(--vscode-card-shadow);
 	padding: 1rem;
-	background-color: #ffffff;
+	background-color: var(--vscode-subtle-bg);
 }

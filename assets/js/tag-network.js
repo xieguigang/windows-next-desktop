@@ -16,18 +16,19 @@
 		return;
 	}
 
-	// ---- 配色（浅色洁净科研风：绿 / 蓝绿）----
-	var COLOR_A = new THREE.Color('#2e9e5b'); // 生命科学绿
-	var COLOR_B = new THREE.Color('#1b9e9e'); // 蓝绿
-	var EDGE_BASE = new THREE.Color('#9ec9bf');
+	// ---- 配色（暗色科技风：高亮绿 / 蓝绿用于连线，节点为白色平面圆）----
+	var COLOR_A = new THREE.Color('#4ec9b0'); // 高亮薄荷绿
+	var COLOR_B = new THREE.Color('#4ea1ff'); // 冷调亮蓝
+	var EDGE_BASE = new THREE.Color('#3a4a55');
+	var NODE_WHITE = new THREE.Color('#ffffff');
 
 	// ---- 场景 / 相机 / 渲染器 ----
 	var scene = new THREE.Scene();
-	scene.background = new THREE.Color('#ffffff');
-	scene.fog = new THREE.Fog('#ffffff', 60, 180);
+	scene.background = new THREE.Color('#0f1115');
+	scene.fog = new THREE.Fog('#0f1115', 90, 240);
 
-	var width = container.clientWidth || window.innerWidth;
-	var height = container.clientHeight || Math.round(window.innerHeight * 0.78);
+	var width = window.innerWidth;
+	var height = window.innerHeight;
 
 	var camera = new THREE.PerspectiveCamera(55, width / height, 0.1, 1000);
 	camera.position.set(0, 0, 90);
@@ -75,21 +76,24 @@
 		node._pos = positions[node.id];
 	});
 
-	// ---- 节点球体 ----
+	// ---- 节点：白色平面圆形（post_tag 节点）----
 	var nodeMeshes = [];
-	var sphereGeo = new THREE.SphereGeometry(1, 24, 24);
+	var circleGeo = new THREE.CircleGeometry(1, 48);
 	nodes.forEach(function (node) {
 		var size = 1.2 + 3.4 * Math.sqrt(node.count / maxCount);
-		var mat = new THREE.MeshStandardMaterial({
-			color: node._color,
-			roughness: 0.35,
-			metalness: 0.1,
-			emissive: node._color.clone().multiplyScalar(0.12)
+		// 白色平面圆片，不受光照影响，双面可见
+		var mat = new THREE.MeshBasicMaterial({
+			color: NODE_WHITE,
+			side: THREE.DoubleSide,
+			transparent: true,
+			opacity: 0.95
 		});
-		var mesh = new THREE.Mesh(sphereGeo, mat);
+		var mesh = new THREE.Mesh(circleGeo, mat);
 		mesh.position.copy(node._pos);
+		// 初始朝向相机方向（z 轴），由 animate 中的 billboard 持续调整
+		mesh.lookAt(camera.position);
 		mesh.scale.setScalar(size);
-		mesh.userData = { node: node, baseSize: size };
+		mesh.userData = { node: node, baseSize: size, billboard: true };
 		scene.add(mesh);
 		nodeMeshes.push(mesh);
 	});
@@ -173,8 +177,8 @@
 
 	// ---- 自适应尺寸 ----
 	function onResize() {
-		var w = container.clientWidth || window.innerWidth;
-		var h = container.clientHeight || Math.round(window.innerHeight * 0.78);
+		var w = window.innerWidth;
+		var h = window.innerHeight;
 		camera.aspect = w / h;
 		camera.updateProjectionMatrix();
 		renderer.setSize(w, h);
@@ -185,6 +189,13 @@
 	function animate() {
 		requestAnimationFrame(animate);
 		controls.update();
+		// post_tag 白色圆片始终面向相机（billboard）
+		for (var i = 0; i < nodeMeshes.length; i++) {
+			var m = nodeMeshes[i];
+			if (m.userData && m.userData.billboard) {
+				m.lookAt(camera.position);
+			}
+		}
 		renderer.render(scene, camera);
 	}
 	animate();

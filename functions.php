@@ -151,13 +151,12 @@ if ( ! function_exists( 'twentytwentytwo_lsci_front_page_styles' ) ) :
 <style id="lsci-tag-network-style">
 #lsci-tag-network {
 	position: relative;
-	width: 100%;
-	height: 78vh;
-	min-height: 480px;
+	width: 100vw;
+	height: 100vh;
 	overflow: hidden;
 	background:
-		radial-gradient(1200px 600px at 50% -10%, #eef6f3 0%, rgba(238,246,243,0) 60%),
-		linear-gradient(180deg, #ffffff 0%, #f7f9fa 100%);
+		radial-gradient(1200px 800px at 50% 40%, #161b22 0%, rgba(22,27,34,0) 60%),
+		linear-gradient(180deg, #0f1115 0%, #0b0d10 100%);
 	touch-action: none;
 }
 #lsci-tag-network canvas { display: block; }
@@ -167,11 +166,10 @@ if ( ! function_exists( 'twentytwentytwo_lsci_front_page_styles' ) ) :
 	max-width: 280px;
 	padding: 12px 14px;
 	border-radius: 10px;
-	background: rgba(255, 255, 255, 0.92);
-	border: 1px solid rgba(46, 158, 91, 0.25);
-	box-shadow: 0 12px 32px rgba(27, 158, 158, 0.18);
+	background: rgba(18, 20, 23, 0.92);
+	border: 1px solid rgba(78, 161, 255, 0.25);
 	backdrop-filter: blur(6px);
-	color: #2b3a42;
+	color: #e6e6e6;
 	font-family: PingFang SC, -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
 	font-size: 13px;
 	line-height: 1.55;
@@ -185,17 +183,17 @@ if ( ! function_exists( 'twentytwentytwo_lsci_front_page_styles' ) ) :
 	display: block;
 	font-size: 15px;
 	font-weight: 600;
-	color: #1b9e9e;
+	color: #4ea1ff;
 	margin-bottom: 2px;
 }
 #lsci-tooltip .lsci-count {
 	display: inline-block;
 	font-size: 11px;
-	color: #5b6b73;
+	color: #a8b0ba;
 	margin-bottom: 6px;
 }
-#lsci-tooltip p { margin: 0; color: #5b6b73; }
-.lsci-network-section { border-top: 1px solid rgba(46,158,91,0.12); }
+#lsci-tooltip p { margin: 0; color: #a8b0ba; }
+.lsci-network-section { border-top: 1px solid rgba(78,161,255,0.12); }
 </style>
 		<?php
 	}
