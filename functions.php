@@ -167,21 +167,6 @@ if ( ! function_exists( 'twentytwentytwo_lsci_front_page_styles' ) ) :
 #lsci-tag-network canvas { display: block; }
 #lsci-tooltip {
 	position: fixed;
-	z-index: 9999;
-	max-width: 280px;
-	padding: 12px 14px;
-	border-radius: 10px;
-	background: rgba(18, 20, 23, 0.92);
-	border: 1px solid rgba(78, 161, 255, 0.25);
-	backdrop-filter: blur(6px);
-	color: #e6e6e6;
-	font-family: PingFang SC, -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
-	font-size: 13px;
-	line-height: 1.55;
-	opacity: 0;
-	transform: translateY(4px);
-	transition: opacity .15s ease, transform .15s ease;
-	pointer-events: none;
 }
 #lsci-tooltip.lsci-visible { opacity: 1; transform: translateY(0); }
 #lsci-tooltip strong {

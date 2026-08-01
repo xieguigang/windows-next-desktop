@@ -28,9 +28,23 @@
 <div class="wp-block-group lsci-network-section alignfull"
     style="background-color:#0f1115;padding-top:0;padding-bottom:0 ; width:100%;"><!-- wp:html -->
     <div id="lsci-tag-network" role="img" aria-label="标签关联三维网络可视化"
-        style="position:fixed;top:0;left:-75vw;right:0;bottom:0;width:100vw;height:100vh;display:block;z-index:1;">
+        style="position:fixed;top:0;left:-75vw;right:0;bottom:0;width:100vw;height:100vh;display:block;z-index:10;">
     </div>
-    <div id="lsci-tooltip" aria-hidden="true" style="z-index:20;position: absolute;"></div>
+    <div id="lsci-tooltip" aria-hidden="true" style="position: absolute;
+     z-index: 9999;
+	max-width: 280px;
+	padding: 12px 14px;
+	border-radius: 10px;
+	background: rgba(31, 31, 31, 0.92);
+	border: 1px solid rgba(78, 161, 255, 0.25);
+	backdrop-filter: blur(6px);
+	color: #e6e6e6;
+	font-family: PingFang SC, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+	font-size: 13px;
+	line-height: 1.55;	
+	transform: translateY(4px);
+	transition: opacity .15s ease, transform .15s ease;
+	pointer-events: none;"></div>
     <!-- /wp:html -->
 </div>
 <!-- /wp:group -->

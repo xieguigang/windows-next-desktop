@@ -154,8 +154,8 @@
 			var node = hovered.userData.node;
 			var desc = node.description ? node.description : '（该标签暂无描述）';
 			tooltip.innerHTML = '<strong>' + node.name + '</strong><span class="lsci-count">' + node.count + ' 篇文章</span><p>' + desc + '</p>';
-			tooltip.style.left = (ev.clientX + 14) + 'px';
-			tooltip.style.top = (ev.clientY + 14) + 'px';
+			tooltip.style.left = (ev.clientX + 30) + 'px';
+			tooltip.style.top = (ev.clientY - 400) + 'px';
 			tooltip.classList.add('lsci-visible');
 			renderer.domElement.style.cursor = 'pointer';
 		} else if (tooltip) {
