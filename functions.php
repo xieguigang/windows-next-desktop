@@ -150,7 +150,11 @@ if ( ! function_exists( 'twentytwentytwo_lsci_front_page_styles' ) ) :
 		?>
 <style id="lsci-tag-network-style">
 #lsci-tag-network {
-	position: relative;
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
 	width: 100vw;
 	height: 100vh;
 	overflow: hidden;
@@ -158,6 +162,7 @@ if ( ! function_exists( 'twentytwentytwo_lsci_front_page_styles' ) ) :
 		radial-gradient(1200px 800px at 50% 40%, #161b22 0%, rgba(22,27,34,0) 60%),
 		linear-gradient(180deg, #0f1115 0%, #0b0d10 100%);
 	touch-action: none;
+	z-index: 1;
 }
 #lsci-tag-network canvas { display: block; }
 #lsci-tooltip {

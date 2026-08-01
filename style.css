@@ -259,6 +259,21 @@ body > .is-root-container > .wp-block-template-part > .wp-block-cover,
 	border-radius: var(--vscode-card-radius);
 }
 
+/* 全屏三维网络为固定背景层，页头/页脚浮于其上 */
+.wp-site-blocks > header,
+.wp-site-blocks > footer {
+	position: relative;
+	z-index: 2;
+	background-color: rgba(15, 17, 21, 0.82);
+	backdrop-filter: blur(4px);
+}
+
+/* 首页 hero 区浮于全屏网络之上 */
+.lsci-hero {
+	position: relative;
+	z-index: 2;
+}
+
 /* 导航项与按钮卡片化（无阴影） */
 .wp-block-navigation .wp-block-navigation-item a,
 .wp-block-button__link,
