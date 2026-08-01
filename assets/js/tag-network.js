@@ -27,8 +27,8 @@
 	scene.background = new THREE.Color('#0f1115');
 	scene.fog = new THREE.Fog('#0f1115', 90, 240);
 
-	var width = container.clientWidth || window.innerWidth;
-	var height = container.clientHeight || window.innerHeight;
+	var width = window.innerWidth;
+	var height = window.innerHeight;
 
 	var camera = new THREE.PerspectiveCamera(55, width / height, 0.1, 1000);
 	camera.position.set(0, 0, 90);
@@ -177,8 +177,8 @@
 
 	// ---- 自适应尺寸 ----
 	function onResize() {
-		var w = container.clientWidth || window.innerWidth;
-		var h = container.clientHeight || window.innerHeight;
+		var w = window.innerWidth;
+		var h = window.innerHeight;
 		camera.aspect = w / h;
 		camera.updateProjectionMatrix();
 		renderer.setSize(w, h);
