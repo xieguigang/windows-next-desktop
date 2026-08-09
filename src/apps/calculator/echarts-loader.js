@@ -9,7 +9,7 @@
 
 let loadingPromise = null;
 
-export function ensureEcharts() {
+export function ensureECharts() {
   if (window.echarts) return Promise.resolve(window.echarts);
   if (loadingPromise) return loadingPromise;
 
