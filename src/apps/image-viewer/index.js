@@ -210,8 +210,8 @@ export default async function main(ctx) {
     try {
       const entries = await ctx.fs.readDir(dir);
       files = entries
-        .filter((e) => !e.isDirectory && IMAGE_EXTS.includes(P.extname(e.name).slice(1).toLowerCase()))
-        .map((e) => P.join(dir, e.name))
+        .filter((e) => e.type === 'file' && IMAGE_EXTS.includes(P.extname(e.name).slice(1).toLowerCase()))
+        .map((e) => e.path)
         .sort((a, b) => a.localeCompare(b, 'zh-CN', { numeric: true }));
     } catch {
       files = [filePath];
