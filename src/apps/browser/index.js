@@ -180,6 +180,7 @@ export default async function mount(ctx) {
     syncNavButtons();
     if (t.url === 'about:newtab') {
       renderNewTabPage(ensurePane(t));
+      t.pane.classList.add('is-active');
     } else if (!t.iframe) {
       await load(t, t.url);
     } else if (t.pane) {
