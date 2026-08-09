@@ -259,7 +259,7 @@ export class StartMenu {
             settings.set('taskbar.pinned', next);
           },
         },
-      ]);
+      ], e.clientX, e.clientY);
     });
     return btn;
   }
@@ -406,7 +406,7 @@ export class StartMenu {
     });
 
     this.el.querySelector('.sm-power').addEventListener('click', (e) => {
-      contextMenu.openAt(e.clientX, e.clientY, [
+      contextMenu.open([
         {
           id: 'lock',
           label: '锁定',
@@ -435,7 +435,7 @@ export class StartMenu {
             notifications.toast({ title: '已关机', body: '刷新页面即可重新启动', type: 'info', duration: 8000 });
           },
         },
-      ]);
+      ], e.clientX, e.clientY);
     });
 
     // 点击菜单内部不冒泡关闭
