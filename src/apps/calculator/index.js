@@ -340,7 +340,7 @@ export default async function mount(ctx) {
 
     // ECharts
     const chartEl = container.querySelector('.plot-chart');
-    const echarts = await ensureEcharts();
+    const echarts = await ensureECharts();
     if (!echarts) {
       chartEl.innerHTML = `<div class="plot-error">无法加载 ECharts（请检查网络连接）</div>`;
       return;
