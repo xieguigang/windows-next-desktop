@@ -130,6 +130,23 @@ class FileSystemService {
   }
 
   /**
+   * 主动请求某个驱动器的读写授权。
+   * 必须在用户手势（点击）的调用栈中执行，否则浏览器会静默拒绝。
+   * @param {string} drive
+   * @returns {Promise<boolean>} 是否已获得授权
+   */
+  async requestDriveAccess(drive) {
+    const d = String(drive).toUpperCase().replace(':', '');
+    const provider = this.providers.get(d);
+    if (!provider) throw new Error(`驱动器 ${d}: 不存在`);
+    if (typeof provider.ensurePermission !== 'function') return true; // 虚拟盘无需授权
+    const ok = await provider.ensurePermission(true);
+    if (!ok) throw new Error('未获得该文件夹的读写权限');
+    bus.emit('fs:drives-changed', { drives: this.getDrives() });
+    return true;
+  }
+
+  /**
    * 卸载驱动器
    * @param {string} drive
    */

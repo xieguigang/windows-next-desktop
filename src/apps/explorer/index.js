@@ -205,7 +205,22 @@ export default async function mount(ctx) {
       renderPane(pane);
       updateStatus(entries);
     } catch (err) {
-      pane.innerHTML = `<div class="ex-empty">无法访问：${escapeHtml(String(err?.message || err))}</div>`;
+      const msg = String(err?.message || err);
+      // 刷新页面后恢复的本地挂载点权限状态为 prompt，浏览器要求
+      // 权限请求必须由用户手势触发，因此这里给出「重新授权」按钮。
+      const needsGrant = msg.includes('没有访问权限') || msg.includes('没有写入权限');
+      pane.innerHTML = `<div class="ex-empty">无法访问：${escapeHtml(msg)}${
+        needsGrant ? '<br><button class="btn" data-regrant>重新授权</button>' : ''
+      }</div>`;
+      pane.querySelector('[data-regrant]')?.addEventListener('click', async () => {
+        try {
+          await ctx.fs.requestDriveAccess(P.driveOf(path));
+          await loadActive();
+          refreshDriveList();
+        } catch (e2) {
+          ctx.notify.error('授权失败：' + (e2?.message || e2));
+        }
+      });
       statusCount.textContent = '0 项';
     } finally {
       pane.classList.remove('is-loading');

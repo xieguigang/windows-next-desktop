@@ -157,6 +157,11 @@ export function createAppContext(deps) {
        * @param {string} drive
        */
       unmountDrive: (drive) => fileSystem.unmountDrive(drive),
+      /**
+       * 请求某驱动器的读写授权（必须在用户点击的调用栈中执行）
+       * @param {string} drive
+       */
+      requestDriveAccess: (drive) => fileSystem.requestDriveAccess(drive),
       /** 当前浏览器是否支持挂载本地文件夹 */
       isNativeFSSupported: () => fileSystem.isNativeFSSupported(),
       /** 创建媒体 URL，窗口关闭时自动 revoke */
