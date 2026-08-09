@@ -38,6 +38,8 @@ const GLYPHS = {
   search: '<circle cx="10.5" cy="10.5" r="5.8" stroke="currentColor" stroke-width="1.4" fill="none"/><path d="M14.8 14.8 19.5 19.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>',
   add: '<path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>',
   more: '<circle cx="5.5" cy="12" r="1.5" fill="currentColor"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/><circle cx="18.5" cy="12" r="1.5" fill="currentColor"/>',
+  star: '<path d="m12 4 2.47 5.01 5.53.8-4 3.9.94 5.5L12 16.62 7.06 19.2l.94-5.5-4-3.9 5.53-.8L12 4Z" stroke="currentColor" stroke-width="1.3" fill="none" stroke-linejoin="round"/>',
+  edit: '<path d="M4.5 19.5h15" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M6 15.2V17h1.8l8.1-8.1-1.8-1.8L6 15.2Z" stroke="currentColor" stroke-width="1.3" fill="none" stroke-linejoin="round"/><path d="m15.3 5.9 1.8 1.8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>',
   check: '<path d="M5 12.8 9.6 17.4 19 7.5" stroke="currentColor" stroke-width="1.7" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
   copy: '<rect x="8.5" y="8.5" width="11" height="11" rx="1.8" stroke="currentColor" stroke-width="1.3" fill="none"/><path d="M15.5 5.5H6a1.5 1.5 0 0 0-1.5 1.5v9.5" stroke="currentColor" stroke-width="1.3" fill="none" stroke-linecap="round"/>',
   cut: '<circle cx="7" cy="17.5" r="2.4" stroke="currentColor" stroke-width="1.3" fill="none"/><circle cx="17" cy="17.5" r="2.4" stroke="currentColor" stroke-width="1.3" fill="none"/><path d="M8.6 15.6 17.5 4M15.4 15.6 6.5 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>',

@@ -125,6 +125,51 @@
   cursor: pointer;
 }
 .br-bookmark:hover { background: var(--bg-hover); color: var(--accent); }
+.br-bookmarks-empty {
+  font-size: 12px;
+  color: var(--text-secondary);
+  padding: 4px 6px;
+  white-space: nowrap;
+}
+
+/* 收藏栏开关：关闭时整栏隐藏，.br-panes 是 flex:1 会自动补足高度 */
+.br-root[data-favbar="off"] .br-bookmarks { display: none; }
+
+/* 星形收藏按钮：已收藏时以强调色实心点亮 */
+.br-star.is-active { color: var(--accent); }
+.br-star.is-active svg path { fill: currentColor; }
+
+/* 书签编辑气泡 */
+.br-bm-editor {
+  position: absolute;
+  top: 76px;
+  right: 16px;
+  z-index: 40;
+  width: 300px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg, 8px);
+  box-shadow: var(--shadow-flyout, 0 8px 28px rgba(0, 0, 0, 0.24));
+}
+.br-bm-title { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+.br-bm-field { display: flex; flex-direction: column; gap: 4px; }
+.br-bm-field span { font-size: 11px; color: var(--text-secondary); }
+.br-bm-field input {
+  padding: 5px 8px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 12px;
+}
+.br-bm-field input:focus { border-color: var(--accent); outline: none; }
+.br-bm-actions { display: flex; align-items: center; gap: 6px; }
+.br-bm-spacer { flex: 1; }
 
 /* 窗格 */
 .br-panes { flex: 1; position: relative; overflow: hidden; }
