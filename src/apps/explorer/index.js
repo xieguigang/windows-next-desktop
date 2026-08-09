@@ -433,23 +433,59 @@ export default async function mount(ctx) {
     for (const drive of ctx.fs.getDrives()) {
       const btn = document.createElement('button');
       btn.className = 'ex-side-item';
-      btn.dataset.nav = drive.path;
-      btn.innerHTML = `${getIcon(drive.kind === 'local' ? 'usb' : 'hdd', 16)}<span>${escapeHtml(drive.label)}</span>`;
-      btn.addEventListener('click', () => openInNewTab(drive.path));
+      btn.dataset.nav = drive.root;
+      const label = `${drive.label} (${drive.drive}:)`;
+      btn.innerHTML = `${getIcon(drive.type === 'native' ? 'usb' : 'hdd', 16)}<span>${escapeHtml(label)}</span>`;
+      if (!drive.available) {
+        btn.classList.add('is-dimmed');
+        btn.title = '需要重新授权，点击后按提示允许访问';
+      }
+      btn.addEventListener('click', () => openInNewTab(drive.root));
+      // 真实挂载的驱动器支持右键卸载；系统盘 C: 不可卸载
+      if (drive.type === 'native') {
+        btn.addEventListener('contextmenu', async (e) => {
+          e.preventDefault();
+          const { contextMenu } = await import('../../shell/context-menu.js');
+          contextMenu.open([{
+            id: 'unmount',
+            label: `卸载 ${drive.drive}:`,
+            icon: 'eject',
+            onClick: () => unmountDrive(drive.drive),
+          }], e.clientX, e.clientY);
+        });
+      }
       mountGroup.appendChild(btn);
     }
   }
 
   async function mountLocalFolder() {
+    if (!ctx.fs.isNativeFSSupported()) {
+      ctx.notify.warning('当前浏览器不支持挂载本地文件夹，请使用 Chrome / Edge 等 Chromium 内核浏览器');
+      return;
+    }
     try {
-      const result = await ctx.fs.pick({ mode: 'folder' });
-      if (!result?.path) return;
+      const result = await ctx.fs.mountLocalFolder();
+      if (!result) return; // 用户取消了目录选择
       refreshDriveList();
-      await openInNewTab(result.path);
+      ctx.notify.success(`已挂载 ${result.label} 为 ${result.drive}:`);
+      await openInNewTab(`${result.drive}:/`);
     } catch (err) {
       if (err?.name !== 'AbortError') ctx.notify.error('挂载失败：' + (err?.message || err));
     }
   }
+
+  async function unmountDrive(drive) {
+    try {
+      await ctx.fs.unmountDrive(drive);
+      refreshDriveList();
+      ctx.notify.info(`已卸载 ${drive}:`);
+    } catch (err) {
+      ctx.notify.error('卸载失败：' + (err?.message || err));
+    }
+  }
+
+  // 驱动器变化（挂载/卸载）时同步侧边栏，覆盖其他窗口触发的变更
+  ctx.events.on('fs:drives-changed', () => refreshDriveList());
 
   ctx.events.on('fs:changed', (payload) => {
     if (payload?.path?.startsWith?.(currentPath() || '')) loadActive();

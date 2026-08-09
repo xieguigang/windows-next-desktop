@@ -30,6 +30,7 @@ const GLYPHS = {
   videos: '<rect x="3.5" y="6" width="13" height="12" rx="2" stroke="currentColor" stroke-width="1.3" fill="none"/><path d="M16.5 10.5 21 8v8l-4.5-2.5z" stroke="currentColor" stroke-width="1.3" fill="none" stroke-linejoin="round"/>',
   hdd: '<rect x="3.5" y="6" width="17" height="12" rx="2" stroke="currentColor" stroke-width="1.3" fill="none"/><circle cx="7" cy="12" r="1" fill="currentColor"/><circle cx="10" cy="12" r="1" fill="currentColor"/>',
   usb: '<path d="M10 3h4v5M12 8v3M8 11h8v6a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-6Z" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
+  eject: '<path d="M12 5.5 19 14H5l7-8.5Z" stroke="currentColor" stroke-width="1.3" fill="none" stroke-linejoin="round"/><path d="M5.5 17.5h13" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round"/>',
   refresh: '<path d="M19 12a7 7 0 1 1-2.1-5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/><path d="M19 4v4.2h-4.2" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
   home: '<path d="M4 11.2 12 4.5l8 6.7V19a1 1 0 0 1-1 1h-4v-5.5H9V20H5a1 1 0 0 1-1-1v-7.8Z" stroke="currentColor" stroke-width="1.3" fill="none" stroke-linejoin="round"/>',
 

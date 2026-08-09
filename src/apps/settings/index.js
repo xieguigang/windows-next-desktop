@@ -33,6 +33,31 @@ const THEME_OPTIONS = [
 ];
 const ACCENT_PRESETS = ['#0078D4', '#0067C0', '#5C5DDE', '#107C10', '#CA5010', '#9D5D00', '#D13438', '#8764B8'];
 
+/**
+ * 「透明度」分组的滑块定义。
+ * 每项对应一个 appearance.* 设置项，由 settings-store 的 CSS_VAR_MAP
+ * 实时映射到 :root CSS 变量，滑动即预览，无需任何中间层。
+ * min 用于避免调到几乎不可见导致界面失联。
+ */
+const OPACITY_ITEMS = [
+  { key: 'titlebar', setting: 'appearance.titlebarOpacity', label: '标题栏透明度', fallback: 1, min: 30, hint: '让窗口标题栏比窗体更通透' },
+  { key: 'inactive', setting: 'appearance.inactiveOpacity', label: '窗口失焦透明度', fallback: 0.92, min: 40, hint: '窗口失去焦点时整体变淡的程度' },
+  { key: 'taskbar', setting: 'appearance.taskbarOpacity', label: '任务栏透明度', fallback: 0.58, min: 20, hint: '任务栏毛玻璃底色的不透明度' },
+  { key: 'menu', setting: 'appearance.menuOpacity', label: '菜单 / 弹出层透明度', fallback: 0.76, min: 30, hint: '开始菜单、右键菜单与弹出层底色' },
+];
+
+/**
+ * 设置值（0~1 比例）转百分比整数，供滑块与文案展示。
+ * @param {unknown} value
+ * @param {number} fallback 读取不到时使用的默认比例
+ * @returns {number} 0~100
+ */
+function toPercent(value, fallback) {
+  const n = Number(value);
+  const ratio = Number.isFinite(n) ? n : fallback;
+  return Math.round(Math.min(1, Math.max(0, ratio)) * 100);
+}
+
 export default async function mount(ctx) {
   ctx.injectStyleSheet(new URL('./settings.css', import.meta.url).href);
 
@@ -173,6 +198,21 @@ export default async function mount(ctx) {
           <input type="range" min="20" max="95" step="1" value="${Math.round((ctx.settings.get('appearance.aeroOpacity') || 0.62) * 100)}" data-aero="opacity">
         </div>
       </section>
+
+      <section class="st-section">
+        <h4>透明度</h4>
+        ${OPACITY_ITEMS.map((it) => `
+        <div class="st-row st-slider-row">
+          <span>${it.label} <em data-op-val="${it.key}">${toPercent(ctx.settings.get(it.setting), it.fallback)}</em>%</span>
+          <input type="range" min="${it.min}" max="100" step="1"
+                 value="${toPercent(ctx.settings.get(it.setting), it.fallback)}"
+                 data-opacity="${it.key}" title="${it.hint}">
+        </div>`).join('')}
+        <div class="st-row">
+          <span class="st-hint">最大化的窗口始终保持不透明，不受以上设置影响。</span>
+          <button class="btn" data-opacity-reset>恢复默认</button>
+        </div>
+      </section>
     `;
 
     // opacity 滑块需要把 % 转回 ratio 写入设置
@@ -292,6 +332,31 @@ export default async function mount(ctx) {
         const label = container.querySelector(`[data-val="${k}"]`);
         if (label) label.textContent = v;
       });
+    });
+
+    // 透明度滑块：百分比 → 0~1 比例写入设置，CSS 变量随即更新
+    container.querySelectorAll('[data-opacity]').forEach((slider) => {
+      const item = OPACITY_ITEMS.find((it) => it.key === slider.dataset.opacity);
+      if (!item) return;
+      slider.addEventListener('input', () => {
+        const percent = Number(slider.value);
+        ctx.settings.set(item.setting, percent / 100);
+        const label = container.querySelector(`[data-op-val="${item.key}"]`);
+        if (label) label.textContent = String(percent);
+      });
+    });
+
+    // 透明度恢复默认：逐项 reset 并把滑块与文案同步回默认值
+    container.querySelector('[data-opacity-reset]')?.addEventListener('click', () => {
+      for (const item of OPACITY_ITEMS) {
+        ctx.settings.reset(item.setting);
+        const percent = toPercent(ctx.settings.get(item.setting), item.fallback);
+        const slider = container.querySelector(`[data-opacity="${item.key}"]`);
+        if (slider) slider.value = String(percent);
+        const label = container.querySelector(`[data-op-val="${item.key}"]`);
+        if (label) label.textContent = String(percent);
+      }
+      ctx.notify?.info?.('透明度已恢复默认');
     });
   }
 

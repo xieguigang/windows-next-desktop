@@ -41,6 +41,8 @@
 }
 .ex-side-item:hover { background: var(--bg-hover); }
 .ex-side-item.is-active { background: var(--accent-soft); color: var(--accent); }
+/* 已挂载但尚未重新授权的驱动器 */
+.ex-side-item.is-dimmed { opacity: 0.55; }
 
 /* 主体 */
 .ex-main { display: flex; flex-direction: column; min-width: 0; }

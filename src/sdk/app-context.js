@@ -147,6 +147,18 @@ export function createAppContext(deps) {
       exists: (p) => fileSystem.exists(p),
       search: (root, kw, o) => fileSystem.search(root, kw, o),
       getDrives: () => fileSystem.getDrives(),
+      /**
+       * 挂载本地真实文件夹为新驱动器（需 Chromium 内核）
+       * @returns {Promise<{drive:string,label:string}|null>} 用户取消时返回 null
+       */
+      mountLocalFolder: () => fileSystem.mountLocalFolder(),
+      /**
+       * 卸载驱动器（系统盘 C: 不可卸载）
+       * @param {string} drive
+       */
+      unmountDrive: (drive) => fileSystem.unmountDrive(drive),
+      /** 当前浏览器是否支持挂载本地文件夹 */
+      isNativeFSSupported: () => fileSystem.isNativeFSSupported(),
       /** 创建媒体 URL，窗口关闭时自动 revoke */
       createObjectURL: async (p) => {
         const { url, revoke } = await fileSystem.createObjectURL(p);
@@ -169,6 +181,8 @@ export function createAppContext(deps) {
     settings: {
       get: (k, d) => settings.get(k, d),
       set: (k, v) => settings.set(k, v),
+      /** 恢复某个设置项为默认值（省略 key 则恢复全部） */
+      reset: (k) => settings.reset(k),
       subscribe: (k, fn) => {
         const off = settings.subscribe(k, fn);
         ctx.onDispose(off);

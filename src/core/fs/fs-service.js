@@ -95,6 +95,14 @@ class FileSystemService {
   }
 
   /**
+   * 当前浏览器是否支持挂载本地文件夹（File System Access API）
+   * @returns {boolean}
+   */
+  isNativeFSSupported() {
+    return NativeFSProvider.isSupported();
+  }
+
+  /**
    * 挂载真实本地文件夹为新驱动器
    * @returns {Promise<{drive:string, label:string}|null>}
    */
