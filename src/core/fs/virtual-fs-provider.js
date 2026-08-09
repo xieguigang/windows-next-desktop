@@ -314,7 +314,13 @@ export class VirtualFSProvider {
    * @param {string|ArrayBuffer|Blob|Uint8Array} data
    */
   async writeFile(path, data) {
-    const { parent, name } = this._parentOf(path);
+    const normalized = P.normalize(path);
+    // 自动创建缺失的父目录（mkdir -p）
+    const parentPath = P.dirname(normalized);
+    if (parentPath && parentPath !== normalized) {
+      this._ensureDir(parentPath);
+    }
+    const { parent, name } = this._parentOf(normalized);
     const existing = parent.children[name];
     if (existing && existing.type === 'directory') throw new Error(`已存在同名目录：${name}`);
     if (existing?.readonly) throw new Error(`文件为只读：${name}`);

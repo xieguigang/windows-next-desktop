@@ -81,7 +81,7 @@ async function boot() {
   // 示例第三方应用（仅在非生产环境中加载）
   if (location.search.includes('demo=1') || location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     try {
-      await import('../examples/hello-app.js');
+      await import('./examples/hello-app.js');
       log.info('已加载示例应用 com.example.hello');
     } catch (e) {
       log.warn('示例应用加载失败', e);
