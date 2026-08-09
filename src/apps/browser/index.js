@@ -60,6 +60,11 @@ async function installAsApp(url, title, ctx) {
 
   // 动态注册 PWA 应用
   try {
+    if (!window.WinNext?.registerApp) {
+      ctx.notify.error('系统不支持动态安装应用');
+      return;
+    }
+
     window.WinNext.registerApp({
       id: appId,
       name: appName,
