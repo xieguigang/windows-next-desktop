@@ -1,13 +1,10 @@
-/* 终端 */
+/* 终端（xterm.js） */
 .tm-root {
   display: flex;
   flex-direction: column;
   height: 100%;
   background: #0c0c0c;
   color: #cccccc;
-  font-family: var(--font-mono);
-  font-size: 13px;
-  line-height: 1.4;
 }
 
 .tm-tabs {
@@ -17,6 +14,7 @@
   border-bottom: 1px solid #2a2a2a;
   padding: 4px 8px;
   gap: 8px;
+  flex-shrink: 0;
 }
 .tm-tab {
   padding: 4px 12px;
@@ -24,61 +22,45 @@
   border-radius: 4px 4px 0 0;
   font-size: 12px;
   color: #888;
+  font-family: var(--font-sans);
 }
 .tm-tab.is-active { background: #0c0c0c; color: #fff; }
 .tm-actions { margin-left: auto; }
 .tm-actions .btn { background: transparent; color: #888; border: 0; cursor: pointer; font-size: 14px; }
 .tm-actions .btn:hover { color: #fff; }
 
-.tm-output {
+.tm-xterm-container {
   flex: 1;
-  overflow-y: auto;
-  padding: 8px 12px;
-  outline: none;
-  white-space: pre-wrap;
-  word-break: break-all;
+  padding: 4px 0;
+  overflow: hidden;
+}
+
+/* xterm.js 覆盖样式 */
+.tm-xterm-container .xterm {
+  height: 100%;
+  padding: 0 8px;
+}
+
+.tm-xterm-container .xterm-viewport {
   scroll-behavior: smooth;
 }
-.tm-line { min-height: 1em; }
-.tm-line.tm-cmd { color: #6cc; }
-.tm-line.tm-err { color: #f87171; }
-.tm-line.tm-info { color: #9ca3af; }
 
-.tm-input-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 12px;
-  border-top: 1px solid #2a2a2a;
-  background: #181818;
-}
-.tm-prompt {
-  color: #6cc;
-  font-family: var(--font-mono);
-  white-space: nowrap;
-}
-.tm-input {
-  flex: 1;
-  border: 0;
-  outline: none;
-  background: transparent;
-  color: #fff;
-  font-family: inherit;
-  font-size: inherit;
-  caret-color: #6cc;
-}
-
-/* 自定义滚动条 */
-.tm-output::-webkit-scrollbar {
+/* 自定义滚动条（xterm 内部） */
+.tm-xterm-container .xterm-viewport::-webkit-scrollbar {
   width: 10px;
 }
-.tm-output::-webkit-scrollbar-track {
+.tm-xterm-container .xterm-viewport::-webkit-scrollbar-track {
   background: transparent;
 }
-.tm-output::-webkit-scrollbar-thumb {
+.tm-xterm-container .xterm-viewport::-webkit-scrollbar-thumb {
   background: #2a2a2a;
   border-radius: 5px;
 }
-.tm-output::-webkit-scrollbar-thumb:hover {
+.tm-xterm-container .xterm-viewport::-webkit-scrollbar-thumb:hover {
   background: #3a3a3a;
+}
+
+/* xterm 光标颜色 */
+.tm-xterm-container .xterm-cursor-layer {
+  /* 由 xterm.js 主题控制 */;
 }
