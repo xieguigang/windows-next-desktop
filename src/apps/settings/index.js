@@ -215,16 +215,6 @@ export default async function mount(ctx) {
       </section>
     `;
 
-    // opacity 滑块需要把 % 转回 ratio 写入设置
-    const opacitySlider = container.querySelector('[data-aero="opacity"]');
-    if (opacitySlider) {
-      opacitySlider.addEventListener('input', () => {
-        ctx.settings.set('appearance.aeroOpacity', Number(opacitySlider.value) / 100);
-        const label = container.querySelector('[data-val="opacity"]');
-        if (label) label.textContent = opacitySlider.value;
-      });
-    }
-
     // 主题
     container.querySelectorAll('[data-theme]').forEach((btn) => {
       btn.addEventListener('click', () => {
@@ -328,7 +318,8 @@ export default async function mount(ctx) {
       slider.addEventListener('input', () => {
         const k = slider.dataset.aero;
         const v = Number(slider.value);
-        ctx.settings.set(`appearance.aero${k.charAt(0).toUpperCase() + k.slice(1)}`, v);
+        // opacity 滑杆值（0~100）需转为 0~1 比例
+        ctx.settings.set(`appearance.aero${k.charAt(0).toUpperCase() + k.slice(1)}`, k === 'opacity' ? v / 100 : v);
         const label = container.querySelector(`[data-val="${k}"]`);
         if (label) label.textContent = v;
       });

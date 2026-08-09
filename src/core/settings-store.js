@@ -18,17 +18,17 @@ export const DEFAULT_SETTINGS = Object.freeze({
   'appearance.theme': 'light',              // light | dark | auto
   'appearance.accent': '#0078D4',
   'appearance.aeroEnabled': true,
-  'appearance.aeroBlur': 30,                // px
-  'appearance.aeroSaturate': 180,           // %
-  'appearance.aeroOpacity': 0.62,           // 0.2 ~ 0.95
+  'appearance.aeroBlur': 4,                 // px
+  'appearance.aeroSaturate': 0,             // %
+  'appearance.aeroOpacity': 0.2,            // 0.2 ~ 0.95
   'appearance.reduceMotion': false,
   'appearance.uiScale': 100,                // %
 
   /* 透明度（独立于 Aero 底色透明度，逐层可调） */
   'appearance.titlebarOpacity': 1,          // 0.3 ~ 1，标题栏相对窗体的通透程度
-  'appearance.inactiveOpacity': 0.92,       // 0.4 ~ 1，窗口失去焦点时的整体不透明度
-  'appearance.taskbarOpacity': 0.58,        // 0.2 ~ 1，任务栏底色不透明度
-  'appearance.menuOpacity': 0.76,           // 0.3 ~ 1，菜单 / 弹出层底色不透明度
+  'appearance.inactiveOpacity': 1,          // 0.4 ~ 1，窗口失去焦点时的整体不透明度
+  'appearance.taskbarOpacity': 0.2,         // 0.2 ~ 1，任务栏底色不透明度
+  'appearance.menuOpacity': 1,              // 0.3 ~ 1，菜单 / 弹出层底色不透明度
 
   /* 壁纸 */
   'wallpaper.mode': 'gradient',             // gradient | image | video | html
@@ -71,17 +71,18 @@ const CSS_VAR_MAP = {
   },
   'appearance.aeroBlur': (v, root) => root.style.setProperty('--aero-blur', `${v}px`),
   'appearance.aeroSaturate': (v, root) => root.style.setProperty('--aero-saturate', `${v}%`),
-  'appearance.aeroOpacity': (v, root) => root.style.setProperty('--aero-opacity', String(v)),
+  'appearance.aeroOpacity': (v, root) =>
+    root.style.setProperty('--aero-opacity', String(clamp01(v, 0.2))),
   'appearance.uiScale': (v, root) => root.style.setProperty('--ui-scale', String(v / 100)),
 
   'appearance.titlebarOpacity': (v, root) =>
     root.style.setProperty('--titlebar-opacity', String(clamp01(v, 1))),
   'appearance.inactiveOpacity': (v, root) =>
-    root.style.setProperty('--window-inactive-opacity', String(clamp01(v, 0.92))),
+    root.style.setProperty('--window-inactive-opacity', String(clamp01(v, 1))),
   'appearance.taskbarOpacity': (v, root) =>
-    root.style.setProperty('--taskbar-opacity', String(clamp01(v, 0.58))),
+    root.style.setProperty('--taskbar-opacity', String(clamp01(v, 0.2))),
   'appearance.menuOpacity': (v, root) =>
-    root.style.setProperty('--menu-opacity', String(clamp01(v, 0.76))),
+    root.style.setProperty('--menu-opacity', String(clamp01(v, 1))),
 };
 
 /**
