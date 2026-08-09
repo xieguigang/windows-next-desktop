@@ -36,7 +36,7 @@ COMMANDS.ls = {
     const sortArg = args.find((a) => a.startsWith('--sort='));
     const sortBy = sortArg ? sortArg.split('=')[1] : 'name';
     const filtered = args.filter((a) => !a.startsWith('-') && !a.startsWith('--'));
-    const target = filtered[0];
+    const target = filtered[0] || null;
 
     const path = target
       ? (target.startsWith(':') || /^[a-zA-Z]:/.test(target) ? target : P.join(cwd, target))

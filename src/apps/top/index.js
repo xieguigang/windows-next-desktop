@@ -279,9 +279,11 @@ export default async function mount(ctx) {
   render();
 
   // ── 清理 ────────────────────────────────────────────────
-  ctx.onCleanup(() => {
-    clearInterval(timer);
-    unsubStarted();
-    unsubEnded();
+  ctx.events.on('window:closed', (payload) => {
+    if (payload.window === ctx.window) {
+      clearInterval(timer);
+      unsubStarted();
+      unsubEnded();
+    }
   });
 }
