@@ -1,0 +1,72 @@
+[   56818ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:8080/assets/media/sample.mp4:0
+[   56820ms] [WARNING] %c03:00:51.648 %c[Settings] color:#A0A0A0 color:#9D5D00 未知设置项 "app.media-player.tracks"，仍会写入但不受默认值保护 @ http://localhost:8080/src/core/logger.js:50
+[   56820ms] [WARNING] %c03:00:51.649 %c[Settings] color:#A0A0A0 color:#9D5D00 未知设置项 "app.media-player.currentIndex"，仍会写入但不受默认值保护 @ http://localhost:8080/src/core/logger.js:50
+[   56820ms] [WARNING] %c03:00:51.649 %c[Settings] color:#A0A0A0 color:#9D5D00 未知设置项 "app.media-player.mode"，仍会写入但不受默认值保护 @ http://localhost:8080/src/core/logger.js:50
+[   56820ms] [WARNING] %c03:00:51.649 %c[Settings] color:#A0A0A0 color:#9D5D00 未知设置项 "app.media-player.volume"，仍会写入但不受默认值保护 @ http://localhost:8080/src/core/logger.js:50
+[   56861ms] [ERROR] %c03:00:51.690 %c[Boot] color:#A0A0A0 color:#C42B1C;font-weight:600 未处理的 Promise 拒绝 NotSupportedError: Failed to load because no supported source was found. @ :0
+[   56862ms] Failed to load because no supported source was found.
+[   85821ms] [WARNING] %c03:01:20.650 %c[Settings] color:#A0A0A0 color:#9D5D00 未知设置项 "app.media-player.tracks"，仍会写入但不受默认值保护 @ http://localhost:8080/src/core/logger.js:50
+[   85822ms] [WARNING] %c03:01:20.650 %c[Settings] color:#A0A0A0 color:#9D5D00 未知设置项 "app.media-player.currentIndex"，仍会写入但不受默认值保护 @ http://localhost:8080/src/core/logger.js:50
+[   85822ms] [WARNING] %c03:01:20.650 %c[Settings] color:#A0A0A0 color:#9D5D00 未知设置项 "app.media-player.mode"，仍会写入但不受默认值保护 @ http://localhost:8080/src/core/logger.js:50
+[   85822ms] [WARNING] %c03:01:20.650 %c[Settings] color:#A0A0A0 color:#9D5D00 未知设置项 "app.media-player.volume"，仍会写入但不受默认值保护 @ http://localhost:8080/src/core/logger.js:50
+[  104572ms] [WARNING] %c03:01:39.401 %c[Settings] color:#A0A0A0 color:#9D5D00 未知设置项 "app.media-player.tracks"，仍会写入但不受默认值保护 @ http://localhost:8080/src/core/logger.js:50
+[  104572ms] [WARNING] %c03:01:39.401 %c[Settings] color:#A0A0A0 color:#9D5D00 未知设置项 "app.media-player.currentIndex"，仍会写入但不受默认值保护 @ http://localhost:8080/src/core/logger.js:50
+[  104572ms] [WARNING] %c03:01:39.401 %c[Settings] color:#A0A0A0 color:#9D5D00 未知设置项 "app.media-player.mode"，仍会写入但不受默认值保护 @ http://localhost:8080/src/core/logger.js:50
+[  104572ms] [WARNING] %c03:01:39.401 %c[Settings] color:#A0A0A0 color:#9D5D00 未知设置项 "app.media-player.volume"，仍会写入但不受默认值保护 @ http://localhost:8080/src/core/logger.js:50
+[  104880ms] [WARNING] %c03:01:39.708 %c[Settings] color:#A0A0A0 color:#9D5D00 未知设置项 "app.media-player.tracks"，仍会写入但不受默认值保护 @ http://localhost:8080/src/core/logger.js:50
+[  104880ms] [WARNING] %c03:01:39.708 %c[Settings] color:#A0A0A0 color:#9D5D00 未知设置项 "app.media-player.currentIndex"，仍会写入但不受默认值保护 @ http://localhost:8080/src/core/logger.js:50
+[  104880ms] [WARNING] %c03:01:39.708 %c[Settings] color:#A0A0A0 color:#9D5D00 未知设置项 "app.media-player.mode"，仍会写入但不受默认值保护 @ http://localhost:8080/src/core/logger.js:50
+[  104880ms] [WARNING] %c03:01:39.708 %c[Settings] color:#A0A0A0 color:#9D5D00 未知设置项 "app.media-player.volume"，仍会写入但不受默认值保护 @ http://localhost:8080/src/core/logger.js:50
+[  104886ms] [WARNING] %c03:01:39.714 %c[Settings] color:#A0A0A0 color:#9D5D00 未知设置项 "app.media-player.tracks"，仍会写入但不受默认值保护 @ http://localhost:8080/src/core/logger.js:50
+[  104886ms] [WARNING] %c03:01:39.714 %c[Settings] color:#A0A0A0 color:#9D5D00 未知设置项 "app.media-player.currentIndex"，仍会写入但不受默认值保护 @ http://localhost:8080/src/core/logger.js:50
+[  104886ms] [WARNING] %c03:01:39.715 %c[Settings] color:#A0A0A0 color:#9D5D00 未知设置项 "app.media-player.mode"，仍会写入但不受默认值保护 @ http://localhost:8080/src/core/logger.js:50
+[  104886ms] [WARNING] %c03:01:39.715 %c[Settings] color:#A0A0A0 color:#9D5D00 未知设置项 "app.media-player.volume"，仍会写入但不受默认值保护 @ http://localhost:8080/src/core/logger.js:50
+[  104889ms] [WARNING] %c03:01:39.718 %c[Settings] color:#A0A0A0 color:#9D5D00 未知设置项 "app.media-player.tracks"，仍会写入但不受默认值保护 @ http://localhost:8080/src/core/logger.js:50
+[  104889ms] [WARNING] %c03:01:39.718 %c[Settings] color:#A0A0A0 color:#9D5D00 未知设置项 "app.media-player.currentIndex"，仍会写入但不受默认值保护 @ http://localhost:8080/src/core/logger.js:50
+[  104889ms] [WARNING] %c03:01:39.718 %c[Settings] color:#A0A0A0 color:#9D5D00 未知设置项 "app.media-player.mode"，仍会写入但不受默认值保护 @ http://localhost:8080/src/core/logger.js:50
+[  104889ms] [WARNING] %c03:01:39.718 %c[Settings] color:#A0A0A0 color:#9D5D00 未知设置项 "app.media-player.volume"，仍会写入但不受默认值保护 @ http://localhost:8080/src/core/logger.js:50
+[  118642ms] [WARNING] %c03:01:53.470 %c[Settings] color:#A0A0A0 color:#9D5D00 未知设置项 "app.media-player.tracks"，仍会写入但不受默认值保护 @ http://localhost:8080/src/core/logger.js:50
+[  118642ms] [WARNING] %c03:01:53.470 %c[Settings] color:#A0A0A0 color:#9D5D00 未知设置项 "app.media-player.currentIndex"，仍会写入但不受默认值保护 @ http://localhost:8080/src/core/logger.js:50
+[  118642ms] [WARNING] %c03:01:53.470 %c[Settings] color:#A0A0A0 color:#9D5D00 未知设置项 "app.media-player.mode"，仍会写入但不受默认值保护 @ http://localhost:8080/src/core/logger.js:50
+[  118642ms] [WARNING] %c03:01:53.470 %c[Settings] color:#A0A0A0 color:#9D5D00 未知设置项 "app.media-player.volume"，仍会写入但不受默认值保护 @ http://localhost:8080/src/core/logger.js:50
+[  122297ms] [WARNING] %c03:01:57.126 %c[Settings] color:#A0A0A0 color:#9D5D00 未知设置项 "app.media-player.tracks"，仍会写入但不受默认值保护 @ http://localhost:8080/src/core/logger.js:50
+[  122297ms] [WARNING] %c03:01:57.126 %c[Settings] color:#A0A0A0 color:#9D5D00 未知设置项 "app.media-player.currentIndex"，仍会写入但不受默认值保护 @ http://localhost:8080/src/core/logger.js:50
+[  122298ms] [WARNING] %c03:01:57.126 %c[Settings] color:#A0A0A0 color:#9D5D00 未知设置项 "app.media-player.mode"，仍会写入但不受默认值保护 @ http://localhost:8080/src/core/logger.js:50
+[  122298ms] [WARNING] %c03:01:57.126 %c[Settings] color:#A0A0A0 color:#9D5D00 未知设置项 "app.media-player.volume"，仍会写入但不受默认值保护 @ http://localhost:8080/src/core/logger.js:50
+[  122327ms] [WARNING] %c03:01:57.155 %c[Settings] color:#A0A0A0 color:#9D5D00 未知设置项 "app.media-player.tracks"，仍会写入但不受默认值保护 @ http://localhost:8080/src/core/logger.js:50
+[  122327ms] [WARNING] %c03:01:57.155 %c[Settings] color:#A0A0A0 color:#9D5D00 未知设置项 "app.media-player.currentIndex"，仍会写入但不受默认值保护 @ http://localhost:8080/src/core/logger.js:50
+[  122327ms] [WARNING] %c03:01:57.155 %c[Settings] color:#A0A0A0 color:#9D5D00 未知设置项 "app.media-player.mode"，仍会写入但不受默认值保护 @ http://localhost:8080/src/core/logger.js:50
+[  122327ms] [WARNING] %c03:01:57.156 %c[Settings] color:#A0A0A0 color:#9D5D00 未知设置项 "app.media-player.volume"，仍会写入但不受默认值保护 @ http://localhost:8080/src/core/logger.js:50
+[  122358ms] [WARNING] %c03:01:57.187 %c[Settings] color:#A0A0A0 color:#9D5D00 未知设置项 "app.media-player.tracks"，仍会写入但不受默认值保护 @ http://localhost:8080/src/core/logger.js:50
+[  122358ms] [WARNING] %c03:01:57.187 %c[Settings] color:#A0A0A0 color:#9D5D00 未知设置项 "app.media-player.currentIndex"，仍会写入但不受默认值保护 @ http://localhost:8080/src/core/logger.js:50
+[  122358ms] [WARNING] %c03:01:57.187 %c[Settings] color:#A0A0A0 color:#9D5D00 未知设置项 "app.media-player.mode"，仍会写入但不受默认值保护 @ http://localhost:8080/src/core/logger.js:50
+[  122358ms] [WARNING] %c03:01:57.187 %c[Settings] color:#A0A0A0 color:#9D5D00 未知设置项 "app.media-player.volume"，仍会写入但不受默认值保护 @ http://localhost:8080/src/core/logger.js:50
+[  129528ms] [WARNING] %c03:02:04.357 %c[Settings] color:#A0A0A0 color:#9D5D00 未知设置项 "app.media-player.tracks"，仍会写入但不受默认值保护 @ http://localhost:8080/src/core/logger.js:50
+[  129528ms] [WARNING] %c03:02:04.357 %c[Settings] color:#A0A0A0 color:#9D5D00 未知设置项 "app.media-player.currentIndex"，仍会写入但不受默认值保护 @ http://localhost:8080/src/core/logger.js:50
+[  129528ms] [WARNING] %c03:02:04.357 %c[Settings] color:#A0A0A0 color:#9D5D00 未知设置项 "app.media-player.mode"，仍会写入但不受默认值保护 @ http://localhost:8080/src/core/logger.js:50
+[  129528ms] [WARNING] %c03:02:04.357 %c[Settings] color:#A0A0A0 color:#9D5D00 未知设置项 "app.media-player.volume"，仍会写入但不受默认值保护 @ http://localhost:8080/src/core/logger.js:50
+[  136110ms] [ERROR] Failed to load resource: net::ERR_REQUEST_RANGE_NOT_SATISFIABLE @ blob:http://localhost:8080/e1d1d656-98e6-4a19-a532-47bf8c12c02c:0
+[  136111ms] [ERROR] %c03:02:10.939 %c[Boot] color:#A0A0A0 color:#C42B1C;font-weight:600 未处理的 Promise 拒绝 NotSupportedError: Failed to load because no supported source was found. @ :0
+[  136110ms] Failed to load because no supported source was found.
+[  154385ms] [WARNING] %c03:02:29.213 %c[Settings] color:#A0A0A0 color:#9D5D00 未知设置项 "app.media-player.tracks"，仍会写入但不受默认值保护 @ http://localhost:8080/src/core/logger.js:50
+[  154385ms] [WARNING] %c03:02:29.214 %c[Settings] color:#A0A0A0 color:#9D5D00 未知设置项 "app.media-player.currentIndex"，仍会写入但不受默认值保护 @ http://localhost:8080/src/core/logger.js:50
+[  154385ms] [WARNING] %c03:02:29.214 %c[Settings] color:#A0A0A0 color:#9D5D00 未知设置项 "app.media-player.mode"，仍会写入但不受默认值保护 @ http://localhost:8080/src/core/logger.js:50
+[  154385ms] [WARNING] %c03:02:29.214 %c[Settings] color:#A0A0A0 color:#9D5D00 未知设置项 "app.media-player.volume"，仍会写入但不受默认值保护 @ http://localhost:8080/src/core/logger.js:50
+[  155150ms] [WARNING] %c03:02:29.979 %c[Settings] color:#A0A0A0 color:#9D5D00 未知设置项 "app.media-player.tracks"，仍会写入但不受默认值保护 @ http://localhost:8080/src/core/logger.js:50
+[  155150ms] [WARNING] %c03:02:29.979 %c[Settings] color:#A0A0A0 color:#9D5D00 未知设置项 "app.media-player.currentIndex"，仍会写入但不受默认值保护 @ http://localhost:8080/src/core/logger.js:50
+[  155150ms] [WARNING] %c03:02:29.979 %c[Settings] color:#A0A0A0 color:#9D5D00 未知设置项 "app.media-player.mode"，仍会写入但不受默认值保护 @ http://localhost:8080/src/core/logger.js:50
+[  155150ms] [WARNING] %c03:02:29.979 %c[Settings] color:#A0A0A0 color:#9D5D00 未知设置项 "app.media-player.volume"，仍会写入但不受默认值保护 @ http://localhost:8080/src/core/logger.js:50
+[  155153ms] [ERROR] Failed to load resource: net::ERR_REQUEST_RANGE_NOT_SATISFIABLE @ blob:http://localhost:8080/d3ff4d53-9796-4303-b5c5-801e8016c1fc:0
+[  155154ms] [ERROR] %c03:02:29.982 %c[Boot] color:#A0A0A0 color:#C42B1C;font-weight:600 未处理的 Promise 拒绝 NotSupportedError: Failed to load because no supported source was found. @ :0
+[  155155ms] Failed to load because no supported source was found.
+[  187116ms] [WARNING] %c03:03:01.945 %c[Settings] color:#A0A0A0 color:#9D5D00 未知设置项 "app.media-player.tracks"，仍会写入但不受默认值保护 @ :0
+[  187117ms] [WARNING] %c03:03:01.945 %c[Settings] color:#A0A0A0 color:#9D5D00 未知设置项 "app.media-player.currentIndex"，仍会写入但不受默认值保护 @ :0
+[  187117ms] [WARNING] %c03:03:01.945 %c[Settings] color:#A0A0A0 color:#9D5D00 未知设置项 "app.media-player.mode"，仍会写入但不受默认值保护 @ :0
+[  187117ms] [WARNING] %c03:03:01.945 %c[Settings] color:#A0A0A0 color:#9D5D00 未知设置项 "app.media-player.volume"，仍会写入但不受默认值保护 @ :0
+[  187859ms] [WARNING] %c03:03:02.688 %c[Settings] color:#A0A0A0 color:#9D5D00 未知设置项 "app.media-player.tracks"，仍会写入但不受默认值保护 @ :0
+[  187859ms] [WARNING] %c03:03:02.688 %c[Settings] color:#A0A0A0 color:#9D5D00 未知设置项 "app.media-player.currentIndex"，仍会写入但不受默认值保护 @ :0
+[  187859ms] [WARNING] %c03:03:02.688 %c[Settings] color:#A0A0A0 color:#9D5D00 未知设置项 "app.media-player.mode"，仍会写入但不受默认值保护 @ :0
+[  187859ms] [WARNING] %c03:03:02.688 %c[Settings] color:#A0A0A0 color:#9D5D00 未知设置项 "app.media-player.volume"，仍会写入但不受默认值保护 @ :0
+[  187863ms] [ERROR] Failed to load resource: net::ERR_REQUEST_RANGE_NOT_SATISFIABLE @ blob:http://localhost:8080/477d3c93-8136-4611-a038-139844f07e94:0
+[  187863ms] [ERROR] %c03:03:02.691 %c[Boot] color:#A0A0A0 color:#C42B1C;font-weight:600 未处理的 Promise 拒绝 NotSupportedError: Failed to load because no supported source was found. @ :0
+[  187863ms] Failed to load because no supported source was found.

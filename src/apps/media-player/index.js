@@ -123,6 +123,70 @@ export default async function mount(ctx) {
    */
   const sourceNodes = new Map();
 
+  // ── 播放请求串行化 ───────────────────────────────────
+  /**
+   * 播放代际令牌：每次新的播放请求自增，旧请求在 await 恢复后校验令牌，
+   * 若已过期则自行作废，避免「旧请求的 DOM 赋值覆盖新请求」造成错乱。
+   * 这是修复 The play() request was interrupted by a call to pause() 的核心。
+   */
+  let playToken = 0;
+  /**
+   * 每个媒体元素当前 pending 的 play() promise。
+   * 必须在 pause 之前等待它 settle，否则浏览器会中止播放请求并抛 AbortError。
+   * @type {Map<HTMLMediaElement, Promise<void>>}
+   */
+  const pendingPlays = new Map();
+
+  /**
+   * 判定是否为「播放请求被取代」的正常中断。
+   * err?.name === 'AbortError' 或 message 含 interrupted 都属此列，
+   * 代表被新的播放请求合法取代，应静默处理，不应弹「播放失败」提示。
+   * @param {*} err
+   * @returns {boolean}
+   */
+  function isAbortError(err) {
+    if (!err) return false;
+    if (err.name === 'AbortError') return true;
+    return /interrupted by a call to (pause|play)/i.test(err.message || '');
+  }
+
+  /**
+   * 安全播放：登记 pending promise，settle 后自动清除，
+   * 把 AbortError 归一化为 { ok:false, aborted:true }，不向外抛。
+   * @param {HTMLMediaElement} el
+   * @returns {Promise<{ok:boolean, err?:Error, aborted?:boolean}>}
+   */
+  function safePlay(el) {
+    const p = el.play().catch((err) => {
+      if (pendingPlays.get(el) === p) pendingPlays.delete(el);
+      if (isAbortError(err)) return { ok: false, err, aborted: true };
+      throw err;
+    }).then((r) => {
+      if (pendingPlays.get(el) === p) pendingPlays.delete(el);
+      if (r && r.aborted) return r; // 已被 play().catch 包装
+      return { ok: true };
+    });
+    pendingPlays.set(el, p);
+    return p;
+  }
+
+  /**
+   * 安全暂停：先等待该元素 pending 的 play 完成（吞掉 AbortError），
+   * 再 pause，确保永远不在 play 未 settle 时打断它。
+   * @param {HTMLMediaElement} el
+   * @returns {Promise<void>}
+   */
+  async function safePause(el) {
+    const p = pendingPlays.get(el);
+    if (p) { try { await p; } catch { /* 已被 safePlay 归一化，忽略 */ } }
+    el.pause();
+  }
+
+  /** 在用户手势栈内恢复 AudioContext，确保播放时有声音 */
+  function resumeAudioCtx() {
+    if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume().catch(() => {});
+  }
+
   /**
    * 确保当前 player 已接入分析器。
    * @param {HTMLMediaElement} el 目标媒体元素
@@ -240,9 +304,10 @@ export default async function mount(ctx) {
   function setPlayerFor(kind) {
     const isVideo = kind === 'video';
     coverEl.classList.toggle('is-video', isVideo);
-    // 切换前暂停另一个元素，防止两路声音重叠
+    // 切换前暂停另一个元素，防止两路声音重叠。
+    // 用 safePause 等待其 pending play 完成，避免打断在途的播放请求。
     const other = isVideo ? audio : video;
-    if (!other.paused) other.pause();
+    safePause(other);
     player = isVideo ? video : audio;
   }
 
@@ -261,6 +326,8 @@ export default async function mount(ctx) {
     if (i < 0 || i >= tracks.length) return;
     const t = tracks[i];
     currentIndex = i;
+    // 新请求：自增代际令牌，使任何在途的旧请求在 await 恢复后作废
+    const token = ++playToken;
     setPlayerFor(t.kind);
 
     let src;
@@ -270,19 +337,32 @@ export default async function mount(ctx) {
       ctx.notify.error(`无法读取 ${t.name}：${err?.message || err}`);
       return;
     }
+    // 期间若发起过新的播放请求，旧的这次直接放弃，避免覆盖新源
+    if (token !== playToken) return;
 
+    // 切源前先安全暂停，等待在途 play 完成，避免直接覆盖 src 触发 abort
+    await safePause(player);
+    if (token !== playToken) return;
     player.src = src;
     player.volume = volume;
     coverEl.classList.toggle('is-spinning', t.kind === 'audio');
     titleEl.textContent = t.name;
     artistEl.textContent = P.dirname(t.path);
-    try {
-      await player.play();
-      ensureAudioGraph(player);
+    // 音频图提前到 play 之前建立（此时仍可能处在用户手势栈内），
+    // 保证 AudioContext 能 resume，播放有声音且频谱联动
+    ensureAudioGraph(player);
+    const res = await safePlay(player);
+    if (token !== playToken) return; // 已被新请求取代
+    if (res.ok) {
       if (!rafId) drawVisualizer();
       playBtn.innerHTML = pauseIcon();
-    } catch (err) {
-      ctx.notify.warning('播放失败：' + (err?.message || err));
+    } else if (!res.aborted) {
+      // 真实播放失败（文件损坏、解码失败、自动播放被拦截）才提示
+      if (res.err?.name === 'NotAllowedError') {
+        ctx.notify.warning('浏览器已阻止自动播放，请点击播放按钮');
+      } else {
+        ctx.notify.warning('播放失败：' + (res.err?.message || res.err));
+      }
     }
     saveState();
     renderPlaylist();
@@ -290,7 +370,7 @@ export default async function mount(ctx) {
 
   function stop() {
     for (const el of [audio, video]) {
-      el.pause();
+      safePause(el);
       el.removeAttribute('src');
       el.load();
     }
@@ -306,14 +386,25 @@ export default async function mount(ctx) {
     if (currentIndex < 0 && tracks.length) return playIndex(0);
     if (player.paused) {
       // 本次点击是用户手势，可以安全建立 / 恢复音频图
-      player.play().then(() => {
-        playBtn.innerHTML = pauseIcon();
-        ensureAudioGraph(player);
-        if (!rafId) drawVisualizer();
-      }).catch((err) => ctx.notify.warning('播放失败：' + (err?.message || err)));
-      if (player === audio) coverEl.classList.add('is-spinning');
+      resumeAudioCtx();
+      const token = ++playToken;
+      ensureAudioGraph(player);
+      safePlay(player).then((res) => {
+        if (token !== playToken) return;
+        if (res.ok) {
+          playBtn.innerHTML = pauseIcon();
+          if (!rafId) drawVisualizer();
+          if (player === audio) coverEl.classList.add('is-spinning');
+        } else if (!res.aborted) {
+          if (res.err?.name === 'NotAllowedError') {
+            ctx.notify.warning('浏览器已阻止自动播放，请点击播放按钮');
+          } else {
+            ctx.notify.warning('播放失败：' + (res.err?.message || res.err));
+          }
+        }
+      });
     } else {
-      player.pause();
+      safePause(player);
       playBtn.innerHTML = playIcon();
       coverEl.classList.remove('is-spinning');
     }
@@ -370,7 +461,7 @@ export default async function mount(ctx) {
       if (el !== player) return;
       if (mode === 'repeat-one') {
         el.currentTime = 0;
-        el.play().catch(() => {});
+        safePlay(el);
         return;
       }
       next();
@@ -563,16 +654,22 @@ export default async function mount(ctx) {
   applyVolume();
   renderPlaylist();
 
-  // 恢复上次的曲目但不自动播放：浏览器的自动播放策略会拒绝
-  // 无用户手势的 play()，硬调用只会弹出无意义的失败提示。
-  if (currentIndex >= 0 && tracks[currentIndex]) {
-    const t = tracks[currentIndex];
-    setPlayerFor(t.kind);
-    titleEl.textContent = t.name;
-    artistEl.textContent = P.dirname(t.path);
-    resolveUrl(t)
-      .then((src) => { player.src = src; })
-      .catch(() => { /* 文件可能已被删除，等用户点击时再报错 */ });
+  // 文件关联启动：从资源管理器双击媒体文件打开时，ctx.args.filePath 携带路径。
+  // 直接入列并播放（本次启动即为用户手势，可安全恢复音频图）。
+  if (ctx.args?.filePath) {
+    await addPaths([ctx.args.filePath]);
+  } else {
+    // 恢复上次的曲目但不自动播放：浏览器的自动播放策略会拒绝
+    // 无用户手势的 play()，硬调用只会弹出无意义的失败提示。
+    if (currentIndex >= 0 && tracks[currentIndex]) {
+      const t = tracks[currentIndex];
+      setPlayerFor(t.kind);
+      titleEl.textContent = t.name;
+      artistEl.textContent = P.dirname(t.path);
+      resolveUrl(t)
+        .then((src) => { player.src = src; })
+        .catch(() => { /* 文件可能已被删除，等用户点击时再报错 */ });
+    }
   }
 
   // 渲染画布尺寸
@@ -590,12 +687,13 @@ export default async function mount(ctx) {
 
   ctx.onDispose(() => {
     cancelAnimationFrame(rafId);
+    // 先安全暂停，避免在途 play 被 close/remove 打断而抛未捕获的 AbortError
+    safePause(audio);
+    safePause(video);
     for (const [, n] of sourceNodes) n.disconnect();
     sourceNodes.clear();
     audioCtx?.close();
-    audio.pause();
     audio.remove();
-    video.pause();
   });
 
   ctx.setPreviewProvider(() => {
