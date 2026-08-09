@@ -12,6 +12,24 @@
 <script src="https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/lib/xterm.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@xterm/addon-fit@0.11.0/lib/addon-fit.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@xterm/addon-web-links@0.11.0/lib/addon-web-links.js"></script>
+<script>
+  // 诊断并桥接 xterm.js 全局变量
+  // 原因：xterm v5.x UMD 使用 globalThis，addon 使用 self，
+  // 某些环境下需要显式桥接到 window 供 ES module 访问
+  (function() {
+    var scope = (typeof globalThis !== 'undefined') ? globalThis
+      : (typeof self !== 'undefined') ? self
+      : (typeof window !== 'undefined') ? window : {};
+    // 确保 window 上一定有这些构造函数
+    if (!window.__xterm_ready) {
+      window.__xterm_ready = true;
+      if (typeof scope.Terminal === 'function') window.Terminal = scope.Terminal;
+      if (typeof scope.FitAddon === 'function') window.FitAddon = scope.FitAddon;
+      if (typeof scope.WebLinksAddon === 'function') window.WebLinksAddon = scope.WebLinksAddon;
+      console.log('[xterm-bridge] Terminal=' + typeof window.Terminal + ', FitAddon=' + typeof window.FitAddon + ', WebLinksAddon=' + typeof window.WebLinksAddon);
+    }
+  })();
+</script>
 <link rel="stylesheet" href="src/styles/variables.css">
 <link rel="stylesheet" href="src/styles/base.css">
 <link rel="stylesheet" href="src/styles/window.css">
