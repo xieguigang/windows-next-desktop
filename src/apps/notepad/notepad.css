@@ -1,0 +1,87 @@
+/* 记事本 */
+.np-root {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  font-family: var(--font-ui);
+}
+
+.np-toolbar {
+  display: flex;
+  gap: 8px;
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-elev);
+  align-items: center;
+  flex-wrap: wrap;
+}
+.np-toolbar .btn {
+  padding: 4px 10px;
+  font-size: 12px;
+  border-radius: 4px;
+  border: 0;
+  background: transparent;
+  color: var(--text-primary);
+  cursor: pointer;
+}
+.np-toolbar .btn:hover { background: var(--bg-hover); }
+.np-view { margin-left: auto; display: flex; gap: 12px; align-items: center; font-size: 12px; }
+.np-check { display: flex; gap: 4px; align-items: center; }
+.np-zoom { display: flex; gap: 4px; align-items: center; color: var(--text-secondary); }
+.np-zoom input[type="number"] { width: 48px; }
+.np-zoom select { padding: 2px 4px; }
+
+.np-finder {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 6px 10px;
+  background: var(--bg-elev);
+  border-bottom: 1px solid var(--border);
+}
+.np-finder[hidden] { display: none; }
+.np-find-row { display: flex; gap: 6px; align-items: center; }
+.np-find, .np-replace {
+  flex: 1;
+  padding: 4px 8px;
+  font: inherit;
+  font-size: 12px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  outline: none;
+}
+.np-find:focus, .np-replace:focus { border-color: var(--accent); }
+.np-find-close { font-size: 14px; padding: 2px 8px; }
+
+.np-textarea {
+  flex: 1;
+  border: 0;
+  outline: none;
+  padding: 14px 18px;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  line-height: 1.55;
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  resize: none;
+  tab-size: 2;
+}
+.np-textarea::selection { background: var(--accent-soft); }
+
+.np-status {
+  display: flex;
+  gap: 16px;
+  padding: 4px 10px;
+  border-top: 1px solid var(--border);
+  background: var(--bg-elev);
+  font-size: 11px;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+.np-state { color: var(--text-secondary); }
+.np-state[data-dirty="true"] { color: var(--warning); }
+.np-enc { font-family: var(--font-mono); }
