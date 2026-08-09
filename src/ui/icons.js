@@ -123,6 +123,12 @@ const APP_GLYPHS = {
     <circle cx="12" cy="12" r="7.4" fill="#F26522"/>
     <circle cx="12" cy="12" r="5.4" fill="#fff"/>
     <path d="M10.4 8.9 15.6 12l-5.2 3.1V8.9Z" fill="#1F5FA8"/>`,
+  imageViewer: `
+    <rect x="2.4" y="4.2" width="19.2" height="15.6" rx="2" fill="#F7FBFF"/>
+    <rect x="2.4" y="4.2" width="19.2" height="15.6" rx="2" fill="none" stroke="#B9D6F2" stroke-width="1.1"/>
+    <circle cx="8.1" cy="9.4" r="1.9" fill="#FFC845"/>
+    <path d="M4 17.6l4.6-5.2 3.3 3.6 3-3.2 5.1 4.8H4Z" fill="#3A7BD5"/>
+    <path d="M11.9 16l3-3.2 5.1 4.8h-5.2L11.9 16Z" fill="#7FB2E8"/>`,
   notepad: `
     <path d="M5 2.6h9.4L19.6 8v13.4a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V3.6a1 1 0 0 1 1-1Z" fill="#F7FBFF"/>
     <path d="M14.4 2.6 19.6 8h-4.6a.6.6 0 0 1-.6-.6V2.6Z" fill="#B9D6F2"/>

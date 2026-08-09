@@ -11,7 +11,7 @@
  */
 
 import * as P from '../../core/fs/path-utils.js';
-import { iconForExtension } from '../../ui/icons.js';
+import { iconForExtension, getIcon } from '../../ui/icons.js';
 
 const PLAY_MODES = ['sequence', 'repeat-one', 'shuffle'];
 const AUDIO_EXTS = ['mp3', 'wav', 'ogg', 'flac', 'm4a', 'aac'];
@@ -194,7 +194,7 @@ export default async function mount(ctx) {
       if (i === currentIndex) row.classList.add('is-active');
       row.innerHTML = `
         <span class="mp-track-num">${i + 1}</span>
-        <span class="mp-track-icon" title="${t.kind === 'video' ? '视频' : '音频'}">${iconForExtension(P.extname(t.path).slice(1))}</span>
+        <span class="mp-track-icon" title="${t.kind === 'video' ? '视频' : '音频'}">${getIcon(iconForExtension(P.extname(t.path).slice(1)), 16)}</span>
         <span class="mp-track-name">${escapeHtml(t.name)}</span>
         <span class="mp-track-dur">${t.duration ? fmt(t.duration) : ''}</span>
         <button class="mp-track-remove" aria-label="移除">×</button>`;

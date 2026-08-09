@@ -80,6 +80,18 @@ export const BUILTIN_APPS = [
     showOnDesktop: true,
   },
   {
+    id: 'image-viewer',
+    name: '图片查看器',
+    icon: 'imageViewer',
+    description: '查看图片，支持缩放、旋转与翻页',
+    category: '媒体',
+    entry: '../apps/image-viewer/index.js',
+    defaultSize: { width: 960, height: 680 },
+    minSize: { width: 480, height: 360 },
+    fileExtensions: ['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp', 'svg', 'ico'],
+    showOnDesktop: false,
+  },
+  {
     id: 'task-manager',
     name: '任务管理器',
     icon: 'taskManager',
