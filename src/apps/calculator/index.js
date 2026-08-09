@@ -454,6 +454,11 @@ export default async function mount(ctx) {
     ctx.onDispose(() => chart?.dispose());
   }
 
+  // 同步已恢复模式的按钮高亮（模式来自持久化设置，未必是「标准」）
+  [...root.querySelectorAll('.calc-mode button')].forEach((b) => b.classList.toggle('is-active', b.dataset.mode === mode));
+  // 直接以绘图模式启动时同样需要加宽
+  if (mode === 'plot') enterPlotLayout();
+
   render();
   refreshDisplay();
 

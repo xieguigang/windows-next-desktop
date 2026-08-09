@@ -14,6 +14,18 @@ import * as P from '../../core/fs/path-utils.js';
 import { iconForExtension } from '../../ui/icons.js';
 
 const PLAY_MODES = ['sequence', 'repeat-one', 'shuffle'];
+const AUDIO_EXTS = ['mp3', 'wav', 'ogg', 'flac', 'm4a', 'aac'];
+const VIDEO_EXTS = ['mp4', 'webm', 'ogv', 'mov', 'mkv', 'm4v'];
+
+/**
+ * 按扩展名判断媒体类型
+ * @param {string} nameOrPath
+ * @returns {'audio'|'video'}
+ */
+function kindOf(nameOrPath) {
+  const ext = String(nameOrPath).split('.').pop().toLowerCase();
+  return VIDEO_EXTS.includes(ext) ? 'video' : 'audio';
+}
 
 export default async function mount(ctx) {
   ctx.injectStyleSheet(new URL('./media-player.css', import.meta.url).href);
@@ -23,8 +35,14 @@ export default async function mount(ctx) {
   root.innerHTML = `
     <div class="mp-left">
       <div class="mp-cover">
-        <div class="mp-cover-disc">
-          <div class="mp-cover-center"></div>
+        <div class="mp-stage-audio">
+          <div class="mp-cover-disc">
+            <div class="mp-cover-center"></div>
+          </div>
+        </div>
+        <div class="mp-stage-video">
+          <video class="mp-video" preload="metadata" playsinline></video>
+          <button class="mp-fullscreen" title="全屏">${fullscreenIcon()}</button>
         </div>
       </div>
       <div class="mp-meta">
@@ -54,6 +72,7 @@ export default async function mount(ctx) {
         <span class="mp-playlist-title">播放列表</span>
         <div>
           <button class="btn mp-add-file">添加文件</button>
+          <button class="btn mp-import">从本机导入</button>
           <button class="btn mp-clear">清空</button>
         </div>
       </div>
@@ -62,10 +81,9 @@ export default async function mount(ctx) {
   ctx.root.appendChild(root);
 
   const audio = document.createElement('audio');
-  audio.crossOrigin = 'anonymous';
   audio.preload = 'metadata';
-  /** @type {HTMLVideoElement|null} */
-  let video = null;
+  /** 视频元素在模板中预置，避免 replaceWith 破坏 DOM 结构后无法还原为音频态 */
+  const video = root.querySelector('.mp-video');
   /** 当前媒体元素（audio 或 video），二者互斥 */
   let player = audio;
 
@@ -96,19 +114,44 @@ export default async function mount(ctx) {
   // ── 频谱 ────────────────────────────────────────────
   let audioCtx = null;
   let analyser = null;
-  let sourceNode = null;
   let rafId = 0;
+  /**
+   * 每个媒体元素只能创建一次 MediaElementAudioSourceNode（Web Audio 规范约束），
+   * 因此按元素缓存。旧实现只在首次调用时用当时的 player 建 source，
+   * 切到 video 后 source 仍绑在 audio 上，导致视频无声且频谱不动。
+   * @type {Map<HTMLMediaElement, MediaElementAudioSourceNode>}
+   */
+  const sourceNodes = new Map();
 
-  function ensureAudioGraph() {
-    if (audioCtx) return;
+  /**
+   * 确保当前 player 已接入分析器。
+   * @param {HTMLMediaElement} el 目标媒体元素
+   */
+  function ensureAudioGraph(el) {
     const Ctx = window.AudioContext || window.webkitAudioContext;
     if (!Ctx) return;
-    audioCtx = new Ctx();
-    analyser = audioCtx.createAnalyser();
-    analyser.fftSize = 256;
-    sourceNode = audioCtx.createMediaElementSource(player);
-    sourceNode.connect(analyser);
-    analyser.connect(audioCtx.destination);
+    if (!audioCtx) {
+      audioCtx = new Ctx();
+      analyser = audioCtx.createAnalyser();
+      analyser.fftSize = 256;
+      analyser.connect(audioCtx.destination);
+    }
+    // 自动播放策略可能让 AudioContext 处于 suspended，需在用户手势后恢复
+    if (audioCtx.state === 'suspended') audioCtx.resume().catch(() => {});
+
+    let node = sourceNodes.get(el);
+    if (!node) {
+      try {
+        node = audioCtx.createMediaElementSource(el);
+        sourceNodes.set(el, node);
+      } catch {
+        // 该元素已被其他上下文接管，放弃可视化但不影响播放
+        return;
+      }
+    }
+    // 断开旧连接再重连，避免多个元素同时灌入分析器
+    for (const [, n] of sourceNodes) n.disconnect();
+    node.connect(analyser);
   }
 
   function drawVisualizer() {
@@ -170,7 +213,9 @@ export default async function mount(ctx) {
   }
 
   function saveState() {
-    ctx.settings.setLocal('tracks', tracks);
+    // 剔除 blob URL：它只在本次会话有效，持久化后刷新即失效，
+    // 会导致恢复的列表一播放就报错。播放时按 path 懒重建。
+    ctx.settings.setLocal('tracks', tracks.map(({ path, name, kind }) => ({ path, name, kind })));
     ctx.settings.setLocal('currentIndex', currentIndex);
     ctx.settings.setLocal('mode', mode);
     ctx.settings.setLocal('volume', volume);
@@ -186,29 +231,29 @@ export default async function mount(ctx) {
     })[mode];
   }
 
+  /**
+   * 切换音频 / 视频舞台。两个容器都常驻 DOM，仅切换显隐，
+   * 避免结构被破坏后无法还原。
+   * @param {'audio'|'video'} kind
+   */
   function setPlayerFor(kind) {
-    if (kind === 'video') {
-      if (!video) {
-        video = document.createElement('video');
-        video.preload = 'metadata';
-        video.controls = false;
-      }
-      // 接管可视化画布旁的位置
-      if (video.parentNode !== coverEl) {
-        coverEl.querySelector('.mp-cover-disc')?.replaceWith(video);
-        video.className = 'mp-cover-video';
-      }
-      player = video;
-    } else {
-      player = audio;
-      if (video?.parentNode) video.remove();
-      if (!coverEl.querySelector('.mp-cover-disc')) {
-        const disc = document.createElement('div');
-        disc.className = 'mp-cover-disc';
-        disc.innerHTML = '<div class="mp-cover-center"></div>';
-        coverEl.appendChild(disc);
-      }
-    }
+    const isVideo = kind === 'video';
+    coverEl.classList.toggle('is-video', isVideo);
+    // 切换前暂停另一个元素，防止两路声音重叠
+    const other = isVideo ? audio : video;
+    if (!other.paused) other.pause();
+    player = isVideo ? video : audio;
+  }
+
+  /**
+   * 取得可播放的 URL。持久化时不保存 blob URL（刷新后即失效），
+   * 因此这里在首次播放时按需重建。
+   * @param {{path:string,url?:string}} t
+   */
+  async function resolveUrl(t) {
+    if (t.url) return t.url;
+    t.url = await ctx.fs.createObjectURL(t.path);
+    return t.url;
   }
 
   async function playIndex(i) {
@@ -216,16 +261,24 @@ export default async function mount(ctx) {
     const t = tracks[i];
     currentIndex = i;
     setPlayerFor(t.kind);
-    player.src = t.url;
+
+    let src;
+    try {
+      src = await resolveUrl(t);
+    } catch (err) {
+      ctx.notify.error(`无法读取 ${t.name}：${err?.message || err}`);
+      return;
+    }
+
+    player.src = src;
     player.volume = volume;
     coverEl.classList.toggle('is-spinning', t.kind === 'audio');
-    coverEl.classList.toggle('is-video', t.kind === 'video');
     titleEl.textContent = t.name;
     artistEl.textContent = P.dirname(t.path);
     try {
       await player.play();
-      ensureAudioGraph();
-      drawVisualizer();
+      ensureAudioGraph(player);
+      if (!rafId) drawVisualizer();
       playBtn.innerHTML = pauseIcon();
     } catch (err) {
       ctx.notify.warning('播放失败：' + (err?.message || err));
@@ -277,35 +330,54 @@ export default async function mount(ctx) {
     playIndex(i);
   }
 
-  // 媒体事件
-  player.addEventListener('timeupdate', () => {
-    const cur = player.currentTime || 0;
-    const total = player.duration || 0;
-    currentTimeEl.textContent = fmt(cur);
-    totalTimeEl.textContent = fmt(total);
-    const pct = total ? (cur / total) * 100 : 0;
-    progressBar.style.width = pct + '%';
-    progressThumb.style.left = pct + '%';
-  });
-  player.addEventListener('ended', () => {
-    if (mode === 'repeat-one') {
-      player.currentTime = 0;
-      player.play();
-      return;
-    }
-    next();
-  });
-  player.addEventListener('error', () => {
-    ctx.notify.error('播放出错：' + (player.error?.message || '未知错误'));
-    next();
-  });
-  player.addEventListener('play', () => {
-    playBtn.innerHTML = pauseIcon();
-    coverEl.classList.add('is-spinning');
-  });
-  player.addEventListener('pause', () => {
-    playBtn.innerHTML = playIcon();
-    coverEl.classList.remove('is-spinning');
+  /*
+   * 媒体事件必须同时绑定到 audio 与 video 两个元素上。
+   * 旧实现只绑在初始的 player（audio）上，切到视频后进度条、
+   * 自动下一首、播放态图标全部失效。
+   * 处理器内统一用 el === player 过滤，忽略非当前元素的事件。
+   */
+  for (const el of [audio, video]) {
+    el.addEventListener('timeupdate', () => {
+      if (el !== player) return;
+      const cur = el.currentTime || 0;
+      const total = el.duration || 0;
+      currentTimeEl.textContent = fmt(cur);
+      totalTimeEl.textContent = fmt(total);
+      const pct = total ? (cur / total) * 100 : 0;
+      progressBar.style.width = pct + '%';
+      progressThumb.style.left = pct + '%';
+    });
+    el.addEventListener('loadedmetadata', () => {
+      if (el === player) totalTimeEl.textContent = fmt(el.duration || 0);
+    });
+    el.addEventListener('ended', () => {
+      if (el !== player) return;
+      if (mode === 'repeat-one') {
+        el.currentTime = 0;
+        el.play().catch(() => {});
+        return;
+      }
+      next();
+    });
+    el.addEventListener('error', () => {
+      if (el !== player || !el.getAttribute('src')) return;
+      ctx.notify.error('播放出错：' + (el.error?.message || '未知错误'));
+    });
+    el.addEventListener('play', () => {
+      if (el !== player) return;
+      playBtn.innerHTML = pauseIcon();
+      if (el === audio) coverEl.classList.add('is-spinning');
+    });
+    el.addEventListener('pause', () => {
+      if (el !== player) return;
+      playBtn.innerHTML = playIcon();
+      coverEl.classList.remove('is-spinning');
+    });
+  }
+
+  // 视频全屏
+  root.querySelector('.mp-fullscreen').addEventListener('click', () => {
+    video.requestFullscreen?.().catch((err) => ctx.notify.warning('无法全屏：' + (err?.message || err)));
   });
 
   // 进度条拖动
@@ -345,10 +417,53 @@ export default async function mount(ctx) {
   });
 
   root.querySelector('.mp-add-file').addEventListener('click', async () => {
-    const res = await ctx.fs.pick({ mode: 'open', multiple: true, accept: 'audio/*,video/*' });
-    if (!res) return;
-    addFiles(res);
+    // pickFile 返回单个路径字符串（不是对象），且用 extensions 过滤扩展名
+    const picked = await ctx.fs.pick({
+      title: '添加媒体文件',
+      path: ctx.fs.folders.music,
+      extensions: [...AUDIO_EXTS, ...VIDEO_EXTS],
+    });
+    if (!picked) return;
+    await addPaths([picked]);
   });
+
+  // 从本机导入：VFS 内没有媒体文件时的主要入口
+  const importInput = document.createElement('input');
+  importInput.type = 'file';
+  importInput.multiple = true;
+  importInput.accept = 'audio/*,video/*';
+  importInput.style.display = 'none';
+  root.appendChild(importInput);
+
+  root.querySelector('.mp-import').addEventListener('click', () => importInput.click());
+  importInput.addEventListener('change', async () => {
+    const files = [...(importInput.files || [])];
+    importInput.value = '';
+    if (files.length) await importLocalFiles(files);
+  });
+
+  /**
+   * 把本机文件写入 VFS 的音乐 / 视频目录后加入播放列表。
+   * @param {File[]} files
+   */
+  async function importLocalFiles(files) {
+    const paths = [];
+    for (const f of files) {
+      const kind = kindOf(f.name);
+      const dir = kind === 'video' ? ctx.fs.folders.videos : ctx.fs.folders.music;
+      const target = P.join(dir, f.name);
+      try {
+        await ctx.fs.writeFile(target, await f.arrayBuffer());
+        paths.push(target);
+      } catch (err) {
+        ctx.notify.warning(`导入 ${f.name} 失败：${err?.message || err}`);
+      }
+    }
+    if (paths.length) {
+      await addPaths(paths);
+      ctx.notify.success(`已导入 ${paths.length} 个媒体文件`);
+    }
+  }
   root.querySelector('.mp-clear').addEventListener('click', () => {
     tracks = [];
     currentIndex = -1;
@@ -357,21 +472,23 @@ export default async function mount(ctx) {
     saveState();
   });
 
-  async function addFiles(res) {
-    const paths = res.paths || (res.path ? [res.path] : []);
+  /**
+   * 把 VFS 路径加入播放列表。
+   * URL 采用懒加载：仅在真正播放时才 createObjectURL，
+   * 避免一次性为整个列表创建 blob 造成内存浪费。
+   * @param {string[]} paths
+   */
+  async function addPaths(paths) {
+    let added = 0;
     for (const p of paths) {
-      const ext = P.extname(p).slice(1).toLowerCase();
-      const kind = ['mp4', 'webm', 'ogv', 'mov', 'mkv'].includes(ext) ? 'video' : 'audio';
-      try {
-        const url = await ctx.fs.createObjectURL(p);
-        tracks.push({ path: p, name: P.basename(p), kind, url });
-      } catch (err) {
-        ctx.notify.warning(`无法读取 ${P.basename(p)}`);
-      }
+      if (tracks.some((t) => t.path === p)) continue; // 去重
+      tracks.push({ path: p, name: P.basename(p), kind: kindOf(p) });
+      added++;
     }
+    if (!added) return;
     renderPlaylist();
     saveState();
-    if (currentIndex < 0 && tracks.length) playIndex(0);
+    if (currentIndex < 0 && tracks.length) await playIndex(0);
   }
 
   // 拖入文件
