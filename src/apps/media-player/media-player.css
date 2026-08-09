@@ -97,11 +97,19 @@
   display: block;
 }
 
-/* 全屏按钮：悬停时浮现于视频右下角 */
-.mp-fullscreen {
+/* 全屏 & 弹出按钮：悬停时浮现于视频右下角 */
+.mp-video-actions {
   position: absolute;
   right: 8px;
   bottom: 8px;
+  display: flex;
+  gap: 6px;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.mp-stage-video:hover .mp-video-actions { opacity: 1; }
+.mp-fullscreen,
+.mp-popout {
   width: 30px;
   height: 30px;
   display: inline-flex;
@@ -112,11 +120,9 @@
   background: rgba(0, 0, 0, 0.55);
   color: #fff;
   cursor: default;
-  opacity: 0;
-  transition: opacity 0.15s;
 }
-.mp-stage-video:hover .mp-fullscreen { opacity: 1; }
-.mp-fullscreen:hover { background: rgba(0, 0, 0, 0.78); }
+.mp-fullscreen:hover,
+.mp-popout:hover { background: rgba(0, 0, 0, 0.78); }
 @keyframes mp-spin {
   to { transform: rotate(360deg); }
 }

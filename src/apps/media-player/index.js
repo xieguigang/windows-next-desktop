@@ -8,6 +8,11 @@
  * 支持：本地 VFS 内的音视频文件、顺序/随机/单曲循环、键盘空格暂停、左右方向键换曲。
  *
  * 频谱用 Web Audio AnalyserNode（取 fftSize=512），60fps 渲染。
+ *
+ * 视频播放支持三种模式：
+ *   1. 内嵌小窗（主窗口左侧视频舞台）
+ *   2. 浏览器全屏（全屏按钮）
+ *   3. 弹出独立窗口（弹出按钮 → 在桌面环境中新开窗口播放）
  */
 
 import * as P from '../../core/fs/path-utils.js';
@@ -30,6 +35,13 @@ function kindOf(nameOrPath) {
 export default async function mount(ctx) {
   ctx.injectStyleSheet(new URL('./media-player.css', import.meta.url).href);
 
+  // ── 视频弹出窗口模式 ───────────────────────────────
+  // 当 ctx.args.videoPopout 为 true 时，进入视频独立窗口模式，
+  // 仅渲染视频画面 + 播放控件，不显示完整的播放器 UI。
+  if (ctx.args?.videoPopout) {
+    return mountVideoPopout(ctx);
+  }
+
   const root = document.createElement('div');
   root.className = 'mp-root';
   root.innerHTML = `
@@ -42,7 +54,10 @@ export default async function mount(ctx) {
         </div>
         <div class="mp-stage-video">
           <video class="mp-video" preload="metadata" playsinline></video>
-          <button class="mp-fullscreen" title="全屏">${fullscreenIcon()}</button>
+          <div class="mp-video-actions">
+            <button class="mp-fullscreen" title="全屏">${fullscreenIcon()}</button>
+            <button class="mp-popout" title="在新窗口中播放">${popoutIcon()}</button>
+          </div>
         </div>
       </div>
       <div class="mp-meta">
@@ -487,6 +502,23 @@ export default async function mount(ctx) {
     video.requestFullscreen?.().catch((err) => ctx.notify.warning('无法全屏：' + (err?.message || err)));
   });
 
+  // 弹出到独立窗口
+  root.querySelector('.mp-popout').addEventListener('click', () => {
+    if (currentIndex < 0 || player !== video) return;
+    const t = tracks[currentIndex];
+    const currentTime = video.currentTime || 0;
+    // 暂停当前播放，让弹出窗口从当前进度继续
+    safePause(video);
+    playBtn.innerHTML = playIcon();
+    coverEl.classList.remove('is-spinning');
+    // 启动新的 media-player 窗口，传递视频路径和当前播放进度
+    ctx.launchApp('media-player', {
+      filePath: t.path,
+      startTime: currentTime,
+      videoPopout: true,
+    }, { forceNew: true });
+  });
+
   // 进度条拖动
   trackEl.addEventListener('pointerdown', (e) => {
     if (currentIndex < 0) return;
@@ -728,4 +760,212 @@ function volumeIcon() {
 }
 function fullscreenIcon() {
   return '<svg viewBox="0 0 24 24" width="16" height="16"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+}
+function popoutIcon() {
+  return '<svg viewBox="0 0 24 24" width="16" height="16"><path d="M19 19H5V5h7V3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14c1.1 0 2-.9 2-2v-7h-2v7ZM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7Z" fill="currentColor"/></svg>';
+}
+function closeIcon() {
+  return '<svg viewBox="0 0 24 24" width="16" height="16"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" fill="currentColor"/></svg>';
+}
+
+/* ==========================================================
+   视频弹出窗口模式
+   在独立的桌面窗口中渲染视频 + 播放控件。
+   ========================================================== */
+
+/**
+ * 视频弹出窗口的挂载函数。
+ * 当 ctx.args.videoPopout 为 true 时进入此分支，
+ * 渲染一个仅包含视频画面和播放控件的精简界面。
+ * @param {import('../../sdk/app-context.js').AppContext} ctx
+ */
+async function mountVideoPopout(ctx) {
+  const root = document.createElement('div');
+  root.className = 'vp-root';
+  root.innerHTML = `
+    <div class="vp-video-wrap">
+      <video class="vp-video" preload="metadata" playsinline></video>
+      <div class="vp-info-bar">
+        <span class="vp-title">${escapeHtml(P.basename(ctx.args.filePath || ''))}</span>
+        <button class="vp-close" title="关闭窗口">${closeIcon()}</button>
+      </div>
+    </div>
+    <div class="vp-controls-bar">
+      <button class="vp-btn vp-play" title="播放/暂停">${playIcon()}</button>
+      <span class="vp-time-current">00:00</span>
+      <div class="vp-progress-track">
+        <div class="vp-progress-bar"></div>
+        <div class="vp-progress-thumb"></div>
+      </div>
+      <span class="vp-time-total">00:00</span>
+      <button class="vp-btn vp-volume" title="音量">${volumeIcon()}</button>
+      <input class="vp-volume-slider" type="range" min="0" max="100" value="80" aria-label="音量">
+    </div>`;
+  ctx.root.appendChild(root);
+
+  const videoEl = root.querySelector('.vp-video');
+  const titleEl = root.querySelector('.vp-title');
+  const playBtn = root.querySelector('.vp-play');
+  const currentTimeEl = root.querySelector('.vp-time-current');
+  const totalTimeEl = root.querySelector('.vp-time-total');
+  const progressBar = root.querySelector('.vp-progress-bar');
+  const progressThumb = root.querySelector('.vp-progress-thumb');
+  const progressTrack = root.querySelector('.vp-progress-track');
+  const volumeSlider = root.querySelector('.vp-volume-slider');
+  const volumeBtn = root.querySelector('.vp-volume');
+  const infoBar = root.querySelector('.vp-info-bar');
+
+  let volume = 0.8;
+  volumeSlider.value = '80';
+  videoEl.volume = volume;
+
+  let infoBarTimer = 0;
+  /** 显示顶栏并在 3 秒无操作后自动隐藏 */
+  function showInfoBar() {
+    infoBar.classList.add('is-visible');
+    clearTimeout(infoBarTimer);
+    infoBarTimer = setTimeout(() => infoBar.classList.remove('is-visible'), 3000);
+  }
+
+  // 加载并播放视频
+  try {
+    const url = await ctx.fs.createObjectURL(ctx.args.filePath);
+    videoEl.src = url;
+    videoEl.volume = volume;
+    titleEl.textContent = P.basename(ctx.args.filePath);
+    ctx.window.setTitle(P.basename(ctx.args.filePath));
+    // 从传入的播放进度继续
+    if (ctx.args.startTime && ctx.args.startTime > 0) {
+      videoEl.currentTime = ctx.args.startTime;
+    }
+    await videoEl.play();
+    playBtn.innerHTML = pauseIcon();
+  } catch (err) {
+    ctx.notify.error('无法播放视频：' + (err?.message || err));
+  }
+
+  // ── 事件绑定 ────────────────────────────────────────
+  videoEl.addEventListener('timeupdate', () => {
+    const cur = videoEl.currentTime || 0;
+    const total = videoEl.duration || 0;
+    currentTimeEl.textContent = fmt(cur);
+    totalTimeEl.textContent = fmt(total);
+    const pct = total ? (cur / total) * 100 : 0;
+    progressBar.style.width = pct + '%';
+    progressThumb.style.left = pct + '%';
+  });
+  videoEl.addEventListener('loadedmetadata', () => {
+    totalTimeEl.textContent = fmt(videoEl.duration || 0);
+  });
+  videoEl.addEventListener('play', () => {
+    playBtn.innerHTML = pauseIcon();
+  });
+  videoEl.addEventListener('pause', () => {
+    playBtn.innerHTML = playIcon();
+  });
+  videoEl.addEventListener('ended', () => {
+    playBtn.innerHTML = playIcon();
+  });
+  videoEl.addEventListener('error', () => {
+    ctx.notify.error('播放出错：' + (videoEl.error?.message || '未知错误'));
+  });
+
+  // 播放/暂停
+  playBtn.addEventListener('click', () => {
+    if (videoEl.paused) {
+      videoEl.play().catch(() => {});
+      playBtn.innerHTML = pauseIcon();
+    } else {
+      videoEl.pause();
+      playBtn.innerHTML = playIcon();
+    }
+  });
+
+  // 视频区域点击 → 播放/暂停
+  root.querySelector('.vp-video-wrap').addEventListener('click', (e) => {
+    if (e.target.closest('.vp-info-bar') || e.target.closest('.vp-controls-bar')) return;
+    playBtn.click();
+  });
+
+  // 双击视频 → 全屏
+  root.querySelector('.vp-video-wrap').addEventListener('dblclick', (e) => {
+    if (e.target.closest('button, input')) return;
+    videoEl.requestFullscreen?.().catch(() => {});
+  });
+
+  // 进度条拖动
+  progressTrack.addEventListener('pointerdown', (e) => {
+    const r = progressTrack.getBoundingClientRect();
+    const seek = (clientX) => {
+      const p = Math.max(0, Math.min(1, (clientX - r.left) / r.width));
+      if (videoEl.duration) videoEl.currentTime = p * videoEl.duration;
+    };
+    seek(e.clientX);
+    const onMove = (ev) => seek(ev.clientX);
+    const onUp = () => {
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerup', onUp);
+    };
+    window.addEventListener('pointermove', onMove);
+    window.addEventListener('pointerup', onUp);
+  });
+
+  // 音量
+  volumeBtn.addEventListener('click', () => {
+    volumeSlider.style.display = volumeSlider.style.display === 'block' ? 'none' : 'block';
+  });
+  volumeSlider.addEventListener('input', () => {
+    volume = Number(volumeSlider.value) / 100;
+    videoEl.volume = volume;
+  });
+
+  // 关闭按钮
+  root.querySelector('.vp-close').addEventListener('click', () => {
+    ctx.window.close();
+  });
+
+  // 键盘
+  root.addEventListener('keydown', (e) => {
+    if (e.target instanceof HTMLInputElement) return;
+    if (e.key === ' ' || e.key === 'k') {
+      e.preventDefault();
+      playBtn.click();
+    } else if (e.key === 'ArrowRight') {
+      videoEl.currentTime = Math.min(videoEl.duration || 0, (videoEl.currentTime || 0) + 5);
+    } else if (e.key === 'ArrowLeft') {
+      videoEl.currentTime = Math.max(0, (videoEl.currentTime || 0) - 5);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      volume = Math.min(1, volume + 0.05);
+      volumeSlider.value = String(Math.round(volume * 100));
+      videoEl.volume = volume;
+    } else if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      volume = Math.max(0, volume - 0.05);
+      volumeSlider.value = String(Math.round(volume * 100));
+      videoEl.volume = volume;
+    } else if (e.key === 'f' || e.key === 'F') {
+      videoEl.requestFullscreen?.().catch(() => {});
+    } else if (e.key === 'Escape') {
+      if (document.fullscreenElement) {
+        document.exitFullscreen?.();
+      }
+    }
+  });
+
+  // 鼠标移动时显示顶栏
+  root.addEventListener('mousemove', () => showInfoBar());
+  // 初始显示
+  showInfoBar();
+
+  ctx.onDispose(() => {
+    videoEl.pause();
+    videoEl.removeAttribute('src');
+    videoEl.load();
+    clearTimeout(infoBarTimer);
+  });
+
+  ctx.setPreviewProvider(() => {
+    return `▶ ${P.basename(ctx.args.filePath || '')}`;
+  });
 }
