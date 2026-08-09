@@ -288,9 +288,11 @@ export default async function mount(ctx) {
   }
 
   function stop() {
-    player.pause();
-    player.removeAttribute('src');
-    player.load();
+    for (const el of [audio, video]) {
+      el.pause();
+      el.removeAttribute('src');
+      el.load();
+    }
     coverEl.classList.remove('is-spinning', 'is-video');
     titleEl.textContent = '未选择媒体';
     artistEl.textContent = '';
@@ -410,9 +412,15 @@ export default async function mount(ctx) {
   volumeBtn.addEventListener('click', () => {
     volumeSlider.style.display = volumeSlider.style.display === 'block' ? 'none' : 'block';
   });
+  /** 音量应用到两个媒体元素，切换音视频时保持一致 */
+  function applyVolume() {
+    audio.volume = volume;
+    video.volume = volume;
+  }
+
   volumeSlider.addEventListener('input', () => {
     volume = Number(volumeSlider.value) / 100;
-    player.volume = volume;
+    applyVolume();
     saveState();
   });
 
@@ -502,19 +510,11 @@ export default async function mount(ctx) {
     // 来自资源管理器（自定义 type）
     const wnPath = e.dataTransfer.getData('application/x-wn-path');
     if (wnPath) {
-      addFiles({ paths: [wnPath] });
+      await addPaths([wnPath]);
       return;
     }
     const files = [...(e.dataTransfer.files || [])];
-    if (files.length) {
-      for (const f of files) {
-        const target = P.join(ctx.fs.folders.music, f.name);
-        try {
-          await ctx.fs.writeFile(target, await f.arrayBuffer());
-        } catch { /* 可能已存在 */ }
-      }
-      addFiles({ paths: files.map((f) => P.join(ctx.fs.folders.music, f.name)) });
-    }
+    if (files.length) await importLocalFiles(files);
   });
 
   // 键盘
@@ -527,13 +527,13 @@ export default async function mount(ctx) {
       e.preventDefault();
       volume = Math.min(1, volume + 0.05);
       volumeSlider.value = String(Math.round(volume * 100));
-      player.volume = volume;
+      applyVolume();
       saveState();
     } else if (e.key === 'ArrowDown') {
       e.preventDefault();
       volume = Math.max(0, volume - 0.05);
       volumeSlider.value = String(Math.round(volume * 100));
-      player.volume = volume;
+      applyVolume();
       saveState();
     }
   });
@@ -564,9 +564,12 @@ export default async function mount(ctx) {
 
   ctx.onDispose(() => {
     cancelAnimationFrame(rafId);
+    for (const [, n] of sourceNodes) n.disconnect();
+    sourceNodes.clear();
     audioCtx?.close();
+    audio.pause();
     audio.remove();
-    video?.remove();
+    video.pause();
   });
 
   ctx.setPreviewProvider(() => {
@@ -598,4 +601,7 @@ function nextIcon() {
 }
 function volumeIcon() {
   return '<svg viewBox="0 0 24 24" width="18" height="18"><path d="M3 9v6h4l5 4V5L7 9H3Zm12.5 3a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4Z" fill="currentColor"/></svg>';
+}
+function fullscreenIcon() {
+  return '<svg viewBox="0 0 24 24" width="16" height="16"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 }
