@@ -389,11 +389,9 @@ export default async function main(ctx) {
 
   ctx.setPreviewProvider(() => (index >= 0 ? P.basename(files[index]) : '图片查看器'));
 
-  ctx.onDispose(() => {
-    if (currentUrl) URL.revokeObjectURL(currentUrl);
-    for (const url of thumbUrls.values()) URL.revokeObjectURL(url);
-    thumbUrls.clear();
-  });
+  // 大图与缩略图的 ObjectURL 均由 ctx.fs.createObjectURL 登记，
+  // 窗口关闭时 SDK 会统一 revoke，这里只需清理引用。
+  ctx.onDispose(() => thumbUrls.clear());
 
   // 启动：由文件关联打开，或展示空态
   if (ctx.args?.filePath) {
