@@ -63,7 +63,7 @@ export default async function mount(ctx) {
         <div class="ex-view-toggle">
           <button class="tb-btn is-active" data-view="icons" title="大图标" aria-label="大图标">${getIcon('grid', 16)}</button>
           <button class="tb-btn" data-view="list" title="列表" aria-label="列表">${getIcon('list', 16)}</button>
-          <button class="tb-btn" data-view="details" title="详细信息" aria-label="详细信息">${getIcon('list', 16)}</button>
+          <button class="tb-btn" data-view="details" title="详细信息" aria-label="详细信息">${getIcon('details', 16)}</button>
         </div>
       </div>
       <div class="ex-tabs"></div>
