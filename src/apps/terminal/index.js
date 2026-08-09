@@ -79,18 +79,26 @@ export default async function mount(ctx) {
   });
   term.open(container);
 
-  // 手动自适应大小（替代 FitAddon，避免 UMD 全局变量兼容问题）
+  // 手动自适应大小（替代 FitAddon，避免 UMD addon 全局变量兼容问题）
   function fitTerminal() {
-    const dims = term._core._renderService.dimensions;
-    if (!dims || dims.css.cell.width <= 0 || dims.css.cell.height <= 0) {
-      // 尺寸未就绪，稍后重试
-      return;
-    }
-    const rect = container.getBoundingClientRect();
-    if (rect.width <= 0 || rect.height <= 0) return;
-    const padding = 16; // 左右各 8px 内边距
-    const availableWidth = rect.width - padding;
-    const availableHeight = rect.height - 8; // 上下各 4px 内边距
+    if (!term.element || !term.element.parentElement) return;
+    const dims = term.dimensions; // xterm.js v5.x 公开属性
+    if (!dims || dims.css.cell.width <= 0 || dims.css.cell.height <= 0) return;
+
+    const parentStyle = getComputedStyle(container);
+    const parentWidth = parseInt(parentStyle.getPropertyValue('width'), 10) || 0;
+    const parentHeight = parseInt(parentStyle.getPropertyValue('height'), 10) || 0;
+    if (parentWidth <= 0 || parentHeight <= 0) return;
+
+    const termStyle = getComputedStyle(term.element);
+    const paddingH = (parseInt(termStyle.getPropertyValue('padding-left'), 10) || 0)
+      + (parseInt(termStyle.getPropertyValue('padding-right'), 10) || 0);
+    const paddingV = (parseInt(termStyle.getPropertyValue('padding-top'), 10) || 0)
+      + (parseInt(termStyle.getPropertyValue('padding-bottom'), 10) || 0);
+
+    const availableWidth = parentWidth - paddingH;
+    const availableHeight = parentHeight - paddingV;
+
     const cols = Math.max(2, Math.floor(availableWidth / dims.css.cell.width));
     const rows = Math.max(1, Math.floor(availableHeight / dims.css.cell.height));
     if (cols !== term.cols || rows !== term.rows) {
@@ -99,7 +107,7 @@ export default async function mount(ctx) {
   }
 
   // 延迟首次自适应，确保 xterm 内部渲染就绪
-  setTimeout(fitTerminal, 50);
+  setTimeout(fitTerminal, 80);
   const ro = new ResizeObserver(() => fitTerminal());
   ro.observe(container);
 
@@ -150,9 +158,10 @@ export default async function mount(ctx) {
     term.writeln(text);
   }
 
-  function printPrompt() {
+  function printPrompt(newline = true) {
     const pwd = cwd === ctx.fs.folders.home ? '~' : cwd;
-    write(`\r\n${ansi.green}${userName}@${hostName}${ansi.reset}:${ansi.blue}${pwd}${ansi.reset}$ `);
+    if (newline) term.writeln('');
+    term.write(`${ansi.green}${userName}@${hostName}${ansi.reset}:${ansi.blue}${pwd}${ansi.reset}$ `);
   }
 
   function clearScreen() {
@@ -180,7 +189,7 @@ export default async function mount(ctx) {
       if (line.trim()) history.push(line.trim());
       resetLine();
       await executeLine(line);
-      printPrompt();
+      printPrompt(true);
     } else if (code === 127) { // Backspace
       if (cursorPos > 0) {
         const before = inputBuffer.slice(0, cursorPos - 1);
@@ -220,7 +229,7 @@ export default async function mount(ctx) {
           } else if (matches.length > 1) {
             writeln('');
             writeln('  ' + matches.map((m) => m.name + (m.type === 'directory' ? '/' : '')).join('  '));
-            printPrompt();
+            printPrompt(true);
             write(inputBuffer);
           }
         } catch { /* silent */ }
@@ -269,7 +278,7 @@ export default async function mount(ctx) {
         write('^C');
         writeln('');
         resetLine();
-        printPrompt();
+        printPrompt(true);
       }
     } else if (code === 4) { // Ctrl+D - 退出（空行时）
       if (!inputBuffer) {
@@ -423,11 +432,22 @@ export default async function mount(ctx) {
   });
 
   // ── 启动 ──────────────────────────────────────────────
-  writeln(`${ansi.bold}${ansi.cyan}WindowsNext 终端 v2.0 (xterm.js)${ansi.reset}`);
-  writeln(`${ansi.gray}输入 'help' 查看可用命令。${ansi.reset}`);
-  writeln(`${ansi.gray}当前工作目录：${cwd}${ansi.reset}`);
-  printPrompt();
-  term.focus();
+  // 延迟写入避免 xterm.js 内部解析器未就绪时产生乱码
+  // term.open() 后需要等待渲染管线完成初始化
+  function showBanner() {
+    writeln(`${ansi.bold}${ansi.cyan}WindowsNext 终端 v2.0 (xterm.js)${ansi.reset}`);
+    writeln(`${ansi.gray}输入 'help' 查看可用命令。${ansi.reset}`);
+    writeln(`${ansi.gray}当前工作目录：${cwd}${ansi.reset}`);
+    printPrompt(false);
+  }
+
+  // 使用 requestAnimationFrame 确保 DOM 布局和 xterm 渲染管线就绪
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      showBanner();
+      term.focus();
+    });
+  });
 
   ctx.setPreviewProvider(() => {
     const buf = term.buffer.active;
