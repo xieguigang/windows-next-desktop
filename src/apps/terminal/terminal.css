@@ -1,4 +1,7 @@
 /* 终端（xterm.js） */
+/* Shadow DOM 中 [hidden] 属性需要显式样式覆盖 */
+[hidden] { display: none !important; }
+
 .tm-root {
   display: flex;
   flex-direction: column;
