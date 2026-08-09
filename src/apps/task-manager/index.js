@@ -19,6 +19,8 @@ import { ensureECharts } from '../calculator/echarts-loader.js';
 import { windowManager } from '../../core/window-manager.js';
 import { processManager } from '../../core/process-manager.js';
 import { contextMenu } from '../../shell/context-menu.js';
+import { settings } from '../../core/settings-store.js';
+import { notifications } from '../../core/notification.js';
 
 const SAMPLE_INTERVAL = 1000;
 const BUFFER_SIZE = 60;
@@ -346,8 +348,14 @@ export default async function mount(ctx) {
   }
 
   function renderBsodScreen() {
-    const bootScreen = document.getElementById('boot-screen');
-    if (!bootScreen) return;
+    // boot-screen 在正常启动后会被移除，需要重新创建
+    let bootScreen = document.getElementById('boot-screen');
+    if (!bootScreen) {
+      bootScreen = document.createElement('div');
+      bootScreen.id = 'boot-screen';
+      bootScreen.className = 'boot-screen';
+      document.body.appendChild(bootScreen);
+    }
 
     // 设置蓝屏状态
     document.body.setAttribute('data-bsod', 'true');
@@ -378,13 +386,14 @@ export default async function mount(ctx) {
         </div>
       </div>`;
 
-    // 确保蓝屏可见（覆盖 boot-screen 的原有样式）
+    // 确保蓝屏可见
     bootScreen.style.display = 'block';
     bootScreen.style.opacity = '1';
     bootScreen.style.visibility = 'visible';
     bootScreen.style.pointerEvents = 'auto';
 
     // 4. JS 驱动的进度条动画（0% → 100%，约 9 秒）
+    // 使用原始 setInterval，不通过 ctx.setInterval，因为任务管理器窗口可能被关闭
     const percentEl = document.getElementById('bsod-percent-js');
     if (!percentEl) return;
 
@@ -393,13 +402,13 @@ export default async function mount(ctx) {
     const steps = 100;
     const stepDuration = totalDuration / steps;
 
-    const progressTimer = setInterval(() => {
+    const progressTimer = window.setInterval(() => {
       progress++;
-      percentEl.textContent = String(progress);
+      if (percentEl) percentEl.textContent = String(progress);
       if (progress >= 100) {
         clearInterval(progressTimer);
         // 5. 进度到 100% 后等待 10 秒，然后自动重启
-        setTimeout(() => restartShell(), 10000);
+        window.setTimeout(() => restartShell(), 10000);
       }
     }, stepDuration);
   }
@@ -429,7 +438,8 @@ export default async function mount(ctx) {
     }
 
     // 延迟后执行「重启」：重新初始化桌面外壳
-    setTimeout(async () => {
+    // 使用 window.setTimeout，因为 ctx 可能已被销毁
+    window.setTimeout(async () => {
       try {
         // 重新注册系统进程（使用 register 方法确保 pid 正确递增）
         const shellProc = processManager.register({
@@ -451,13 +461,13 @@ export default async function mount(ctx) {
         }
 
         // 恢复主题
-        const savedTheme = ctx.settings.get('appearance.theme') || 'light';
+        const savedTheme = settings.get('appearance.theme') || 'light';
         document.documentElement.setAttribute('data-theme', savedTheme);
 
         // 发送系统就绪事件，让桌面恢复正常
         bus.emit('system:ready', { restarted: true });
 
-        ctx.notify.toast({
+        notifications.toast({
           title: '系统已重启',
           body: 'WindowsNext 桌面外壳已成功重新启动。下次请不要随意终止系统进程哦~',
           type: 'info',
