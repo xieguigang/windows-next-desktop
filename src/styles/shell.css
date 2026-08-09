@@ -538,10 +538,11 @@ body[data-has-maximized="true"] .start-menu {
 .start-menu.is-opening { animation: startmenu-in 220ms var(--ease-decel) both; }
 .start-menu.is-closing { animation: startmenu-out 150ms var(--ease-accel) both; }
 
-/* ---- 左对齐开始菜单：靠左弹出，左侧无圆角 ---- */
+/* ---- 左对齐开始菜单：靠左弹出，无圆角，底部紧贴任务栏 ---- */
 .start-menu[data-align="left"] {
   left: 0;
-  border-radius: 0 var(--radius-xl) var(--radius-xl) 0;
+  bottom: var(--taskbar-height);
+  border-radius: 0;
   transform: none;
   transform-origin: bottom left;
 }
