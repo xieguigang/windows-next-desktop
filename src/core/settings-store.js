@@ -134,7 +134,10 @@ class SettingsStore {
     const saved = this._store.get('all', null);
     if (saved && typeof saved === 'object') {
       for (const [k, v] of Object.entries(saved)) {
-        if (k in DEFAULT_SETTINGS) this._cache[k] = v;
+        // 已知的系统设置项，或应用私有命名空间 app.<id>.*。
+        // 后者是动态的（各应用自行定义键名），无法预置到 DEFAULT_SETTINGS，
+        // 若一并过滤掉，应用的所有持久化状态都会在刷新后丢失。
+        if (k in DEFAULT_SETTINGS || k.startsWith('app.')) this._cache[k] = v;
       }
     }
     setLogLevel(this._cache['system.logLevel']);

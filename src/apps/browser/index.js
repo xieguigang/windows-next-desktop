@@ -250,8 +250,10 @@ export default async function mount(ctx) {
   starBtn.addEventListener('click', toggleBookmark);
 
   root.querySelector('.br-menu').addEventListener('click', (e) => {
+    // 同步取出锚点矩形：事件派发结束后 e.currentTarget 会被置空，
+    // 在异步 import 的回调里再访问就会抛错，菜单将永远打不开。
+    const rect = e.currentTarget.getBoundingClientRect();
     import('../../shell/context-menu.js').then(({ contextMenu }) => {
-      const rect = e.currentTarget.getBoundingClientRect();
       contextMenu.open([
         {
           id: 'toggle-favbar',
