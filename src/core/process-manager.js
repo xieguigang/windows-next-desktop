@@ -13,15 +13,15 @@ const log = createLogger('ProcessManager');
 
 /** 不同应用类型的资源基线：[CPU 基线%, 内存基线 MB] */
 const BASELINE = {
-  browser: [4.2, 180],
-  'media-player': [3.6, 145],
-  calculator: [0.6, 42],
-  explorer: [1.2, 68],
-  terminal: [0.4, 28],
-  notepad: [0.3, 34],
-  'task-manager': [1.8, 52],
-  settings: [0.8, 58],
-  _default: [0.8, 45],
+  browser: [12, 220],
+  'media-player': [8, 180],
+  calculator: [2, 48],
+  explorer: [3, 72],
+  terminal: [1.5, 32],
+  notepad: [1, 38],
+  'task-manager': [5, 64],
+  settings: [2, 60],
+  _default: [2, 50],
 };
 
 let pidSeq = 1000;
@@ -57,8 +57,8 @@ class ProcessManager {
       startedAt: Date.now(),
       windowId: '',
       status: 'running',
-      cpu: 1.4,
-      memory: 96,
+      cpu: 6.5,
+      memory: 145,
       disk: 0,
       network: 0,
       system: true,

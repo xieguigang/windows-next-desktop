@@ -266,10 +266,10 @@ export default async function mount(ctx) {
   });
 }
 
-function formatMb(bytes) {
-  if (!bytes) return '0 MB';
-  const mb = bytes / (1024 * 1024);
-  if (mb < 1) return `${(bytes / 1024).toFixed(0)} KB`;
+function formatMb(mb) {
+  // input is already MB (from ProcessManager baseline / sampling)
+  if (!mb) return '0 MB';
+  if (mb < 1) return `${(mb * 1024).toFixed(0)} KB`;
   if (mb < 1024) return `${mb.toFixed(1)} MB`;
   return `${(mb / 1024).toFixed(2)} GB`;
 }
