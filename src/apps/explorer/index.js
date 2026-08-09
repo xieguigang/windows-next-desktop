@@ -112,17 +112,30 @@ export default async function mount(ctx) {
     await activate(tab);
   }
 
-  function activate(tab) {
-    active = tab;
+  // 窗格与标签显隐的唯一出口：无论 DOM 因何被重建，都据此重新同步
+  function syncPaneVisibility() {
     for (const t of tabs) {
       const pane = panesEl.querySelector(`[data-tab="${t.id}"]`);
       const tabEl = tabsEl.querySelector(`[data-tab="${t.id}"]`);
-      const on = t === tab;
+      const on = t === active;
       pane?.classList.toggle('is-active', on);
       tabEl?.classList.toggle('is-active', on);
     }
+  }
+
+  // 导航时标签集合未变，仅刷新标题，避免重建全部窗格 DOM
+  function updateTabTitles() {
+    for (const t of tabs) {
+      const tabEl = tabsEl.querySelector(`[data-tab="${t.id}"] .ext-title`);
+      if (tabEl) tabEl.textContent = titleOf(currentPath(t));
+    }
+  }
+
+  async function activate(tab) {
+    active = tab;
+    syncPaneVisibility();
     syncToolbar();
-    loadActive();
+    await loadActive();
   }
 
   async function closeTab(tab) {
@@ -130,15 +143,15 @@ export default async function mount(ctx) {
     if (idx < 0) return;
     tabs.splice(idx, 1);
     if (tab === active) {
-      active = tabs[idx] || tabs[idx - 1] || null;
-      if (active) await activate(active);
-      else {
-        // 关闭最后一个标签：自动开一个 Home
+      if (tabs.length) {
+        await activate(tabs[idx] || tabs[idx - 1]);
+      } else {
+        // 关闭最后一个标签：自动回到主目录
         await openInNewTab(SHELL_FOLDERS.home);
-        tabs.shift();
       }
+    } else {
+      renderTabs();
     }
-    renderTabs();
   }
 
   function renderTabs() {
@@ -173,6 +186,13 @@ export default async function mount(ctx) {
       const tabEl = tabsEl.querySelector(`[data-tab="${t.id}"] .ext-title`);
       if (tabEl) tabEl.textContent = titleOf(currentPath(t));
     }
+    syncPaneVisibility();
+  }
+
+  function syncViewButtons() {
+    for (const b of root.querySelectorAll('[data-view]')) {
+      b.classList.toggle('is-active', b.dataset.view === active?.view);
+    }
   }
 
   function syncToolbar() {
@@ -185,6 +205,7 @@ export default async function mount(ctx) {
     const dir = P.dirname(currentPath());
     up.disabled = dir === currentPath() || !dir;
     addressInput.value = currentPath();
+    syncViewButtons();
   }
 
   async function loadActive() {
@@ -253,15 +274,14 @@ export default async function mount(ctx) {
     const list = document.createElement('div');
     list.className = `ex-list ex-view-${active.view}`;
 
+    const frag = document.createDocumentFragment();
     if (active.view === 'details') {
-      list.appendChild(
-        headerRow(['名称', '修改日期', '类型', '大小']),
-      );
+      frag.appendChild(headerRow(['名称', '修改日期', '类型', '大小']));
     }
-
     for (const st of entries) {
-      list.appendChild(renderEntry(st));
+      frag.appendChild(renderEntry(st));
     }
+    list.appendChild(frag);
     pane.appendChild(list);
   }
 
@@ -311,7 +331,10 @@ export default async function mount(ctx) {
   function headerRow(cols) {
     const el = document.createElement('div');
     el.className = 'ex-entry ex-header';
-    el.innerHTML = cols.map((c, i) => `<span class="col-${['name', 'date', 'type', 'size'][i]}">${escapeHtml(c)}</span>`).join('');
+    // 首列为图标占位，对齐数据行的 5 列网格结构
+    const cells = ['<span class="ex-entry-icon"></span>']
+      .concat(cols.map((c, i) => `<span class="col-${['name', 'date', 'type', 'size'][i]}">${escapeHtml(c)}</span>`));
+    el.innerHTML = cells.join('');
     return el;
   }
 
@@ -322,16 +345,19 @@ export default async function mount(ctx) {
     else selectOnly(el);
   }
 
+  let selectionAnchor = null;
+
   function selectOnly(el) {
     for (const other of el.parentElement.querySelectorAll('.is-selected')) other.classList.remove('is-selected');
     el.classList.add('is-selected');
+    selectionAnchor = el;
   }
 
   function rangeSelect(target) {
     const pane = target.parentElement;
     const all = [...pane.querySelectorAll('.ex-entry:not(.ex-header)')];
-    const last = pane.querySelector('.is-selected') || all[0];
-    const a = all.indexOf(last);
+    const anchor = selectionAnchor && all.includes(selectionAnchor) ? selectionAnchor : (all[0] || null);
+    const a = anchor ? all.indexOf(anchor) : 0;
     const b = all.indexOf(target);
     if (a < 0 || b < 0) return;
     const [from, to] = a < b ? [a, b] : [b, a];
@@ -344,15 +370,21 @@ export default async function mount(ctx) {
     return [...pane.querySelectorAll('.ex-entry.is-selected')].map((el) => active.entries.find((s) => s.path === el.dataset.path)).filter(Boolean);
   }
 
+  // 统一导航原语：推进历史栈并刷新当前窗格（不重建标签 DOM）
+  async function navigateTo(path) {
+    path = P.normalize(path);
+    active.history = active.history.slice(0, active.cursor + 1);
+    active.history.push(path);
+    active.cursor++;
+    active.search = '';
+    searchInput.value = '';
+    updateTabTitles();
+    await loadActive();
+  }
+
   async function activateEntry(st) {
     if (st.type === 'directory') {
-      active.history = active.history.slice(0, active.cursor + 1);
-      active.history.push(st.path);
-      active.cursor++;
-      active.search = '';
-      searchInput.value = '';
-      renderTabs();
-      await loadActive();
+      await navigateTo(st.path);
     } else {
       await ctx.openPath(st.path);
     }
