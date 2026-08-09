@@ -194,7 +194,7 @@ export default async function mount(ctx) {
       if (i === currentIndex) row.classList.add('is-active');
       row.innerHTML = `
         <span class="mp-track-num">${i + 1}</span>
-        <span class="mp-track-icon" title="${t.kind === 'video' ? '视频' : '音频'}">${getIcon(iconForExtension(P.extname(t.path).slice(1)), 16)}</span>
+        <span class="mp-track-icon" title="${t.kind === 'video' ? '视频' : '音频'}">${getIcon(iconForExtension(P.extname(t.path)), 16)}</span>
         <span class="mp-track-name">${escapeHtml(t.name)}</span>
         <span class="mp-track-dur">${t.duration ? fmt(t.duration) : ''}</span>
         <button class="mp-track-remove" aria-label="移除">×</button>`;

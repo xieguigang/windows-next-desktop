@@ -49,7 +49,7 @@ export default async function main(ctx) {
         <button class="iv-btn" data-act="rotate-right" title="向右旋转 (R)">${getIcon('rotateRight', 16)}</button>
         <button class="iv-btn" data-act="flip" title="水平翻转 (F)">${getIcon('flipHorizontal', 16)}</button>
         <span class="iv-sep"></span>
-        <button class="iv-btn" data-act="open" title="打开图片">${getIcon('folderOpen', 16)}</button>
+        <button class="iv-btn" data-act="open" title="打开图片">${getIcon('folderOpenSm', 16)}</button>
       </div>
     </div>
 
@@ -210,7 +210,7 @@ export default async function main(ctx) {
     try {
       const entries = await ctx.fs.readDir(dir);
       files = entries
-        .filter((e) => e.type === 'file' && IMAGE_EXTS.includes(P.extname(e.name).slice(1).toLowerCase()))
+        .filter((e) => e.type === 'file' && IMAGE_EXTS.includes(P.extname(e.name)))
         .map((e) => e.path)
         .sort((a, b) => a.localeCompare(b, 'zh-CN', { numeric: true }));
     } catch {

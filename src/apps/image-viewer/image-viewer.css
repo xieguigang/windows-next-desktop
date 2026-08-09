@@ -1,0 +1,192 @@
+/* ==========================================================================
+   图片查看器 —— 深色查看器主题
+   注入到应用的 Shadow DOM 中，不影响全局样式
+   ========================================================================== */
+
+.iv-root {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #1b1b1b;
+  color: #e8e8e8;
+  font-family: var(--font-ui);
+  overflow: hidden;
+  outline: none;
+  user-select: none;
+}
+
+/* ------------------------------ 顶部工具栏 ------------------------------ */
+.iv-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+  flex: 0 0 auto;
+}
+
+.iv-name {
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 34%;
+}
+
+.iv-index,
+.iv-dims {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.55);
+  white-space: nowrap;
+}
+
+.iv-zoom-text {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.8);
+  font-variant-numeric: tabular-nums;
+  min-width: 44px;
+  text-align: right;
+}
+
+.iv-spacer { flex: 1; }
+
+.iv-tools {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.iv-btn {
+  width: 30px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: #e8e8e8;
+  cursor: default;
+  transition: background 0.12s;
+}
+.iv-btn:hover { background: rgba(255, 255, 255, 0.13); }
+.iv-btn:active { background: rgba(255, 255, 255, 0.2); }
+
+.iv-sep {
+  width: 1px;
+  height: 18px;
+  margin: 0 4px;
+  background: rgba(255, 255, 255, 0.16);
+}
+
+/* ------------------------------ 图片舞台 ------------------------------ */
+.iv-stage {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  cursor: grab;
+  /* 棋盘格底纹，便于观察透明区域 */
+  background-color: #141414;
+  background-image:
+    linear-gradient(45deg, #1e1e1e 25%, transparent 25%, transparent 75%, #1e1e1e 75%),
+    linear-gradient(45deg, #1e1e1e 25%, transparent 25%, transparent 75%, #1e1e1e 75%);
+  background-size: 22px 22px;
+  background-position: 0 0, 11px 11px;
+}
+.iv-stage.is-grabbing { cursor: grabbing; }
+
+.iv-image {
+  max-width: none;
+  max-height: none;
+  /* 变换以中心为原点，配合 translate/scale 合成 */
+  transform-origin: center center;
+  will-change: transform;
+  /* 放大时保留像素感，避免模糊插值 */
+  image-rendering: auto;
+  -webkit-user-drag: none;
+}
+
+.iv-placeholder {
+  position: absolute;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.4);
+  pointer-events: none;
+}
+
+/* ------------------------------ 左右翻页 ------------------------------ */
+.iv-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 40px;
+  height: 64px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.42);
+  color: #fff;
+  cursor: default;
+  opacity: 0;
+  transition: opacity 0.15s, background 0.15s;
+  z-index: 2;
+}
+.iv-stage:hover .iv-nav { opacity: 1; }
+.iv-nav:hover { background: rgba(0, 0, 0, 0.68); }
+.iv-prev { left: 10px; }
+.iv-next { right: 10px; }
+
+/* ------------------------------ 缩略图条 ------------------------------ */
+.iv-thumbs {
+  flex: 0 0 auto;
+  display: flex;
+  gap: 6px;
+  padding: 8px 10px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  background: rgba(0, 0, 0, 0.32);
+  border-top: 1px solid rgba(255, 255, 255, 0.09);
+  scrollbar-width: thin;
+}
+.iv-thumbs::-webkit-scrollbar { height: 8px; }
+.iv-thumbs::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.22);
+  border-radius: 4px;
+}
+
+.iv-thumb {
+  flex: 0 0 auto;
+  width: 62px;
+  height: 46px;
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.07);
+  cursor: default;
+  overflow: hidden;
+  transition: border-color 0.12s;
+}
+.iv-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.iv-thumb:hover { border-color: rgba(255, 255, 255, 0.4); }
+.iv-thumb.is-active { border-color: var(--accent, #0078d4); }
+/* 尚未加载 ObjectURL 的占位格 */
+.iv-thumb.is-placeholder {
+  background-image: linear-gradient(
+    100deg,
+    rgba(255, 255, 255, 0.05) 30%,
+    rgba(255, 255, 255, 0.11) 50%,
+    rgba(255, 255, 255, 0.05) 70%
+  );
+}
