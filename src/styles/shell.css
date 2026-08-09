@@ -538,6 +538,27 @@ body[data-has-maximized="true"] .start-menu {
 .start-menu.is-opening { animation: startmenu-in 220ms var(--ease-decel) both; }
 .start-menu.is-closing { animation: startmenu-out 150ms var(--ease-accel) both; }
 
+/* ---- 左对齐开始菜单：靠左弹出，左侧无圆角 ---- */
+.start-menu[data-align="left"] {
+  left: 0;
+  border-radius: 0 var(--radius-xl) var(--radius-xl) 0;
+  transform: none;
+  transform-origin: bottom left;
+}
+
+@keyframes startmenu-in-left {
+  from { opacity: 0; transform: translateY(24px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes startmenu-out-left {
+  from { opacity: 1; transform: translateY(0) scale(1); }
+  to   { opacity: 0; transform: translateY(18px) scale(0.98); }
+}
+
+.start-menu[data-align="left"].is-opening { animation: startmenu-in-left 220ms var(--ease-decel) both; }
+.start-menu[data-align="left"].is-closing { animation: startmenu-out-left 150ms var(--ease-accel) both; }
+
 .sm-search {
   flex: 0 0 auto;
   padding: 28px 40px 16px;
@@ -1041,3 +1062,19 @@ body[data-has-maximized="true"] .context-menu {
   outline: none;
 }
 .file-dialog .fd-foot input:focus { border-color: var(--accent); }
+
+/* ============================================================
+   关机灰色渐变覆盖层
+   ============================================================ */
+.shutdown-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: rgba(128, 128, 128, 0);
+  pointer-events: none;
+  transition: background-color 2s ease-in;
+}
+
+.shutdown-overlay.is-active {
+  background: rgba(128, 128, 128, 0.85);
+}

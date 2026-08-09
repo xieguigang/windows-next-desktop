@@ -113,6 +113,7 @@ export class StartMenu {
     this.el.className = 'start-menu is-opening';
     this.el.setAttribute('role', 'dialog');
     this.el.setAttribute('aria-label', '开始菜单');
+    this.el.dataset.align = settings.get('taskbar.align') || 'center';
     this.el.innerHTML = `
       <div class="sm-search">
         <div class="sm-search-box">
@@ -431,9 +432,30 @@ export class StartMenu {
           onClick: async () => {
             const ok = await notifications.confirm('将关闭所有窗口并停止桌面。', '关机', { okLabel: '关机' });
             if (!ok) return;
+            // 关闭所有窗口和菜单
+            this.close();
             windowManager.getAll().forEach((w) => w.close());
-            document.body.dataset.shutdown = 'true';
-            notifications.toast({ title: '已关机', body: '刷新页面即可重新启动', type: 'info', duration: 8000 });
+            // 创建全屏灰色覆盖层，缓慢变灰
+            const overlay = document.createElement('div');
+            overlay.className = 'shutdown-overlay';
+            document.body.appendChild(overlay);
+            requestAnimationFrame(() => {
+              requestAnimationFrame(() => overlay.classList.add('is-active'));
+            });
+            // 变灰动画结束后关闭页面
+            overlay.addEventListener('transitionend', () => {
+              document.body.style.visibility = 'hidden';
+              // 使用 window.close() 尝试关闭页面（仅对通过脚本打开的页面有效）
+              window.close();
+              // 兜底：如果无法关闭，重写文档为关机提示
+              setTimeout(() => {
+                if (!document.hidden) {
+                  document.open();
+                  document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>已关机</title><style>body{display:flex;align-items:center;justify-content:center;height:100vh;margin:0;background:#1a1a1a;color:#888;font-family:system-ui;font-size:18px;}</style></head><body><p>桌面环境已关机。刷新页面以重新启动。</p></body></html>');
+                  document.close();
+                }
+              }, 600);
+            });
           },
         },
       ], e.clientX, e.clientY);

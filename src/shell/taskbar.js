@@ -32,6 +32,8 @@ export class Taskbar {
     this.appsEl = null;
     /** @type {HTMLElement|null} */
     this.startBtn = null;
+    /** @type {HTMLElement|null} */
+    this.startZone = null;
     /** @type {Map<string, HTMLElement>} appId → 按钮 */
     this.buttons = new Map();
     this._clockTimer = 0;
@@ -70,7 +72,9 @@ export class Taskbar {
 
     this.appsEl = this.el.querySelector('.taskbar-apps');
     this.startBtn = this.el.querySelector('.tb-start');
+    this.startZone = this.el.querySelector('.taskbar-start-zone');
 
+    this._updateStartBtnPosition();
     this._bindEvents();
     this._startClock();
     this.render();
@@ -201,6 +205,28 @@ export class Taskbar {
     if (slot.dataset.sig !== markup) {
       slot.dataset.sig = markup;
       slot.innerHTML = markup;
+    }
+  }
+
+  /* ==========================================================
+     开始按钮位置适配
+     ========================================================== */
+
+  /** 根据对齐模式将开始按钮移入或移出 .taskbar-apps */
+  _updateStartBtnPosition() {
+    const align = this.el.dataset.align;
+    if (align === 'left') {
+      // 左对齐：开始按钮回到 .taskbar-start-zone 固定左下角
+      if (this.startBtn.parentElement !== this.startZone) {
+        this.startZone.appendChild(this.startBtn);
+        this.startZone.style.display = '';
+      }
+    } else {
+      // 居中对齐：开始按钮移到 .taskbar-apps 最前面参与居中排列
+      if (this.startBtn.parentElement === this.startZone) {
+        this.startZone.style.display = 'none';
+        this.appsEl.insertBefore(this.startBtn, this.appsEl.firstChild);
+      }
     }
   }
 
@@ -427,6 +453,7 @@ export class Taskbar {
       settings.subscribe('taskbar.pinned', refresh),
       settings.subscribe('taskbar.align', (v) => {
         this.el.dataset.align = v;
+        this._updateStartBtnPosition();
       }),
       bus.on('startmenu:opened', () => {
         this.startBtn.setAttribute('aria-expanded', 'true');
@@ -453,6 +480,7 @@ export class Taskbar {
     this._disposers = [];
     this.el?.remove();
     this.buttons.clear();
+    this.startZone = null;
   }
 }
 
