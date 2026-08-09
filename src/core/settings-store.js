@@ -51,6 +51,8 @@ export const DEFAULT_SETTINGS = Object.freeze({
   'system.notifications': true,
   'system.userName': 'User',
   'system.snapEnabled': true,
+  'system.welcomed': false,                 // 首次启动欢迎提示是否已展示
+  'system.confirmExit': false,              // 关闭页面前是否确认
 });
 
 /** 需要同步到 CSS 变量的设置项映射 */
