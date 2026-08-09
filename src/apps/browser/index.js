@@ -15,6 +15,76 @@ import { getIcon } from '../../ui/icons.js';
 
 const HOME = 'https://start.local/';
 
+/** 已安装的 PWA 应用 ID 集合（内存缓存，避免重复注册） */
+const installedPwas = new Set();
+
+/**
+ * 为指定网页动态注册并启动 PWA 应用窗口
+ * @param {string} url
+ * @param {string} [title]
+ * @param {object} ctx 浏览器 app context
+ */
+async function installAsApp(url, title, ctx) {
+  if (!url || url === 'about:newtab' || url.startsWith('about:')) {
+    ctx.notify.warning('此页面无法安装为应用');
+    return;
+  }
+
+  // 基于域名生成唯一 appId
+  let domain;
+  try {
+    domain = new URL(url).hostname;
+  } catch {
+    domain = url.replace(/[^a-zA-Z0-9]/g, '-').slice(0, 40);
+  }
+
+  const appId = `pwa-${domain}`;
+
+  // 如果已经安装过，直接启动
+  if (installedPwas.has(appId)) {
+    const existing = window.WinNext?.windows?.getByAppId(appId);
+    if (existing?.length) {
+      window.WinNext.windows.focus(existing[0].id);
+      return;
+    }
+    // 应用已注册但无窗口，重新启动
+    try {
+      await ctx.launchApp(appId, { url, title }, { forceNew: true });
+      return;
+    } catch {
+      // 可能已被注销，重新注册
+    }
+  }
+
+  const appName = title || domain || url;
+
+  // 动态注册 PWA 应用
+  try {
+    window.WinNext.registerApp({
+      id: appId,
+      name: appName,
+      icon: 'browser',
+      description: `PWA 应用 — ${domain}`,
+      category: 'PWA 应用',
+      defaultSize: { width: 1024, height: 700 },
+      minSize: { width: 400, height: 300 },
+      resizable: true,
+      maximizable: true,
+      showOnDesktop: false,
+      singleton: false,
+      entry: '../apps/browser/pwa-app.js',
+    });
+
+    installedPwas.add(appId);
+
+    // 启动 PWA 窗口
+    await ctx.launchApp(appId, { url, title });
+  } catch (err) {
+    ctx.notify.error(`安装应用失败：${err.message}`);
+    console.error('PWA 安装失败', err);
+  }
+}
+
 export default async function mount(ctx) {
   ctx.injectStyleSheet(new URL('./browser.css', import.meta.url).href);
 
@@ -253,6 +323,8 @@ export default async function mount(ctx) {
     // 同步取出锚点矩形：事件派发结束后 e.currentTarget 会被置空，
     // 在异步 import 的回调里再访问就会抛错，菜单将永远打不开。
     const rect = e.currentTarget.getBoundingClientRect();
+    const currentUrl = activeUrl();
+    const canInstall = currentUrl && currentUrl !== 'about:newtab' && !currentUrl.startsWith('about:');
     import('../../shell/context-menu.js').then(({ contextMenu }) => {
       contextMenu.open([
         {
@@ -263,6 +335,14 @@ export default async function mount(ctx) {
         },
         { separator: true },
         { id: 'add-bm', label: '收藏当前页…', icon: 'star', onClick: () => toggleBookmark() },
+        {
+          id: 'install-pwa',
+          label: '安装为应用',
+          icon: 'apps',
+          disabled: !canInstall,
+          onClick: () => installAsApp(currentUrl, active?.title, ctx),
+        },
+        { separator: true },
         { id: 'clear-bm', label: '清空收藏栏', icon: 'delete', onClick: () => clearBookmarks() },
       ], rect.left, rect.bottom + 4);
     });
@@ -446,9 +526,11 @@ export default async function mount(ctx) {
         <div class="br-blocked-reason">${escapeHtml(reason)}</div>
         <div class="br-blocked-actions">
           <button class="btn br-blocked-open">在新窗口中打开</button>
+          <button class="btn br-blocked-pwa">安装为应用</button>
         </div>
       </div>`;
     pane.querySelector('.br-blocked-open').addEventListener('click', () => window.open(t.url, '_blank', 'noopener'));
+    pane.querySelector('.br-blocked-pwa').addEventListener('click', () => installAsApp(t.url, t.title, ctx));
     pane.classList.remove('is-loading');
   }
 
