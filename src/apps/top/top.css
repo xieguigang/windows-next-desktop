@@ -1,4 +1,7 @@
 /* top - 系统进程监控工具 */
+/* Shadow DOM 中 [hidden] 属性需要显式样式覆盖 */
+[hidden] { display: none !important; }
+
 .top-root {
   display: flex;
   flex-direction: column;

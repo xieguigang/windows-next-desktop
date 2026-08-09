@@ -38,7 +38,14 @@ export default async function mount(ctx) {
   const container = root.querySelector('.tm-xterm-container');
 
   // ── 初始化 xterm.js ─────────────────────────────────────
-  const term = new Terminal({
+  // 显式从 window 获取全局变量（ES module 作用域隔离）
+  const XTerm = window.Terminal;
+  const XFitAddon = window.FitAddon;
+  const XWebLinksAddon = window.WebLinksAddon;
+
+  if (!XTerm) throw new Error('xterm.js 未加载，请检查网络连接');
+
+  const term = new XTerm({
     cursorBlink: true,
     cursorStyle: 'bar',
     fontSize: 13,
@@ -71,16 +78,24 @@ export default async function mount(ctx) {
     tabStopWidth: 4,
   });
 
-  const fitAddon = new FitAddon();
-  const webLinksAddon = new WebLinksAddon();
-  term.loadAddon(fitAddon);
-  term.loadAddon(webLinksAddon);
+  let fitAddon = null;
+  let webLinksAddon = null;
+  if (XFitAddon) {
+    fitAddon = new XFitAddon();
+    term.loadAddon(fitAddon);
+  }
+  if (XWebLinksAddon) {
+    webLinksAddon = new XWebLinksAddon();
+    term.loadAddon(webLinksAddon);
+  }
   term.open(container);
 
   // 自适应大小
-  fitAddon.fit();
-  const ro = new ResizeObserver(() => fitAddon.fit());
-  ro.observe(container);
+  if (fitAddon) {
+    fitAddon.fit();
+    const ro = new ResizeObserver(() => fitAddon.fit());
+    ro.observe(container);
+  }
 
   // ── 状态 ─────────────────────────────────────────────
   /** @type {string} */
