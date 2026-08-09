@@ -1,0 +1,229 @@
+/* top - 系统进程监控工具 */
+.top-root {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #0c0c0c;
+  color: #cccccc;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  outline: none;
+  user-select: none;
+}
+
+/* 头部 */
+.top-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: #181818;
+  border-bottom: 1px solid #2a2a2a;
+  flex-shrink: 0;
+}
+.top-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+}
+.top-icon {
+  color: #6cc;
+  font-size: 16px;
+}
+.top-controls {
+  display: flex;
+  gap: 6px;
+}
+
+/* 按钮 */
+.top-btn {
+  padding: 4px 12px;
+  border: 1px solid #3a3a3a;
+  border-radius: 4px;
+  background: #2a2a2a;
+  color: #ccc;
+  font-size: 12px;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.top-btn:hover {
+  background: #3a3a3a;
+  border-color: #555;
+  color: #fff;
+}
+.top-btn:active {
+  background: #444;
+}
+.top-btn-danger {
+  border-color: #f87171;
+  color: #f87171;
+}
+.top-btn-danger:hover {
+  background: #f87171;
+  color: #fff;
+}
+
+/* 系统摘要 */
+.top-summary {
+  display: flex;
+  gap: 24px;
+  padding: 8px 12px;
+  background: #141414;
+  border-bottom: 1px solid #2a2a2a;
+  flex-shrink: 0;
+}
+.top-summary-item {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.top-label {
+  color: #888;
+  font-size: 12px;
+}
+.top-val {
+  color: #6cc;
+  font-weight: 600;
+}
+
+/* 表格 */
+.top-table-wrap {
+  flex: 1;
+  overflow-y: auto;
+}
+.top-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.top-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+.top-table th {
+  padding: 6px 10px;
+  background: #181818;
+  border-bottom: 2px solid #2a2a2a;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 600;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.top-row {
+  cursor: pointer;
+  transition: background 0.1s;
+}
+.top-row:hover {
+  background: #1a1a2e;
+}
+.top-row.is-selected {
+  background: #1e3a5f;
+  outline: 1px solid #3a7bd5;
+  outline-offset: -1px;
+}
+.top-row.is-system {
+  opacity: 0.7;
+}
+.top-row.is-system:hover {
+  opacity: 0.85;
+}
+
+.top-row td {
+  padding: 5px 10px;
+  border-bottom: 1px solid #1a1a1a;
+  white-space: nowrap;
+}
+
+/* 列宽 */
+.col-pid { width: 70px; color: #888; }
+.col-user { width: 80px; color: #aaa; }
+.col-cpu { width: 70px; text-align: right; font-variant-numeric: tabular-nums; }
+.col-mem { width: 80px; text-align: right; font-variant-numeric: tabular-nums; }
+.col-status { width: 80px; }
+.col-name { min-width: 200px; }
+
+/* 颜色指示 */
+.cpu-high { color: #f87171; font-weight: 600; }
+.cpu-mid { color: #fbbf24; }
+.cpu-low { color: #6cc; }
+.mem-high { color: #f87171; font-weight: 600; }
+.mem-mid { color: #fbbf24; }
+.mem-low { color: #6cc; }
+.status-running { color: #4ade80; }
+.status-suspended { color: #fbbf24; }
+
+.top-empty {
+  padding: 40px !important;
+  text-align: center;
+  color: #666;
+}
+
+/* 页脚快捷键提示 */
+.top-footer {
+  display: flex;
+  gap: 8px;
+  padding: 6px 12px;
+  background: #181818;
+  border-top: 1px solid #2a2a2a;
+  font-size: 11px;
+  color: #666;
+  flex-shrink: 0;
+}
+.top-sep {
+  color: #333;
+}
+
+/* 确认对话框 */
+.top-confirm {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 10;
+}
+.top-confirm-box {
+  background: #1e1e1e;
+  border: 1px solid #3a3a3a;
+  border-radius: 8px;
+  padding: 20px 24px;
+  max-width: 400px;
+  text-align: center;
+}
+.top-confirm-box p {
+  margin: 0 0 16px;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  color: #ddd;
+}
+.top-confirm-box strong {
+  color: #f87171;
+}
+.top-confirm-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+/* 自定义滚动条 */
+.top-table-wrap::-webkit-scrollbar {
+  width: 10px;
+}
+.top-table-wrap::-webkit-scrollbar-track {
+  background: transparent;
+}
+.top-table-wrap::-webkit-scrollbar-thumb {
+  background: #2a2a2a;
+  border-radius: 5px;
+}
+.top-table-wrap::-webkit-scrollbar-thumb:hover {
+  background: #3a3a3a;
+}

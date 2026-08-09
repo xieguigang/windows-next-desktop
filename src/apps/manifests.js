@@ -104,6 +104,17 @@ export const BUILTIN_APPS = [
     showOnDesktop: false,
   },
   {
+    id: 'top',
+    name: 'top 进程监控',
+    icon: 'taskManager',
+    description: '终端风格的系统进程监控工具',
+    category: '系统',
+    entry: '../apps/top/index.js',
+    defaultSize: { width: 780, height: 560 },
+    minSize: { width: 560, height: 360 },
+    showOnDesktop: false,
+  },
+  {
     id: 'settings',
     name: '设置',
     icon: 'settings',

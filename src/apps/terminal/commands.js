@@ -99,7 +99,7 @@ COMMANDS.ls = {
 
 COMMANDS.cd = {
   desc: '切换目录（cd ~, cd .., cd -, cd <path>）',
-  run: async (args, { cwd, ctx, setCwd, writeln, ansi }) => {
+  run: async (args, { cwd, ctx, setCwd, writeln, ansi, env }) => {
     let target = args[0] || SHELL_FOLDERS.home;
     if (target === '-') {
       const prev = env._prevDir;
