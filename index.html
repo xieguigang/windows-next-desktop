@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="color-scheme" content="light dark">
+<title>WindowsNext</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=Noto+Sans+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="src/styles/variables.css">
+<link rel="stylesheet" href="src/styles/base.css">
+<link rel="stylesheet" href="src/styles/window.css">
+<link rel="stylesheet" href="src/styles/shell.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%230078D4' d='M3 5.5 10.2 4.5v6.9H3V5.5Zm0 13L10.2 19.5v-6.8H3v5.8Zm8.4 1.2L21 21V12.7h-9.6v7Zm0-15.4v7.1H21V3l-9.6 1.3Z'/%3E%3C/svg%3E">
+</head>
+<body data-has-maximized="false">
+
+<!-- 壁纸层 -->
+<div id="wallpaper-layer" class="wallpaper-layer"></div>
+
+<!-- 桌面图标层 -->
+<div id="desktop-layer" class="desktop-layer"></div>
+
+<!-- 窗口层 -->
+<div id="window-layer" class="window-layer"></div>
+
+<!-- 外壳层：任务栏 / 开始菜单 / 菜单 / 通知 -->
+<div id="shell-layer" class="shell-layer"></div>
+
+<!-- 浮层：右键菜单、预览、对话框 -->
+<div id="overlay-layer" class="overlay-layer"></div>
+
+<!-- 启动遮罩 -->
+<div id="boot-screen" class="boot-screen">
+  <div class="boot-logo">
+    <svg viewBox="0 0 24 24" width="72" height="72" aria-hidden="true">
+      <path fill="currentColor" d="M3 5.5 10.2 4.5v6.9H3V5.5Zm0 13L10.2 19.5v-6.8H3v5.8Zm8.4 1.2L21 21V12.7h-9.6v7Zm0-15.4v7.1H21V3l-9.6 1.3Z"/>
+    </svg>
+  </div>
+  <div class="boot-spinner" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
+  <div class="boot-text">正在启动 WindowsNext…</div>
+  <div class="boot-error" id="boot-error" hidden></div>
+</div>
+
+<script>
+  // file:// 协议下 ES Modules 会被 CORS 拦截，提前给出可读提示
+  if (location.protocol === 'file:') {
+    document.getElementById('boot-error').hidden = false;
+    document.getElementById('boot-error').innerHTML =
+      '<strong>无法以 file:// 协议运行</strong><br>' +
+      'ES Modules 需要 http 协议。请在项目目录下执行：<br>' +
+      '<code>python -m http.server 8080</code><br>然后访问 <code>http://localhost:8080</code>';
+  }
+  window.addEventListener('error', function (e) {
+    var box = document.getElementById('boot-error');
+    if (box && !box.hidden) return;
+    if (box && e && e.message) {
+      box.hidden = false;
+      box.innerHTML = '<strong>启动失败</strong><br><code>' + String(e.message).replace(/</g, '&lt;') + '</code>';
+    }
+  });
+</script>
+<script type="module" src="src/boot.js"></script>
+</body>
+</html>

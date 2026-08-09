@@ -1,0 +1,212 @@
+/* ============================================================
+   WindowsNext 设计令牌
+   所有 Aero / Fluent 视觉参数集中在此，设置应用可实时改写
+   ============================================================ */
+
+:root {
+  /* ---------- 字体 ---------- */
+  --font-sans: "Noto Sans SC", "Segoe UI Variable", "Segoe UI", system-ui, -apple-system, "Microsoft YaHei", sans-serif;
+  --font-mono: "Noto Sans Mono", "Cascadia Code", Consolas, "Courier New", monospace;
+
+  --fs-caption: 11px;
+  --fs-body: 13px;
+  --fs-body-lg: 14px;
+  --fs-subtitle: 16px;
+  --fs-title: 20px;
+  --fs-display: 28px;
+
+  --fw-regular: 400;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+
+  /* ---------- 强调色（Fluent Accent） ---------- */
+  --accent: #0078D4;
+  --accent-hover: #1A86D9;
+  --accent-active: #005A9E;
+  --accent-light: #4CC2FF;
+  --accent-subtle: rgba(0, 120, 212, 0.12);
+  --accent-fg: #FFFFFF;
+
+  /* ---------- 语义色 ---------- */
+  --success: #0F7B0F;
+  --danger: #C42B1C;
+  --warning: #9D5D00;
+  --info: #0078D4;
+
+  /* ---------- 亮色主题基础 ---------- */
+  --bg-app: #FFFFFF;
+  --bg-layer: #F9F9F9;
+  --bg-subtle: #F3F3F3;
+  --bg-hover: rgba(0, 0, 0, 0.045);
+  --bg-active: rgba(0, 0, 0, 0.08);
+  --bg-selected: rgba(0, 120, 212, 0.10);
+
+  --fg-primary: #1B1B1B;
+  --fg-secondary: #5A5A5A;
+  --fg-tertiary: #8A8A8A;
+  --fg-disabled: #A0A0A0;
+  --fg-inverse: #FFFFFF;
+
+  --stroke-default: #E0E0E0;
+  --stroke-subtle: #EDEDED;
+  --stroke-strong: #C8C8C8;
+  --stroke-focus: var(--accent);
+
+  /* ---------- Aero 毛玻璃参数（设置可调） ---------- */
+  --aero-blur: 30px;
+  --aero-saturate: 180%;
+  --aero-opacity: 0.62;
+
+  --aero-window-bg: rgba(255, 255, 255, var(--aero-opacity));
+  --aero-window-filter: blur(var(--aero-blur)) saturate(var(--aero-saturate));
+  --aero-window-border: rgba(255, 255, 255, 0.38);
+  --aero-highlight: rgba(255, 255, 255, 0.55);
+
+  --aero-taskbar-bg: rgba(252, 252, 252, 0.58);
+  --aero-taskbar-filter: blur(calc(var(--aero-blur) + 10px)) saturate(var(--aero-saturate));
+  --taskbar-solid-bg: #F3F3F3;
+
+  --aero-menu-bg: rgba(250, 250, 250, 0.76);
+  --aero-menu-filter: blur(var(--aero-blur)) saturate(var(--aero-saturate));
+  --menu-solid-bg: #F5F5F5;
+
+  --aero-flyout-bg: rgba(248, 248, 248, 0.85);
+  --flyout-solid-bg: #F7F7F7;
+
+  /* 最大化窗口的不透明外观 */
+  --window-solid-bg: #FFFFFF;
+  --window-solid-border: #FFFFFF;
+
+  /* ---------- 圆角 ---------- */
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-round: 999px;
+
+  /* ---------- 阴影 ---------- */
+  --shadow-flyout: 0 8px 24px rgba(0, 0, 0, 0.18), 0 0 1px rgba(0, 0, 0, 0.12);
+  --shadow-window: 0 16px 48px rgba(0, 0, 0, 0.34), 0 2px 8px rgba(0, 0, 0, 0.20);
+  --shadow-window-blur: 0 8px 24px rgba(0, 0, 0, 0.18), 0 1px 4px rgba(0, 0, 0, 0.12);
+  --shadow-taskbar: 0 -1px 12px rgba(0, 0, 0, 0.10);
+  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.10);
+
+  /* ---------- 间距 ---------- */
+  --sp-1: 2px;
+  --sp-2: 4px;
+  --sp-3: 8px;
+  --sp-4: 12px;
+  --sp-5: 16px;
+  --sp-6: 20px;
+  --sp-7: 24px;
+  --sp-8: 32px;
+
+  /* ---------- 尺寸 ---------- */
+  --taskbar-height: 48px;
+  --titlebar-height: 38px;
+  --caption-btn-width: 46px;
+  --resize-edge: 6px;
+  --icon-cell-w: 88px;
+  --icon-cell-h: 96px;
+
+  /* ---------- 层级 ---------- */
+  --z-wallpaper: 0;
+  --z-desktop: 10;
+  --z-window-base: 1000;
+  --z-window-top: 5000;
+  --z-taskbar: 8000;
+  --z-startmenu: 8200;
+  --z-preview: 8400;
+  --z-contextmenu: 8600;
+  --z-toast: 8800;
+  --z-dialog: 9000;
+  --z-boot: 9900;
+
+  /* ---------- 动效 ---------- */
+  --ease-standard: cubic-bezier(0.2, 0.9, 0.3, 1);
+  --ease-decel: cubic-bezier(0.1, 0.9, 0.2, 1);
+  --ease-accel: cubic-bezier(0.7, 0, 1, 0.5);
+  --dur-fast: 120ms;
+  --dur-normal: 200ms;
+  --dur-slow: 320ms;
+
+  /* 桌面默认渐变兜底壁纸 */
+  --wallpaper-fallback:
+    radial-gradient(1200px 800px at 18% 12%, rgba(76, 194, 255, 0.30), transparent 62%),
+    radial-gradient(900px 700px at 82% 78%, rgba(168, 85, 247, 0.32), transparent 60%),
+    linear-gradient(135deg, #0A2A5E 0%, #1E3A8A 46%, #4C1D95 100%);
+}
+
+/* ============================================================
+   暗色主题
+   ============================================================ */
+:root[data-theme="dark"] {
+  --bg-app: #202020;
+  --bg-layer: #272727;
+  --bg-subtle: #1B1B1B;
+  --bg-hover: rgba(255, 255, 255, 0.06);
+  --bg-active: rgba(255, 255, 255, 0.10);
+  --bg-selected: rgba(76, 194, 255, 0.16);
+
+  --fg-primary: #FFFFFF;
+  --fg-secondary: #C8C8C8;
+  --fg-tertiary: #9A9A9A;
+  --fg-disabled: #6E6E6E;
+  --fg-inverse: #1B1B1B;
+
+  --stroke-default: #3A3A3A;
+  --stroke-subtle: #2E2E2E;
+  --stroke-strong: #4A4A4A;
+
+  --accent: #4CC2FF;
+  --accent-hover: #64CBFF;
+  --accent-active: #2AA8EC;
+  --accent-subtle: rgba(76, 194, 255, 0.16);
+  --accent-fg: #002E4C;
+
+  --aero-window-bg: rgba(32, 32, 32, var(--aero-opacity));
+  --aero-window-border: rgba(255, 255, 255, 0.10);
+  --aero-highlight: rgba(255, 255, 255, 0.14);
+
+  --aero-taskbar-bg: rgba(28, 28, 28, 0.66);
+  --taskbar-solid-bg: #1F1F1F;
+
+  --aero-menu-bg: rgba(36, 36, 36, 0.80);
+  --menu-solid-bg: #2A2A2A;
+
+  --aero-flyout-bg: rgba(40, 40, 40, 0.86);
+  --flyout-solid-bg: #2C2C2C;
+
+  --window-solid-bg: #202020;
+  --window-solid-border: #2E2E2E;
+
+  --shadow-window: 0 16px 48px rgba(0, 0, 0, 0.60), 0 2px 8px rgba(0, 0, 0, 0.42);
+  --shadow-window-blur: 0 8px 24px rgba(0, 0, 0, 0.42), 0 1px 4px rgba(0, 0, 0, 0.28);
+  --shadow-flyout: 0 8px 24px rgba(0, 0, 0, 0.46), 0 0 1px rgba(0, 0, 0, 0.5);
+}
+
+/* 关闭动效（系统偏好 / 设置项） */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-fast: 1ms;
+    --dur-normal: 1ms;
+    --dur-slow: 1ms;
+  }
+}
+
+:root[data-reduce-motion="true"] * {
+  animation-duration: 1ms !important;
+  transition-duration: 1ms !important;
+}
+
+/* 关闭 Aero（低性能设备 / 用户偏好） */
+:root[data-aero="off"] {
+  --aero-window-filter: none;
+  --aero-taskbar-filter: none;
+  --aero-menu-filter: none;
+  --aero-window-bg: var(--window-solid-bg);
+  --aero-taskbar-bg: var(--taskbar-solid-bg);
+  --aero-menu-bg: var(--menu-solid-bg);
+  --aero-flyout-bg: var(--flyout-solid-bg);
+}
