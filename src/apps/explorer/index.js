@@ -418,32 +418,21 @@ export default async function mount(ctx) {
   root.querySelector('.ex-up').addEventListener('click', async () => {
     const parent = P.dirname(currentPath());
     if (parent === currentPath()) return;
-    active.history = active.history.slice(0, active.cursor + 1);
-    active.history.push(parent);
-    active.cursor++;
-    renderTabs();
-    await loadActive();
+    await navigateTo(parent);
   });
 
-  let addressTimer = 0;
   addressInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
       const target = P.normalize(addressInput.value.trim() || SHELL_FOLDERS.home);
-      active.history = active.history.slice(0, active.cursor + 1);
-      active.history.push(target);
-      active.cursor++;
-      renderTabs();
-      loadActive();
+      navigateTo(target);
     } else if (e.key === 'Escape') {
       addressInput.value = currentPath();
       addressInput.blur();
     }
   });
-  addressInput.addEventListener('input', () => {
-    clearTimeout(addressTimer);
-    addressTimer = window.setTimeout(() => {
-      addressInput.value = currentPath();
-    }, 1200);
+  // 仅在失焦且未提交时回填当前路径，避免手输过程中被清空
+  addressInput.addEventListener('blur', () => {
+    if (addressInput.value.trim() !== currentPath()) addressInput.value = currentPath();
   });
 
   let searchTimer = 0;
@@ -460,7 +449,7 @@ export default async function mount(ctx) {
     btn.addEventListener('click', () => {
       if (!active) return;
       active.view = btn.dataset.view;
-      for (const b of root.querySelectorAll('[data-view]')) b.classList.toggle('is-active', b === btn);
+      syncViewButtons();
       const pane = panesEl.querySelector(`[data-tab="${active.id}"]`);
       renderPane(pane);
     });
@@ -535,7 +524,7 @@ export default async function mount(ctx) {
   ctx.events.on('fs:drives-changed', () => refreshDriveList());
 
   ctx.events.on('fs:changed', (payload) => {
-    if (payload?.path?.startsWith?.(currentPath() || '')) loadActive();
+    if (P.isSubPath(currentPath() || '', payload?.path)) loadActive();
   });
 
   // ── 空白处右键：新建 ─────────────────────────────────────────
@@ -617,10 +606,8 @@ export default async function mount(ctx) {
       if (el) {
         for (const other of pane.querySelectorAll('.is-selected')) other.classList.remove('is-selected');
         el.classList.add('is-selected');
-        el.dispatchEvent(new MouseEvent('dblclick'));
-        // 启动重命名
-        await new Promise((r) => setTimeout(r, 50));
-        beginRename(pane.querySelector(`[data-path="${target}"]`), name);
+        // 直接进入重命名状态（不触发 dblclick 以免误进入文件夹/打开文件）
+        beginRename(el, name);
       }
     } catch (err) {
       ctx.notify.error('新建失败：' + (err?.message || err));
@@ -682,8 +669,8 @@ export default async function mount(ctx) {
       label.textContent = next || originalName;
       input.replaceWith(label);
       if (!commit || !next || next === originalName) return;
-      const err = P.validateName(next);
-      if (err) return ctx.notify.error(err);
+      const v = P.validateName(next);
+      if (!v.ok) return ctx.notify.error(v.reason);
       try {
         await ctx.fs.rename(el.dataset.path, P.join(P.dirname(el.dataset.path), next));
         await loadActive();
