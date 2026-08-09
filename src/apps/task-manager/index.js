@@ -252,9 +252,48 @@ export default async function mount(ctx) {
     else pushSample();
   });
 
-  // 进程变化时刷新
-  ctx.events.on('process:changed', () => {
+  // 进程启动时刷新进程列表
+  ctx.events.on('process:started', () => {
     if (activeTab === 'processes') render();
+  });
+
+  // 进程结束时刷新进程列表
+  ctx.events.on('process:ended', () => {
+    if (activeTab === 'processes') render();
+  });
+
+  // 监听 kill-requested：关闭对应窗口，并检测彩蛋
+  const onKillRequested = (payload) => {
+    const proc = payload?.process;
+    if (!proc) return;
+
+    // 彩蛋：系统进程被结束 → 触发蓝屏重启
+    if (payload.isSystem && proc.appId === '_shell') {
+      triggerBsodRestart();
+      return;
+    }
+
+    // 普通进程：关闭对应窗口
+    if (proc.windowId) {
+      const win = windowManager.get(proc.windowId);
+      if (win && !win.isDestroyed) {
+        win.close();
+      }
+    }
+
+    // 刷新进程列表
+    if (activeTab === 'processes') render();
+  };
+  ctx.events.on('process:kill-requested', onKillRequested);
+
+  // 窗口关闭时清理对应进程记录
+  ctx.events.on('window:closed', (payload) => {
+    const windowId = payload?.id;
+    if (!windowId) return;
+    const proc = processManager.getByWindowId(windowId);
+    if (proc) {
+      processManager.unregister(proc.pid);
+    }
   });
 
   // 窗口最小化时暂停采样
@@ -284,6 +323,151 @@ export default async function mount(ctx) {
     const procs = processManager.list();
     return `${procs.length} 个进程 · CPU ${procs.length ? (procs.reduce((s, p) => s + (p.cpu || 0), 0) / procs.length).toFixed(0) : 0}%`;
   });
+
+  /* ============================================================
+     彩蛋：终止 WindowsNext 桌面外壳 → 蓝屏重启
+     ============================================================ */
+
+  function triggerBsodRestart() {
+    // 1. 关闭所有应用窗口
+    for (const w of windowManager.getAll()) {
+      if (!w.isDestroyed) {
+        try { w.close(); } catch { /* 忽略关闭错误 */ }
+      }
+    }
+
+    // 2. 清除 processManager 中的所有进程
+    for (const p of processManager.list()) {
+      try { processManager.unregister(p.pid); } catch { /* 忽略 */ }
+    }
+
+    // 3. 渲染蓝屏
+    renderBsodScreen();
+  }
+
+  function renderBsodScreen() {
+    const bootScreen = document.getElementById('boot-screen');
+    if (!bootScreen) return;
+
+    // 设置蓝屏状态
+    document.body.setAttribute('data-bsod', 'true');
+    document.documentElement.setAttribute('data-theme', 'dark');
+
+    // 注入蓝屏 HTML 结构
+    bootScreen.innerHTML = `
+      <div class="bsod" role="alertdialog" aria-live="assertive">
+        <p class="bsod-face">:(</p>
+        <h1 class="bsod-title">你的电脑遇到问题，需要重新启动。</h1>
+        <p class="bsod-reason">
+          <strong>关键系统进程已终止</strong>
+          &nbsp;WindowsNext 桌面外壳进程已被强制结束，系统无法继续运行。
+        </p>
+        <p class="bsod-progress">我们正在收集一些错误信息，完成度&nbsp;
+          <span class="bsod-percent" id="bsod-percent-js"></span>%，然后你可以重新启动。</p>
+        <div class="bsod-detail">
+          <div class="bsod-qr" aria-hidden="true"></div>
+          <div class="bsod-info">
+            <p class="bsod-label">若想了解详细信息，你以后可以联机搜索此错误：</p>
+            <p class="bsod-code">停止代码：CRITICAL_PROCESS_DIED</p>
+            <p class="bsod-code">失败的进程：WindowsNext 桌面外壳 (PID: ${processManager._systemPid || 'N/A'})</p>
+            <p class="bsod-code">错误来源：task-manager (手动终止)</p>
+          </div>
+        </div>
+        <div class="bsod-fix">
+          <p>系统将在收集完错误信息后自动重新启动。</p>
+        </div>
+      </div>`;
+
+    // 确保蓝屏可见（覆盖 boot-screen 的原有样式）
+    bootScreen.style.display = 'block';
+    bootScreen.style.opacity = '1';
+    bootScreen.style.visibility = 'visible';
+    bootScreen.style.pointerEvents = 'auto';
+
+    // 4. JS 驱动的进度条动画（0% → 100%，约 9 秒）
+    const percentEl = document.getElementById('bsod-percent-js');
+    if (!percentEl) return;
+
+    let progress = 0;
+    const totalDuration = 9000;  // 9 秒总动画时长
+    const steps = 100;
+    const stepDuration = totalDuration / steps;
+
+    const progressTimer = setInterval(() => {
+      progress++;
+      percentEl.textContent = String(progress);
+      if (progress >= 100) {
+        clearInterval(progressTimer);
+        // 5. 进度到 100% 后等待 10 秒，然后自动重启
+        setTimeout(() => restartShell(), 10000);
+      }
+    }, stepDuration);
+  }
+
+  function restartShell() {
+    // 移除蓝屏状态
+    document.body.removeAttribute('data-bsod');
+    document.documentElement.removeAttribute('data-theme');
+
+    const bootScreen = document.getElementById('boot-screen');
+    if (bootScreen) {
+      // 显示重启引导画面
+      bootScreen.innerHTML = `
+        <div class="boot-logo">
+          <svg viewBox="0 0 24 24" width="72" height="72" aria-hidden="true">
+            <path fill="currentColor" d="M3 5.5 10.2 4.5v6.9H3V5.5Zm0 13L10.2 19.5v-6.8H3v5.8Zm8.4 1.2L21 21V12.7h-9.6v7Zm0-15.4v7.1H21V3l-9.6 1.3Z"/>
+          </svg>
+        </div>
+        <div class="boot-spinner" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
+        <div class="boot-text">正在重新启动 Windows Next …</div>
+        <div class="boot-error" id="boot-error" hidden></div>`;
+
+      bootScreen.style.display = '';
+      bootScreen.style.opacity = '';
+      bootScreen.style.visibility = '';
+      bootScreen.style.pointerEvents = '';
+    }
+
+    // 延迟后执行「重启」：重新初始化桌面外壳
+    setTimeout(async () => {
+      try {
+        // 重新注册系统进程（使用 register 方法确保 pid 正确递增）
+        const shellProc = processManager.register({
+          appId: '_shell',
+          name: 'WindowsNext 桌面外壳',
+          icon: 'monitor',
+          windowId: '',
+        });
+        // 标记为系统进程
+        shellProc.system = true;
+        processManager._systemPid = shellProc.pid;
+
+        // 隐藏启动遮罩
+        const bs = document.getElementById('boot-screen');
+        if (bs) {
+          bs.classList.add('is-hidden');
+          bs.addEventListener('transitionend', () => bs.remove(), { once: true });
+          setTimeout(() => bs.remove(), 1200);
+        }
+
+        // 恢复主题
+        const savedTheme = ctx.settings.get('appearance.theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+
+        // 发送系统就绪事件，让桌面恢复正常
+        bus.emit('system:ready', { restarted: true });
+
+        ctx.notify.toast({
+          title: '系统已重启',
+          body: 'WindowsNext 桌面外壳已成功重新启动。下次请不要随意终止系统进程哦~',
+          type: 'info',
+          duration: 8000,
+        });
+      } catch (err) {
+        console.error('重启桌面外壳失败', err);
+      }
+    }, 2000);
+  }
 }
 
 function formatMb(mb) {
