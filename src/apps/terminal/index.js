@@ -71,8 +71,8 @@ export default async function mount(ctx) {
     tabStopWidth: 4,
   });
 
-  const fitAddon = new FitAddon.FitAddon();
-  const webLinksAddon = new WebLinksAddon.WebLinksAddon();
+  const fitAddon = new FitAddon();
+  const webLinksAddon = new WebLinksAddon();
   term.loadAddon(fitAddon);
   term.loadAddon(webLinksAddon);
   term.open(container);
