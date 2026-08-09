@@ -10,8 +10,11 @@
  * 模拟数据采用 1s 间隔的随机游走，让曲线看起来「活的」又不至于太剧烈。
  *
  * 窗口最小化时通过监听 window:minimized 暂停采样。
+ *
+ * 彩蛋：用户可以结束「WindowsNext 桌面外壳」系统进程，触发蓝屏重启序列。
  */
 
+import bus from '../../core/event-bus.js';
 import { ensureECharts } from '../calculator/echarts-loader.js';
 import { windowManager } from '../../core/window-manager.js';
 import { processManager } from '../../core/process-manager.js';
@@ -69,39 +72,55 @@ export default async function mount(ctx) {
       </div>`;
     const list = container.querySelector('.tm2-list');
     const processes = processManager.list();
+
     for (const p of processes) {
+      // 通过 windowId 查找对应窗口（一个进程对应一个窗口）
+      const procWindows = p.windowId
+        ? windowManager.getAll().filter((w) => w.id === p.windowId && !w.isDestroyed)
+        : [];
+      const windowCount = procWindows.length;
+
       const row = document.createElement('div');
       row.className = 'tm2-row';
       row.innerHTML = `
         <span class="tm2-app">${escapeHtml(p.name)}</span>
         <span class="tm2-pid">${p.pid}</span>
-        <span class="tm2-state">${p.system ? '系统' : (p.windows?.length ? '运行中' : '已停止')}</span>
+        <span class="tm2-state">${p.system ? '系统' : (windowCount ? '运行中' : '已停止')}</span>
         <span class="tm2-cpu">${(p.cpu || 0).toFixed(1)}%</span>
         <span class="tm2-mem">${formatMb(p.memory || 0)}</span>
-        <span class="tm2-windows">${p.windows?.length || 0}</span>`;
+        <span class="tm2-windows">${windowCount}</span>`;
       row.addEventListener('contextmenu', (e) => {
         e.preventDefault();
-        contextMenu.open([
+
+        // "切换到"：聚焦第一个关联窗口
+        const focusWindow = procWindows[0];
+        const items = [
           {
             id: 'focus',
             label: '切换到',
             icon: 'window',
-            disabled: !p.windows?.length,
-            onClick: () => p.windows?.[0] && windowManager.focus(p.windows[0]),
+            disabled: !focusWindow,
+            onClick: () => focusWindow && windowManager.focus(focusWindow),
           },
-          {
-            id: 'close',
-            label: '结束任务',
-            icon: 'close',
-            danger: true,
-            disabled: p.system,
-            onClick: async () => {
-              if (p.system) return;
-              const ok = await ctx.dialog.confirm(`确定要结束任务「${p.name}」吗？`, '结束任务', { okLabel: '结束任务' });
-              if (ok) processManager.kill(p.pid);
-            },
+        ];
+
+        // "结束任务"：系统进程也可以结束（彩蛋），但需要确认
+        items.push({
+          id: 'close',
+          label: '结束任务',
+          icon: 'close',
+          danger: true,
+          disabled: false,
+          onClick: async () => {
+            const confirmMsg = p.system
+              ? '警告：您即将结束系统关键进程「WindowsNext 桌面外壳」。\n这可能导致桌面环境崩溃。确定要继续吗？'
+              : `确定要结束任务「${p.name}」吗？`;
+            const ok = await ctx.dialog.confirm(confirmMsg, '结束任务', { okLabel: p.system ? '强制结束' : '结束任务' });
+            if (ok) processManager.kill(p.pid);
           },
-        ], e.clientX, e.clientY);
+        });
+
+        contextMenu.open(items, e.clientX, e.clientY);
       });
       list.appendChild(row);
     }

@@ -128,11 +128,15 @@ class ProcessManager {
   kill(pid) {
     const proc = this.processes.get(pid);
     if (!proc) return false;
+    // 系统进程也可以被结束（彩蛋），但会触发 BSOD 重启序列
     if (proc.system) {
-      log.warn('系统进程不能被结束');
-      return false;
+      log.warn('系统进程被强制结束，即将触发蓝屏重启');
+      bus.emit('process:kill-requested', { process: proc, isSystem: true });
+      this.processes.delete(pid);
+      bus.emit('process:ended', { process: proc });
+      return true;
     }
-    bus.emit('process:kill-requested', { process: proc });
+    bus.emit('process:kill-requested', { process: proc, isSystem: false });
     return true;
   }
 
