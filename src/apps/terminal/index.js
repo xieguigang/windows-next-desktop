@@ -38,14 +38,11 @@ export default async function mount(ctx) {
   const container = root.querySelector('.tm-xterm-container');
 
   // ── 初始化 xterm.js ─────────────────────────────────────
-  // 从全局作用域获取构造函数（CDN 脚本同步加载后挂载到 window）
-  // 注意：ES module 中直接引用全局变量可能不可靠，通过 window 显式访问
+  // 从全局作用域获取 Terminal 构造函数（CDN 同步脚本已挂载到 window）
   const XTerm = window.Terminal;
-  const XFitAddon = window.FitAddon;
-  const XWebLinksAddon = window.WebLinksAddon;
 
   if (typeof XTerm !== 'function') {
-    throw new Error('xterm.js 未正确加载（Terminal 类型: ' + typeof XTerm + '），请刷新页面后重试');
+    throw new Error('xterm.js 未正确加载，请刷新页面后重试');
   }
 
   const term = new XTerm({
@@ -80,25 +77,31 @@ export default async function mount(ctx) {
     scrollback: 5000,
     tabStopWidth: 4,
   });
-
-  let fitAddon = null;
-  let webLinksAddon = null;
-  if (typeof XFitAddon === 'function') {
-    fitAddon = new XFitAddon();
-    term.loadAddon(fitAddon);
-  }
-  if (typeof XWebLinksAddon === 'function') {
-    webLinksAddon = new XWebLinksAddon();
-    term.loadAddon(webLinksAddon);
-  }
   term.open(container);
 
-  // 自适应大小
-  if (fitAddon) {
-    fitAddon.fit();
-    const ro = new ResizeObserver(() => fitAddon.fit());
-    ro.observe(container);
+  // 手动自适应大小（替代 FitAddon，避免 UMD 全局变量兼容问题）
+  function fitTerminal() {
+    const dims = term._core._renderService.dimensions;
+    if (!dims || dims.css.cell.width <= 0 || dims.css.cell.height <= 0) {
+      // 尺寸未就绪，稍后重试
+      return;
+    }
+    const rect = container.getBoundingClientRect();
+    if (rect.width <= 0 || rect.height <= 0) return;
+    const padding = 16; // 左右各 8px 内边距
+    const availableWidth = rect.width - padding;
+    const availableHeight = rect.height - 8; // 上下各 4px 内边距
+    const cols = Math.max(2, Math.floor(availableWidth / dims.css.cell.width));
+    const rows = Math.max(1, Math.floor(availableHeight / dims.css.cell.height));
+    if (cols !== term.cols || rows !== term.rows) {
+      term.resize(cols, rows);
+    }
   }
+
+  // 延迟首次自适应，确保 xterm 内部渲染就绪
+  setTimeout(fitTerminal, 50);
+  const ro = new ResizeObserver(() => fitTerminal());
+  ro.observe(container);
 
   // ── 状态 ─────────────────────────────────────────────
   /** @type {string} */
