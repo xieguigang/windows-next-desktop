@@ -38,12 +38,15 @@ export default async function mount(ctx) {
   const container = root.querySelector('.tm-xterm-container');
 
   // ── 初始化 xterm.js ─────────────────────────────────────
-  // 显式从 window 获取全局变量（ES module 作用域隔离）
+  // 从全局作用域获取构造函数（CDN 脚本同步加载后挂载到 window）
+  // 注意：ES module 中直接引用全局变量可能不可靠，通过 window 显式访问
   const XTerm = window.Terminal;
   const XFitAddon = window.FitAddon;
   const XWebLinksAddon = window.WebLinksAddon;
 
-  if (!XTerm) throw new Error('xterm.js 未加载，请检查网络连接');
+  if (typeof XTerm !== 'function') {
+    throw new Error('xterm.js 未正确加载（Terminal 类型: ' + typeof XTerm + '），请刷新页面后重试');
+  }
 
   const term = new XTerm({
     cursorBlink: true,
@@ -80,11 +83,11 @@ export default async function mount(ctx) {
 
   let fitAddon = null;
   let webLinksAddon = null;
-  if (XFitAddon) {
+  if (typeof XFitAddon === 'function') {
     fitAddon = new XFitAddon();
     term.loadAddon(fitAddon);
   }
-  if (XWebLinksAddon) {
+  if (typeof XWebLinksAddon === 'function') {
     webLinksAddon = new XWebLinksAddon();
     term.loadAddon(webLinksAddon);
   }
