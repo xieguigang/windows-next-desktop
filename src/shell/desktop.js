@@ -135,20 +135,18 @@ export class Desktop {
 
     for (const s of SYSTEM_SHORTCUTS) items.push({ ...s });
 
-    // 应用快捷方式
+    // 应用快捷方式：由清单的 showOnDesktop 决定，用户可通过右键「从桌面移除」隐藏
     const hidden = new Set(store.get('hiddenShortcuts', []));
-    const extra = store.get('extraShortcuts', []);
-    const appIds = [...new Set([...DEFAULT_APP_SHORTCUTS, ...extra])];
-    for (const appId of appIds) {
-      if (hidden.has(appId)) continue;
-      const app = appRegistry.get(appId);
-      if (!app) continue;
+    const extra = new Set(store.get('extraShortcuts', []));
+    for (const app of appRegistry.getAll()) {
+      if (hidden.has(app.id)) continue;
+      if (!extra.has(app.id) && (app.hidden || !app.showOnDesktop)) continue;
       items.push({
-        key: `app:${appId}`,
+        key: `app:${app.id}`,
         kind: 'app',
         name: app.name,
         icon: app.icon,
-        target: appId,
+        target: app.id,
       });
     }
 
@@ -731,6 +729,12 @@ export class Desktop {
         icon: 'pin',
         onClick: () => this._pinToTaskbar(single.target),
       },
+      single?.kind === 'app' && {
+        id: 'unpin-desktop',
+        label: '从桌面移除',
+        icon: 'unpin',
+        onClick: () => this._hideShortcut(single.target),
+      },
       { separator: true },
       isFsItem && { id: 'copy', label: '复制', icon: 'copy', shortcut: 'Ctrl+C', onClick: () => this._copySelection() },
       isFsItem && {
@@ -866,6 +870,16 @@ export class Desktop {
         notifications.toast({ title: '粘贴失败', body: String(err?.message || err), type: 'error' });
       }
     }
+    this.refresh();
+  }
+
+  /** 把应用快捷方式从桌面隐藏（不影响注册表与任务栏） */
+  _hideShortcut(appId) {
+    const hidden = new Set(store.get('hiddenShortcuts', []));
+    hidden.add(appId);
+    store.set('hiddenShortcuts', [...hidden]);
+    const extra = store.get('extraShortcuts', []).filter((x) => x !== appId);
+    store.set('extraShortcuts', extra);
     this.refresh();
   }
 

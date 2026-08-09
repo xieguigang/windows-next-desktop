@@ -29,9 +29,10 @@ export const VERSION = '1.0.0';
  * 启动应用
  * @param {string} appId
  * @param {any} [args] 启动参数，例如 { filePath }
+ * @param {{forceNew?:boolean}} [opts] forceNew 为 true 时忽略单实例约束，强制开新窗口
  * @returns {Promise<{window:any, ctx:any}|null>}
  */
-export async function launchApp(appId, args) {
+export async function launchApp(appId, args, opts = {}) {
   const manifest = appRegistry.get(appId);
   if (!manifest) {
     notifications.toast({ title: '无法启动', body: `未找到应用：${appId}`, type: 'error' });
@@ -40,7 +41,7 @@ export async function launchApp(appId, args) {
   }
 
   // 单实例应用：聚焦已有窗口并传递新参数
-  if (manifest.singleton) {
+  if (manifest.singleton && !opts.forceNew) {
     const existing = windowManager.getByAppId(appId)[0];
     if (existing && !existing.isDestroyed) {
       windowManager.focus(existing);
