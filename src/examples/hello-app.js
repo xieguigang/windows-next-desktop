@@ -95,7 +95,7 @@ WinNext.registerApp({
     root.querySelector('#hello-read').addEventListener('click', async () => {
       try {
         const text = await ctx.fs.readFile('C:/Documents/hello-demo.txt');
-        ctx.notify.alert(text, '文件内容');
+        ctx.dialog.alert(text, '文件内容');
       } catch (e) {
         ctx.notify.toast('读取失败：' + e.message, { level: 'error' });
       }
