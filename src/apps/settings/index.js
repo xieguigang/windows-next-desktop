@@ -1,4 +1,4 @@
-/**
+﻿/**
  * 设置
  *
  * 左侧分类导航 + 右侧面板：个性化 / 系统 / 应用 / 存储 / 关于。
@@ -86,10 +86,10 @@ export default async function mount(ctx) {
   function renderPersonalization(container) {
     const wallpaperCfg = {
       mode: ctx.settings.get('wallpaper.mode') || 'gradient',
-      imageSrc: ctx.settings.get('wallpaper.imageSrc') || '',
-      videoSrc: ctx.settings.get('wallpaper.videoSrc') || '',
+      imageUrl: ctx.settings.get('wallpaper.imageUrl') || '',
+      videoUrl: ctx.settings.get('wallpaper.videoUrl') || '',
       videoMuted: ctx.settings.get('wallpaper.videoMuted') !== false,
-      htmlSrc: ctx.settings.get('wallpaper.htmlSrc') || '',
+      htmlUrl: ctx.settings.get('wallpaper.htmlUrl') || '',
     };
 
     container.innerHTML = `
@@ -127,17 +127,17 @@ export default async function mount(ctx) {
         <div class="st-row" data-wp-pane="image">
           <span>图片来源</span>
           <div class="st-file-row">
-            <input class="st-input" type="text" placeholder="http(s)://... 或 C:/... 或 C:/...#image" value="${escapeHtml(wallpaperCfg.imageSrc)}" data-wp-input="imageSrc">
+            <input class="st-input" type="text" placeholder="http(s)://... 或 C:/... 或 C:/...#image" value="${escapeHtml(wallpaperCfg.imageUrl)}" data-wp-input="imageUrl">
             <button class="btn" data-wp-pick="image">选择</button>
-            <button class="btn" data-wp-clear="imageSrc">清空</button>
+            <button class="btn" data-wp-clear="imageUrl">清空</button>
           </div>
         </div>
         <div class="st-row" data-wp-pane="video">
           <span>视频源</span>
           <div class="st-file-row">
-            <input class="st-input" type="text" placeholder="mp4 URL 或本地路径" value="${escapeHtml(wallpaperCfg.videoSrc)}" data-wp-input="videoSrc">
+            <input class="st-input" type="text" placeholder="mp4 URL 或本地路径" value="${escapeHtml(wallpaperCfg.videoUrl)}" data-wp-input="videoUrl">
             <button class="btn" data-wp-pick="video">选择</button>
-            <button class="btn" data-wp-clear="videoSrc">清空</button>
+            <button class="btn" data-wp-clear="videoUrl">清空</button>
           </div>
         </div>
         <div class="st-row" data-wp-pane="video">
@@ -147,9 +147,9 @@ export default async function mount(ctx) {
         <div class="st-row" data-wp-pane="html">
           <span>HTML 源</span>
           <div class="st-file-row">
-            <input class="st-input" type="text" placeholder="HTML URL 或 C:/..." value="${escapeHtml(wallpaperCfg.htmlSrc)}" data-wp-input="htmlSrc">
+            <input class="st-input" type="text" placeholder="HTML URL 或 C:/..." value="${escapeHtml(wallpaperCfg.htmlUrl)}" data-wp-input="htmlUrl">
             <button class="btn" data-wp-pick="html">选择</button>
-            <button class="btn" data-wp-clear="htmlSrc">清空</button>
+            <button class="btn" data-wp-clear="htmlUrl">清空</button>
           </div>
         </div>
         <div class="st-row">
@@ -165,8 +165,8 @@ export default async function mount(ctx) {
           <input type="range" min="0" max="60" step="1" value="${ctx.settings.get('appearance.aeroBlur') || 30}" data-aero="blur">
         </div>
         <div class="st-row st-slider-row">
-          <span>饱和度 <em data-val="saturate">${Math.round((ctx.settings.get('appearance.aeroSaturate') || 1.8) * 100)}</em>%</span>
-          <input type="range" min="100" max="300" step="5" value="${Math.round((ctx.settings.get('appearance.aeroSaturate') || 1.8) * 100)}" data-aero="saturate">
+          <span>饱和度 <em data-val="saturate">${ctx.settings.get('appearance.aeroSaturate') || 180}</em>%</span>
+          <input type="range" min="100" max="300" step="5" value="${ctx.settings.get('appearance.aeroSaturate') || 180}" data-aero="saturate">
         </div>
         <div class="st-row st-slider-row">
           <span>底色透明度 <em data-val="opacity">${Math.round((ctx.settings.get('appearance.aeroOpacity') || 0.62) * 100)}</em>%</span>
@@ -174,6 +174,16 @@ export default async function mount(ctx) {
         </div>
       </section>
     `;
+
+    // opacity 滑块需要把 % 转回 ratio 写入设置
+    const opacitySlider = container.querySelector('[data-aero="opacity"]');
+    if (opacitySlider) {
+      opacitySlider.addEventListener('input', () => {
+        ctx.settings.set('appearance.aeroOpacity', Number(opacitySlider.value) / 100);
+        const label = container.querySelector('[data-val="opacity"]');
+        if (label) label.textContent = opacitySlider.value;
+      });
+    }
 
     // 主题
     container.querySelectorAll('[data-theme]').forEach((btn) => {
@@ -257,15 +267,15 @@ export default async function mount(ctx) {
       if (wallpaperCfg.mode === 'gradient') {
         box.style.background = 'var(--wallpaper-fallback)';
         box.textContent = '默认深蓝紫渐变';
-      } else if (wallpaperCfg.mode === 'image' && wallpaperCfg.imageSrc) {
-        box.style.background = `center/cover url("${wallpaperCfg.imageSrc}")`;
+      } else if (wallpaperCfg.mode === 'image' && wallpaperCfg.imageUrl) {
+        box.style.background = `center/cover url("${wallpaperCfg.imageUrl}")`;
         box.textContent = '';
-      } else if (wallpaperCfg.mode === 'video' && wallpaperCfg.videoSrc) {
+      } else if (wallpaperCfg.mode === 'video' && wallpaperCfg.videoUrl) {
         box.style.background = '#000';
-        box.textContent = `▶ ${wallpaperCfg.videoSrc}`;
-      } else if (wallpaperCfg.mode === 'html' && wallpaperCfg.htmlSrc) {
+        box.textContent = `▶ ${wallpaperCfg.videoUrl}`;
+      } else if (wallpaperCfg.mode === 'html' && wallpaperCfg.htmlUrl) {
         box.style.background = 'linear-gradient(135deg, #1a1a2e, #4c1d95)';
-        box.textContent = `HTML 源：${wallpaperCfg.htmlSrc}`;
+        box.textContent = `HTML 源：${wallpaperCfg.htmlUrl}`;
       } else {
         box.style.background = 'var(--bg-elev)';
         box.textContent = '（尚未配置）';
@@ -278,11 +288,9 @@ export default async function mount(ctx) {
       slider.addEventListener('input', () => {
         const k = slider.dataset.aero;
         const v = Number(slider.value);
-        let normalized = v;
-        if (k === 'saturate' || k === 'opacity') normalized = v / (k === 'saturate' ? 100 : 100);
-        ctx.settings.set(`appearance.aero${k.charAt(0).toUpperCase() + k.slice(1)}`, normalized);
+        ctx.settings.set(`appearance.aero${k.charAt(0).toUpperCase() + k.slice(1)}`, v);
         const label = container.querySelector(`[data-val="${k}"]`);
-        if (label) label.textContent = k === 'blur' ? v : `${v}`;
+        if (label) label.textContent = v;
       });
     });
   }
@@ -497,3 +505,5 @@ export default async function mount(ctx) {
 function escapeHtml(s) {
   return String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
+
+
