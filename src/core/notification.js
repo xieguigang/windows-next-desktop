@@ -55,9 +55,17 @@ class NotificationCenter {
 
     if (!settings.get('system.notifications') || !this.stack) return id;
 
-    // 超出上限时先移除最旧的
-    while (this.stack.children.length >= MAX_TOASTS) {
-      this._dismiss(this.stack.firstElementChild);
+    // 超出上限时先移除最旧的（只对非 is-leaving 的元素操作，防止无限循环）
+    let iter = 0;
+    const maxIter = MAX_TOASTS + 1;
+    while (this.stack.children.length >= MAX_TOASTS && iter < maxIter) {
+      iter++;
+      const first = this.stack.firstElementChild;
+      if (first && !first.classList.contains('is-leaving')) {
+        this._dismiss(first);
+      } else {
+        break; // 第一个元素已在退出动画中，等待 animationend 自然移除
+      }
     }
 
     const el = document.createElement('div');
