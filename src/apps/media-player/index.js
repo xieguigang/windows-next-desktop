@@ -194,8 +194,9 @@ export default async function mount(ctx) {
       if (i === currentIndex) row.classList.add('is-active');
       row.innerHTML = `
         <span class="mp-track-num">${i + 1}</span>
-        <span class="mp-track-icon">${iconForExtension(P.extname(t.path).slice(1))}</span>
+        <span class="mp-track-icon" title="${t.kind === 'video' ? '视频' : '音频'}">${iconForExtension(P.extname(t.path).slice(1))}</span>
         <span class="mp-track-name">${escapeHtml(t.name)}</span>
+        <span class="mp-track-dur">${t.duration ? fmt(t.duration) : ''}</span>
         <button class="mp-track-remove" aria-label="移除">×</button>`;
       row.addEventListener('click', (e) => {
         if (e.target.closest('.mp-track-remove')) return;
@@ -215,7 +216,7 @@ export default async function mount(ctx) {
   function saveState() {
     // 剔除 blob URL：它只在本次会话有效，持久化后刷新即失效，
     // 会导致恢复的列表一播放就报错。播放时按 path 懒重建。
-    ctx.settings.setLocal('tracks', tracks.map(({ path, name, kind }) => ({ path, name, kind })));
+    ctx.settings.setLocal('tracks', tracks.map(({ path, name, kind, duration }) => ({ path, name, kind, duration })));
     ctx.settings.setLocal('currentIndex', currentIndex);
     ctx.settings.setLocal('mode', mode);
     ctx.settings.setLocal('volume', volume);
@@ -304,8 +305,13 @@ export default async function mount(ctx) {
   function toggle() {
     if (currentIndex < 0 && tracks.length) return playIndex(0);
     if (player.paused) {
-      player.play().then(() => playBtn.innerHTML = pauseIcon()).catch(() => {});
-      coverEl.classList.add('is-spinning');
+      // 本次点击是用户手势，可以安全建立 / 恢复音频图
+      player.play().then(() => {
+        playBtn.innerHTML = pauseIcon();
+        ensureAudioGraph(player);
+        if (!rafId) drawVisualizer();
+      }).catch((err) => ctx.notify.warning('播放失败：' + (err?.message || err)));
+      if (player === audio) coverEl.classList.add('is-spinning');
     } else {
       player.pause();
       playBtn.innerHTML = playIcon();
@@ -350,7 +356,15 @@ export default async function mount(ctx) {
       progressThumb.style.left = pct + '%';
     });
     el.addEventListener('loadedmetadata', () => {
-      if (el === player) totalTimeEl.textContent = fmt(el.duration || 0);
+      if (el !== player) return;
+      totalTimeEl.textContent = fmt(el.duration || 0);
+      // 缓存时长，播放列表下次渲染即可直接展示
+      const t = tracks[currentIndex];
+      if (t && Number.isFinite(el.duration) && t.duration !== el.duration) {
+        t.duration = el.duration;
+        saveState();
+        renderPlaylist();
+      }
     });
     el.addEventListener('ended', () => {
       if (el !== player) return;
@@ -546,8 +560,20 @@ export default async function mount(ctx) {
     }
   });
 
+  applyVolume();
   renderPlaylist();
-  if (currentIndex >= 0 && tracks[currentIndex]) playIndex(currentIndex);
+
+  // 恢复上次的曲目但不自动播放：浏览器的自动播放策略会拒绝
+  // 无用户手势的 play()，硬调用只会弹出无意义的失败提示。
+  if (currentIndex >= 0 && tracks[currentIndex]) {
+    const t = tracks[currentIndex];
+    setPlayerFor(t.kind);
+    titleEl.textContent = t.name;
+    artistEl.textContent = P.dirname(t.path);
+    resolveUrl(t)
+      .then((src) => { player.src = src; })
+      .catch(() => { /* 文件可能已被删除，等用户点击时再报错 */ });
+  }
 
   // 渲染画布尺寸
   ctx.observeResize(canvas, () => {
