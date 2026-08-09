@@ -81,8 +81,10 @@
   box-shadow: var(--shadow-window-blur);
 }
 
+/* 失焦透明度由设置项 appearance.inactiveOpacity 驱动。
+   仅作用于 normal 态：最大化窗口必须保持不透明（Aero 规则一）。 */
 .window:not(.is-active)[data-state="normal"] {
-  opacity: 0.97;
+  opacity: var(--window-inactive-opacity, 0.92);
 }
 
 .window:not(.is-active) .window-title {
@@ -147,8 +149,33 @@
   user-select: none;
 }
 
+/* ------------------------------------------------------------
+   标题栏透明度（设置项 appearance.titlebarOpacity）
+
+   窗体自身已是半透明毛玻璃，若直接给标题栏设 opacity 会连带文字与
+   按钮一起变淡。因此用 color-mix 只调制标题栏「底色」的浓度：
+   1 → 与窗体一致；0.3 → 只保留三成底色，露出更多背后画面，
+   而前景文字与按钮始终保持完全清晰。
+
+   回退：不支持 color-mix 的浏览器不匹配下面的 @supports，标题栏
+   保持默认（透明，直接透出窗体玻璃），与改造前观感一致 —— 只是
+   该滑块无效，不会出现「越调越不透明」的反向表现。
+   ------------------------------------------------------------ */
+@supports (background: color-mix(in srgb, red 50%, transparent)) {
+  .window[data-state="normal"] > .window-titlebar,
+  .window[data-state="snapped"] > .window-titlebar {
+    background: color-mix(
+      in srgb,
+      var(--aero-window-bg) calc(var(--titlebar-opacity, 1) * 100%),
+      transparent
+    );
+  }
+}
+
 .window[data-state="maximized"] .window-titlebar {
   border-bottom: 1px solid var(--stroke-subtle);
+  /* 最大化态强制不透明，屏蔽透明度设置 */
+  background: var(--window-solid-bg);
 }
 
 .window-icon {

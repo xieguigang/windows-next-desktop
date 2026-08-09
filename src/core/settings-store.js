@@ -24,6 +24,12 @@ export const DEFAULT_SETTINGS = Object.freeze({
   'appearance.reduceMotion': false,
   'appearance.uiScale': 100,                // %
 
+  /* 透明度（独立于 Aero 底色透明度，逐层可调） */
+  'appearance.titlebarOpacity': 1,          // 0.3 ~ 1，标题栏相对窗体的通透程度
+  'appearance.inactiveOpacity': 0.92,       // 0.4 ~ 1，窗口失去焦点时的整体不透明度
+  'appearance.taskbarOpacity': 0.58,        // 0.2 ~ 1，任务栏底色不透明度
+  'appearance.menuOpacity': 0.76,           // 0.3 ~ 1，菜单 / 弹出层底色不透明度
+
   /* 壁纸 */
   'wallpaper.mode': 'gradient',             // gradient | image | video | html
   'wallpaper.imageUrl': '',
@@ -67,7 +73,28 @@ const CSS_VAR_MAP = {
   'appearance.aeroSaturate': (v, root) => root.style.setProperty('--aero-saturate', `${v}%`),
   'appearance.aeroOpacity': (v, root) => root.style.setProperty('--aero-opacity', String(v)),
   'appearance.uiScale': (v, root) => root.style.setProperty('--ui-scale', String(v / 100)),
+
+  'appearance.titlebarOpacity': (v, root) =>
+    root.style.setProperty('--titlebar-opacity', String(clamp01(v, 1))),
+  'appearance.inactiveOpacity': (v, root) =>
+    root.style.setProperty('--window-inactive-opacity', String(clamp01(v, 0.92))),
+  'appearance.taskbarOpacity': (v, root) =>
+    root.style.setProperty('--taskbar-opacity', String(clamp01(v, 0.58))),
+  'appearance.menuOpacity': (v, root) =>
+    root.style.setProperty('--menu-opacity', String(clamp01(v, 0.76))),
 };
+
+/**
+ * 把任意输入夹取到 [0, 1]，非法值回退到默认。
+ * 防止设置被外部脚本写入越界数值后导致整层界面不可见。
+ * @param {unknown} v
+ * @param {number} fallback
+ */
+function clamp01(v, fallback) {
+  const n = Number(v);
+  if (!Number.isFinite(n)) return fallback;
+  return Math.min(1, Math.max(0, n));
+}
 
 /** 十六进制颜色明暗调整 */
 function shade(hex, percent) {

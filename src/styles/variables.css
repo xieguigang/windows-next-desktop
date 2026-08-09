@@ -57,20 +57,29 @@
   --aero-saturate: 180%;
   --aero-opacity: 0.62;
 
+  /* ---------- 逐层透明度（设置 → 个性化 → 透明度） ----------
+     由 settings-store.js 的 CSS_VAR_MAP 实时写入，滑动即生效。
+     注意：最大化窗口不消费这些变量，以保持 Aero 规则一（最大化不透明）。 */
+  --titlebar-opacity: 1;            /* 标题栏相对窗体的通透程度 */
+  --window-inactive-opacity: 0.92;  /* 窗口失焦时的整体不透明度 */
+  --taskbar-opacity: 0.58;          /* 任务栏底色不透明度 */
+  --menu-opacity: 0.76;             /* 菜单 / 弹出层底色不透明度 */
+
   --aero-window-bg: rgba(255, 255, 255, var(--aero-opacity));
   --aero-window-filter: blur(var(--aero-blur)) saturate(var(--aero-saturate));
   --aero-window-border: rgba(255, 255, 255, 0.38);
   --aero-highlight: rgba(255, 255, 255, 0.55);
 
-  --aero-taskbar-bg: rgba(252, 252, 252, 0.58);
+  --aero-taskbar-bg: rgba(252, 252, 252, var(--taskbar-opacity));
   --aero-taskbar-filter: blur(calc(var(--aero-blur) + 10px)) saturate(var(--aero-saturate));
   --taskbar-solid-bg: #F3F3F3;
 
-  --aero-menu-bg: rgba(250, 250, 250, 0.76);
+  --aero-menu-bg: rgba(250, 250, 250, var(--menu-opacity));
   --aero-menu-filter: blur(var(--aero-blur)) saturate(var(--aero-saturate));
   --menu-solid-bg: #F5F5F5;
 
-  --aero-flyout-bg: rgba(248, 248, 248, 0.85);
+  /* 弹出层比菜单略实一档，随 --menu-opacity 联动但不低于其本身 */
+  --aero-flyout-bg: rgba(248, 248, 248, calc(var(--menu-opacity) + 0.09));
   --flyout-solid-bg: #F7F7F7;
 
   /* 最大化窗口的不透明外观 */
@@ -169,13 +178,14 @@
   --aero-window-border: rgba(255, 255, 255, 0.10);
   --aero-highlight: rgba(255, 255, 255, 0.14);
 
-  --aero-taskbar-bg: rgba(28, 28, 28, 0.66);
+  /* 暗色下整体再实一点，避免文字与深色壁纸糊在一起 */
+  --aero-taskbar-bg: rgba(28, 28, 28, calc(var(--taskbar-opacity) + 0.08));
   --taskbar-solid-bg: #1F1F1F;
 
-  --aero-menu-bg: rgba(36, 36, 36, 0.80);
+  --aero-menu-bg: rgba(36, 36, 36, calc(var(--menu-opacity) + 0.04));
   --menu-solid-bg: #2A2A2A;
 
-  --aero-flyout-bg: rgba(40, 40, 40, 0.86);
+  --aero-flyout-bg: rgba(40, 40, 40, calc(var(--menu-opacity) + 0.10));
   --flyout-solid-bg: #2C2C2C;
 
   --window-solid-bg: #202020;
