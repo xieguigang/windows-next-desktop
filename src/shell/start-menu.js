@@ -123,7 +123,8 @@ export class StartMenu {
       <div class="sm-content"></div>
       <div class="sm-footer">
         <button class="sm-user" type="button">
-          <span class="sm-avatar">U</span><span>User</span>
+          <span class="sm-avatar">${escapeHtml((settings.get('system.userName') || 'U').charAt(0).toUpperCase())}</span>
+          <span>${escapeHtml(settings.get('system.userName') || 'User')}</span>
         </button>
         <button class="sm-power" type="button" title="电源" aria-label="电源">${getIcon('power', 18)}</button>
       </div>`;
@@ -402,7 +403,7 @@ export class StartMenu {
     });
 
     this.el.querySelector('.sm-user').addEventListener('click', () => {
-      notifications.toast({ title: 'User', body: '当前登录账户：本地用户', type: 'info' });
+      this._launch('settings', { section: 'about' });
     });
 
     this.el.querySelector('.sm-power').addEventListener('click', (e) => {

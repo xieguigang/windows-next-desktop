@@ -42,8 +42,7 @@ const SYSTEM_SHORTCUTS = [
   { key: 'shortcut:recycleBin', kind: 'system', name: '回收站', icon: 'recycleBin', target: 'explorer', args: { path: SHELL_FOLDERS.temp } },
 ];
 
-/** 默认出现在桌面上的应用快捷方式 */
-const DEFAULT_APP_SHORTCUTS = ['explorer', 'browser', 'notepad', 'calculator', 'terminal', 'media-player', 'task-manager', 'settings'];
+
 
 export class Desktop {
   constructor() {

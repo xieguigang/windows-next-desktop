@@ -167,6 +167,7 @@ export class Taskbar {
       contextMenu.open(this._buttonMenu(entry.appId), e.clientX, e.clientY);
     });
     btn.addEventListener('pointerenter', () => {
+      if (!settings.get('taskbar.showPreview')) return;
       if (windowManager.getByAppId(entry.appId).length) taskbarPreview.requestShow(btn, entry.appId);
     });
     btn.addEventListener('pointerleave', () => taskbarPreview.requestHide());
