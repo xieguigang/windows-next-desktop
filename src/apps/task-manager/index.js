@@ -151,9 +151,10 @@ export default async function mount(ctx) {
       yAxis: {
         type: 'value',
         min: 0,
-        max: 100,
+        max: name === 'cpu' ? 25 : 600,
         splitLine: { lineStyle: { type: 'dashed', color: '#ddd' } },
         axisLabel: { color: '#888', fontSize: 10 },
+        splitNumber: 4,
       },
       series: [{
         name,
