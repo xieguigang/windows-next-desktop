@@ -125,6 +125,13 @@ export function createAppContext(deps) {
       move: (x, y) => win.setRect({ x, y }),
       getRect: () => win.getRect(),
       /**
+       * 一次性设置位置与尺寸（比先 move 再 resize 少一次重排）
+       * @param {{x?:number,y?:number,width?:number,height?:number}} rect
+       */
+      setRect: (rect) => win.setRect(rect),
+      /** 可用工作区（已扣除任务栏） @returns {{width:number,height:number}} */
+      getWorkArea: () => ({ ...win.manager.workArea }),
+      /**
        * 注册关闭拦截器。返回 false 或 Promise<false> 可阻止关闭。
        * @param {() => boolean|Promise<boolean>} fn
        */

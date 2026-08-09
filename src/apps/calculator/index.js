@@ -59,12 +59,60 @@ export default async function mount(ctx) {
   ctx.root.appendChild(root);
   const body = root.querySelector('.calc-body');
 
+  /* ------------------------------------------------------------
+     绘图模式自动加宽
+
+     函数图需要横向空间，默认 420px 宽根本放不下右侧图表区，
+     因此进入 plot 时把窗口扩到默认宽的 5 倍并水平居中；
+     离开 plot 时还原。若用户在绘图态手动调整过宽度，则尊重用户选择。
+     ------------------------------------------------------------ */
+  const PLOT_WIDTH_FACTOR = 5;
+  /** @type {{x:number,y:number,width:number,height:number}|null} 进入绘图前的窗口矩形 */
+  let preplotRect = null;
+  /** 进入绘图时我们设置的宽度，用于判断用户之后是否手动改过 */
+  let appliedPlotWidth = 0;
+
+  function enterPlotLayout() {
+    // 最大化 / 贴边分屏时已足够宽，不再干预用户的窗口布局
+    if (ctx.window.state !== 'normal') return;
+
+    const rect = ctx.window.getRect();
+    const wa = ctx.window.getWorkArea();
+    const baseWidth = ctx.manifest?.defaultSize?.width || rect.width;
+    // 留出边距，避免贴满屏幕边缘
+    const target = Math.min(baseWidth * PLOT_WIDTH_FACTOR, wa.width - 40);
+    if (target <= rect.width) return; // 已经够宽，无需调整
+
+    preplotRect = { ...rect };
+    // 居中，并夹取到工作区内，避免超出右边界
+    const x = Math.max(0, Math.min(Math.round((wa.width - target) / 2), wa.width - target));
+    ctx.window.setRect({ width: target, x });
+    appliedPlotWidth = ctx.window.getRect().width;
+  }
+
+  function exitPlotLayout() {
+    if (!preplotRect) return;
+    const rect = ctx.window.getRect();
+    // 用户在绘图态手动改过宽度 → 保持现状，不强行还原
+    const untouched = Math.abs(rect.width - appliedPlotWidth) < 2;
+    if (untouched && ctx.window.state === 'normal') {
+      ctx.window.setRect({ width: preplotRect.width, x: preplotRect.x });
+    }
+    preplotRect = null;
+    appliedPlotWidth = 0;
+  }
+
   root.querySelector('.calc-mode').addEventListener('click', (e) => {
     const m = e.target.dataset.mode;
-    if (!m) return;
+    if (!m || m === mode) return;
+    const wasPlot = mode === 'plot';
     mode = m;
     ctx.settings.setLocal('mode', m);
     [...root.querySelectorAll('.calc-mode button')].forEach((b) => b.classList.toggle('is-active', b.dataset.mode === m));
+
+    if (m === 'plot') enterPlotLayout();
+    else if (wasPlot) exitPlotLayout();
+
     render();
   });
 

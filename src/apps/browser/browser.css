@@ -1,5 +1,6 @@
 /* 浏览器 */
 .br-root {
+  position: relative; /* 书签编辑气泡的定位上下文 */
   display: flex;
   flex-direction: column;
   height: 100%;

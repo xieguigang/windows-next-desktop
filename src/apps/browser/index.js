@@ -200,13 +200,15 @@ export default async function mount(ctx) {
 
     const close = () => {
       box.remove();
-      document.removeEventListener('pointerdown', onOutside, true);
+      root.removeEventListener('pointerdown', onOutside, true);
     };
+    // 监听 root 而非 document：应用运行在 Shadow DOM 中，
+    // 事件冒泡到 document 时 target 会被重定向到宿主元素，contains 判断将失效。
     const onOutside = (e) => {
       if (!box.contains(e.target) && !starBtn.contains(e.target)) close();
     };
     // 延迟注册，避免本次点击立刻触发关闭
-    setTimeout(() => document.addEventListener('pointerdown', onOutside, true), 0);
+    setTimeout(() => root.addEventListener('pointerdown', onOutside, true), 0);
 
     box.querySelector('.br-bm-save').addEventListener('click', () => {
       const name = nameInput.value.trim();
