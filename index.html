@@ -12,6 +12,7 @@
 <link rel="stylesheet" href="src/styles/base.css">
 <link rel="stylesheet" href="src/styles/window.css">
 <link rel="stylesheet" href="src/styles/shell.css">
+<link rel="stylesheet" href="src/styles/bsod.css">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%230078D4' d='M3 5.5 10.2 4.5v6.9H3V5.5Zm0 13L10.2 19.5v-6.8H3v5.8Zm8.4 1.2L21 21V12.7h-9.6v7Zm0-15.4v7.1H21V3l-9.6 1.3Z'/%3E%3C/svg%3E">
 </head>
 <body data-has-maximized="false">
@@ -44,22 +45,71 @@
 </div>
 
 <script>
-  // file:// 协议下 ES Modules 会被 CORS 拦截，提前给出可读提示
-  if (location.protocol === 'file:') {
-    document.getElementById('boot-error').hidden = false;
-    document.getElementById('boot-error').innerHTML =
-      '<strong>无法以 file:// 协议运行</strong><br>' +
-      'ES Modules 需要 http 协议。请在项目目录下执行：<br>' +
-      '<code>python -m http.server 8080</code><br>然后访问 <code>http://localhost:8080</code>';
-  }
-  window.addEventListener('error', function (e) {
-    var box = document.getElementById('boot-error');
-    if (box && !box.hidden) return;
-    if (box && e && e.message) {
-      box.hidden = false;
-      box.innerHTML = '<strong>启动失败</strong><br><code>' + String(e.message).replace(/</g, '&lt;') + '</code>';
+  /*
+   * 启动前置守卫（普通脚本，非 module）。
+   *
+   * 必须放在 <script type="module" src="src/boot.js"> 之前，且不能是 module：
+   * file:// 协议下浏览器会以 CORS 策略直接拒绝加载任何 ES Module，
+   * boot.js 永远不会执行，因此协议检测只能由本内联脚本完成。
+   */
+  (function () {
+    'use strict';
+
+    /** 渲染 Windows 10 风格蓝屏，并终止后续桌面启动流程。 */
+    function renderBsod() {
+      var screen = document.getElementById('boot-screen');
+      if (!screen) return;
+
+      document.body.setAttribute('data-bsod', 'true');
+      document.documentElement.setAttribute('data-theme', 'dark');
+
+      screen.innerHTML = [
+        '<div class="bsod" role="alertdialog" aria-live="assertive">',
+        '  <p class="bsod-face">:(</p>',
+        '  <h1 class="bsod-title">你的电脑遇到问题，需要重新启动。</h1>',
+        '  <p class="bsod-reason">',
+        '    <strong>无法以 file:// 协议运行</strong>',
+        '    &nbsp;Windows Next 基于 ES Modules 构建，浏览器的同源策略会拒绝从本地文件系统加载模块。',
+        '  </p>',
+        '  <p class="bsod-progress">我们只收集了一些错误信息，完成度 ',
+        '    <span class="bsod-percent"></span>%，然后你可以重新启动。</p>',
+        '  <div class="bsod-detail">',
+        '    <div class="bsod-qr" aria-hidden="true"></div>',
+        '    <div class="bsod-info">',
+        '      <p class="bsod-label">若想了解详细信息，你以后可以联机搜索此错误：</p>',
+        '      <p class="bsod-code">停止代码：FILE_PROTOCOL_NOT_SUPPORTED</p>',
+        '      <p class="bsod-code">失败的模块：src/boot.js (blocked by CORS policy)</p>',
+        '      <p class="bsod-code">当前地址：' + String(location.href).replace(/[<>&]/g, '') + '</p>',
+        '    </div>',
+        '  </div>',
+        '  <div class="bsod-fix">',
+        '    <p>正确的启动方式：请通过本地 HTTP 服务器访问。</p>',
+        '    <ol>',
+        '      <li>在项目根目录执行 <code>node serve.js 8080</code>（推荐，仓库已内置）</li>',
+        '      <li>或执行 <code>python -m http.server 8080</code></li>',
+        '      <li>然后在浏览器中打开 <code>http://localhost:8080</code></li>',
+        '    </ol>',
+        '  </div>',
+        '</div>'
+      ].join('\n');
     }
-  });
+
+    if (location.protocol === 'file:') {
+      renderBsod();
+      return;
+    }
+
+    // 非 file:// 协议：保留原有的启动错误兜底提示
+    window.addEventListener('error', function (e) {
+      var box = document.getElementById('boot-error');
+      if (!box || !box.hidden) return;
+      if (e && e.message) {
+        box.hidden = false;
+        box.innerHTML = '<strong>启动失败</strong><br><code>' +
+          String(e.message).replace(/</g, '&lt;') + '</code>';
+      }
+    });
+  })();
 </script>
 <script type="module" src="src/boot.js"></script>
 </body>
