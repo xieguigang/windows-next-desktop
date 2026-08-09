@@ -685,12 +685,11 @@ export class Desktop {
   async _deleteSelected() {
     const targets = this._selectedItems().filter((i) => i.kind === 'file' || i.kind === 'folder');
     if (!targets.length) return;
-    const ok = await notifications.confirm({
-      title: '删除',
-      body: targets.length === 1 ? `确定要删除「${targets[0].name}」吗？` : `确定要删除这 ${targets.length} 个项目吗？`,
-      okText: '删除',
-      danger: true,
-    });
+    const ok = await notifications.confirm(
+      targets.length === 1 ? `确定要删除「${targets[0].name}」吗？` : `确定要删除这 ${targets.length} 个项目吗？`,
+      '删除',
+      { okLabel: '删除' },
+    );
     if (!ok) return;
     for (const t of targets) {
       try {
@@ -881,20 +880,20 @@ export class Desktop {
 
   async _showProperties(item) {
     if (!item.path) {
-      await notifications.alert({ title: item.name, body: `类型：${item.kind === 'app' ? '应用程序' : '系统项目'}` });
+      await notifications.alert(`类型：${item.kind === 'app' ? '应用程序' : '系统项目'}`, item.name);
       return;
     }
     try {
       const st = await fileSystem.stat(item.path);
-      await notifications.alert({
-        title: `${st.name} 属性`,
-        body: [
+      await notifications.alert(
+        [
           `类型：${st.type === 'directory' ? '文件夹' : `${(st.ext || '文件').toUpperCase()} 文件`}`,
           `位置：${P.dirname(st.path)}`,
           `大小：${P.formatSize(st.size)}`,
           `修改时间：${P.formatDate(st.modified)}`,
         ].join('\n'),
-      });
+        `${st.name} 属性`,
+      );
     } catch (err) {
       notifications.toast({ title: '无法读取属性', body: String(err?.message || err), type: 'error' });
     }

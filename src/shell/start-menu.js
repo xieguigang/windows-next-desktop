@@ -418,7 +418,7 @@ export class StartMenu {
           label: '重启',
           icon: 'refresh',
           onClick: async () => {
-            const ok = await notifications.confirm({ title: '重启', body: '将重新加载桌面环境，未保存的内容会丢失。', okText: '重启' });
+            const ok = await notifications.confirm('将重新加载桌面环境，未保存的内容会丢失。', '重启', { okLabel: '重启' });
             if (ok) location.reload();
           },
         },
@@ -428,7 +428,7 @@ export class StartMenu {
           icon: 'power',
           danger: true,
           onClick: async () => {
-            const ok = await notifications.confirm({ title: '关机', body: '将关闭所有窗口并停止桌面。', okText: '关机', danger: true });
+            const ok = await notifications.confirm('将关闭所有窗口并停止桌面。', '关机', { okLabel: '关机' });
             if (!ok) return;
             windowManager.getAll().forEach((w) => w.close());
             document.body.dataset.shutdown = 'true';
