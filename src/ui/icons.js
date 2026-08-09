@@ -52,6 +52,11 @@ const GLYPHS = {
   power: '<path d="M12 4v8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M7.5 6.8a7 7 0 1 0 9 0" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/>',
   user: '<circle cx="12" cy="8.5" r="3.8" stroke="currentColor" stroke-width="1.3" fill="none"/><path d="M4.8 20a7.2 7.2 0 0 1 14.4 0" stroke="currentColor" stroke-width="1.3" fill="none" stroke-linecap="round"/>',
   pin: '<path d="M14.5 3.5 20.5 9.5l-3.2 1.2-1.4 5.1-2.3-2.3L8 19l-.7-.7 4.5-5.6-2.3-2.3 5.1-1.4 1.2-3.2Z" stroke="currentColor" stroke-width="1.2" fill="none" stroke-linejoin="round"/>',
+  unpin: '<path d="M14.5 3.5 20.5 9.5l-3.2 1.2-1.4 5.1-2.3-2.3L8 19l-.7-.7 4.5-5.6-2.3-2.3 5.1-1.4 1.2-3.2Z" stroke="currentColor" stroke-width="1.2" fill="none" stroke-linejoin="round" opacity=".45"/><path d="M3.5 3.5l17 17" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>',
+  lock: '<rect x="5" y="10.5" width="14" height="9.5" rx="2" stroke="currentColor" stroke-width="1.3" fill="none"/><path d="M8.2 10.5V7.8a3.8 3.8 0 0 1 7.6 0v2.7" stroke="currentColor" stroke-width="1.3" fill="none" stroke-linecap="round"/><circle cx="12" cy="15" r="1.3" fill="currentColor"/>',
+  network: '<path d="M3.5 9.2a13 13 0 0 1 17 0M6.4 12.6a8.7 8.7 0 0 1 11.2 0M9.3 16a4.4 4.4 0 0 1 5.4 0" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round"/><circle cx="12" cy="19" r="1.2" fill="currentColor"/>',
+  window: '<rect x="3.5" y="5" width="17" height="14" rx="2" stroke="currentColor" stroke-width="1.3" fill="none"/><path d="M3.5 9h17" stroke="currentColor" stroke-width="1.3"/><circle cx="6.3" cy="7" r=".8" fill="currentColor"/><circle cx="8.9" cy="7" r=".8" fill="currentColor"/>',
+  windows: '<path fill="currentColor" d="M3 5.9 10.3 4.9v6.8H3V5.9Zm0 12.2 7.3 1v-6.7H3v5.7Zm8.3 1.2L21 20.6v-8.4h-9.7v7.1Zm0-15.2v7.2H21V3.4l-9.7 1.3Z"/>',
 
   /* 媒体控制 */
   play: '<path d="M8 5.5 18.5 12 8 18.5v-13Z" fill="currentColor"/>',

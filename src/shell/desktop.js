@@ -713,10 +713,10 @@ export class Desktop {
     if (el) {
       const key = el.dataset.key;
       if (!this.selection.has(key)) this._select(key);
-      contextMenu.openAt(e.clientX, e.clientY, this._iconMenu());
+      contextMenu.open(this._iconMenu(), e.clientX, e.clientY);
     } else {
       this.clearSelection();
-      contextMenu.openAt(e.clientX, e.clientY, this._blankMenu(e));
+      contextMenu.open(this._blankMenu(e), e.clientX, e.clientY);
     }
   }
 
