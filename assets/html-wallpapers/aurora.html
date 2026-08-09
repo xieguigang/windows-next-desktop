@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>极光帷幕动态壁纸</title>
+<style>
+  html, body {
+    margin: 0; padding: 0;
+    width: 100%; height: 100%;
+    overflow: hidden;
+    background: #020510;
+  }
+  #bg {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(1400px 800px at 50% 30%, rgba(10, 20, 50, 0.6), transparent 70%),
+      linear-gradient(180deg, #020510 0%, #060D24 40%, #030918 100%);
+  }
+  canvas { position: absolute; inset: 0; display: block; }
+</style>
+</head>
+<body>
+<div id="bg"></div>
+<canvas id="c"></canvas>
+<script>
+(function () {
+  'use strict';
+
+  var canvas = document.getElementById('c');
+  var ctx = canvas.getContext('2d', { alpha: true });
+  var W = 0, H = 0, DPR = 1;
+  var rafId = null;
+  var running = true;
+  var time = 0;
+
+  // 极光层定义
+  var auroraLayers = [
+    { points: 40, baseY: 0.22, amplitude: 60, freq: 0.004, speed: 0.0003, hue: 160, alpha: 0.45, width: 0.7 },
+    { points: 50, baseY: 0.28, amplitude: 80, freq: 0.003, speed: 0.0004, hue: 180, alpha: 0.38, width: 0.65 },
+    { points: 45, baseY: 0.35, amplitude: 70, freq: 0.0035, speed: 0.00035, hue: 200, alpha: 0.32, width: 0.6 },
+    { points: 35, baseY: 0.18, amplitude: 50, freq: 0.005, speed: 0.00045, hue: 140, alpha: 0.28, width: 0.55 }
+  ];
+
+  function resize() {
+    DPR = Math.min(window.devicePixelRatio || 1, 2);
+    W = window.innerWidth;
+    H = window.innerHeight;
+    canvas.width = Math.floor(W * DPR);
+    canvas.height = Math.floor(H * DPR);
+    canvas.style.width = W + 'px';
+    canvas.style.height = H + 'px';
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  }
+
+  function noise(x, y, seed) {
+    var n = Math.sin(x * 12.9898 + y * 78.233 + seed) * 43758.5453;
+    return n - Math.floor(n);
+  }
+
+  function smoothNoise(x, y, seed) {
+    var ix = Math.floor(x);
+    var iy = Math.floor(y);
+    var fx = x - ix;
+    var fy = y - iy;
+
+    fx = fx * fx * (3 - 2 * fx);
+    fy = fy * fy * (3 - 2 * fy);
+
+    var a = noise(ix, iy, seed);
+    var b = noise(ix + 1, iy, seed);
+    var c = noise(ix, iy + 1, seed);
+    var d = noise(ix + 1, iy + 1, seed);
+
+    return a * (1 - fx) * (1 - fy) + b * fx * (1 - fy) + c * (1 - fx) * fy + d * fx * fy;
+  }
+
+  function fbm(x, y, seed) {
+    var value = 0;
+    var amp = 1;
+    var freq = 1;
+    for (var i = 0; i < 3; i++) {
+      value += amp * smoothNoise(x * freq, y * freq, seed + i);
+      amp *= 0.5;
+      freq *= 2;
+    }
+    return value;
+  }
+
+  function drawAuroraLayer(layer, time) {
+    var points = [];
+    var step = W / (layer.points - 1);
+
+    for (var i = 0; i < layer.points; i++) {
+      var x = i * step;
+      var n = fbm(x * layer.freq, time * layer.speed, layer.hue) * 2 - 1;
+      var y = H * layer.baseY + n * layer.amplitude;
+
+      // 垂直扰动
+      var n2 = fbm(x * layer.freq * 1.7, time * layer.speed * 1.3 + 100, layer.hue + 50) * 2 - 1;
+      y += n2 * layer.amplitude * 0.4;
+
+      points.push({ x: x, y: y });
+    }
+
+    // 绘制极光带
+    var bandHeight = H * 0.08;
+    var upper = [];
+    var lower = [];
+
+    for (var j = 0; j < points.length; j++) {
+      var h = bandHeight * (0.6 + 0.4 * fbm(points[j].x * layer.freq * 0.5, time * layer.speed * 0.6, layer.hue + 200));
+      upper.push({ x: points[j].x, y: points[j].y - h });
+      lower.push({ x: points[j].x, y: points[j].y + h });
+    }
+
+    // 绘制填充区域
+    ctx.beginPath();
+    ctx.moveTo(upper[0].x, upper[0].y);
+    for (var k = 1; k < upper.length; k++) {
+      ctx.lineTo(upper[k].x, upper[k].y);
+    }
+    for (var l = lower.length - 1; l >= 0; l--) {
+      ctx.lineTo(lower[l].x, lower[l].y);
+    }
+    ctx.closePath();
+
+    var grad = ctx.createLinearGradient(0, upper[0].y - bandHeight, 0, lower[0].y + bandHeight);
+    var hue = (layer.hue + Math.sin(time * 0.0002) * 30) % 360;
+    grad.addColorStop(0, 'hsla(' + hue + ', 100%, 65%, 0)');
+    grad.addColorStop(0.3, 'hsla(' + hue + ', 100%, 65%, ' + (layer.alpha * 0.9) + ')');
+    grad.addColorStop(0.5, 'hsla(' + hue + ', 90%, 70%, ' + (layer.alpha * 1) + ')');
+    grad.addColorStop(0.7, 'hsla(' + hue + ', 100%, 65%, ' + (layer.alpha * 0.9) + ')');
+    grad.addColorStop(1, 'hsla(' + hue + ', 100%, 65%, 0)');
+
+    ctx.fillStyle = grad;
+    ctx.fill();
+
+    // 中心亮线
+    ctx.beginPath();
+    ctx.moveTo(points[0].x, points[0].y);
+    for (var m = 1; m < points.length; m++) {
+      ctx.lineTo(points[m].x, points[m].y);
+    }
+    ctx.strokeStyle = 'hsla(' + hue + ', 100%, 85%, ' + (layer.alpha * 0.5) + ')';
+    ctx.lineWidth = 2;
+    ctx.shadowColor = 'hsla(' + hue + ', 100%, 70%, 0.6)';
+    ctx.shadowBlur = 20;
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+  }
+
+  function step(timestamp) {
+    time = timestamp;
+    ctx.clearRect(0, 0, W, H);
+
+    for (var i = 0; i < auroraLayers.length; i++) {
+      drawAuroraLayer(auroraLayers[i], time);
+    }
+
+    // 添加星星点缀
+    ctx.fillStyle = 'rgba(200, 220, 255, 0.6)';
+    var seed = 42;
+    for (var s = 0; s < 80; s++) {
+      var sx = ((Math.sin(seed + s * 137.5) * 10000 + 10000) % 10000) / 10000 * W;
+      var sy = ((Math.cos(seed + s * 271.8) * 10000 + 10000) % 10000) / 10000 * H * 0.5;
+      var flicker = 0.5 + 0.5 * Math.sin(time * 0.001 * (1 + s * 0.1) + s);
+      if (flicker > 0.6) {
+        ctx.globalAlpha = flicker * 0.5;
+        ctx.fillRect(sx, sy, 1, 1);
+      }
+    }
+    ctx.globalAlpha = 1;
+
+    rafId = requestAnimationFrame(step);
+  }
+
+  function start() {
+    if (rafId === null && running) rafId = requestAnimationFrame(step);
+  }
+
+  function stop() {
+    if (rafId !== null) {
+      cancelAnimationFrame(rafId);
+      rafId = null;
+    }
+  }
+
+  window.addEventListener('resize', resize);
+
+  document.addEventListener('visibilitychange', function () {
+    running = !document.hidden;
+    if (running) start(); else stop();
+  });
+
+  resize();
+  start();
+})();
+</script>
+</body>
+</html>

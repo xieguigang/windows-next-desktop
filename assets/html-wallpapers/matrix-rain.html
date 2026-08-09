@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>数字雨动态壁纸</title>
+<style>
+  html, body {
+    margin: 0; padding: 0;
+    width: 100%; height: 100%;
+    overflow: hidden;
+    background: #000;
+  }
+  canvas { position: absolute; inset: 0; display: block; }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script>
+(function () {
+  'use strict';
+
+  var canvas = document.getElementById('c');
+  var ctx = canvas.getContext('2d', { alpha: false });
+  var W = 0, H = 0, DPR = 1;
+  var columns = [];
+  var fontSize = 16;
+  var rafId = null;
+  var running = true;
+  var lastTime = 0;
+
+  var chars = 'ｦｧｨｩｪｫｬｭｮｯｰｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+
+  function resize() {
+    DPR = Math.min(window.devicePixelRatio || 1, 2);
+    W = window.innerWidth;
+    H = window.innerHeight;
+    canvas.width = Math.floor(W * DPR);
+    canvas.height = Math.floor(H * DPR);
+    canvas.style.width = W + 'px';
+    canvas.style.height = H + 'px';
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+
+    // 调整字体大小
+    fontSize = Math.max(12, Math.min(20, Math.round(W / 80)));
+    initColumns();
+  }
+
+  function initColumns() {
+    var colCount = Math.ceil(W / fontSize);
+    columns = [];
+    for (var i = 0; i < colCount; i++) {
+      columns.push({
+        x: i * fontSize,
+        y: Math.random() * H,
+        speed: Math.random() * 3 + 2,
+        chars: [],
+        nextSwitch: 0
+      });
+      // 初始化每列的字符
+      for (var j = 0; j < Math.ceil(H / fontSize) + 2; j++) {
+        columns[i].chars.push(chars[Math.floor(Math.random() * chars.length)]);
+      }
+    }
+  }
+
+  function step(timestamp) {
+    if (!lastTime) lastTime = timestamp;
+    lastTime = timestamp;
+
+    // 半透明背景制造拖尾效果
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+    ctx.fillRect(0, 0, W, H);
+
+    ctx.font = 'bold ' + fontSize + 'px monospace';
+
+    for (var i = 0; i < columns.length; i++) {
+      var col = columns[i];
+
+      // 头部亮色字符
+      var headIndex = Math.floor(col.y / fontSize);
+      if (headIndex >= 0 && headIndex < col.chars.length) {
+        ctx.fillStyle = '#ffffff';
+        ctx.fillText(col.chars[headIndex], col.x, col.y);
+      }
+
+      // 第二个字符淡绿色
+      var secondY = col.y - fontSize;
+      if (secondY > 0) {
+        ctx.fillStyle = '#aaffaa';
+        var si2 = Math.floor(secondY / fontSize);
+        if (si2 >= 0 && si2 < col.chars.length) {
+          ctx.fillText(col.chars[si2], col.x, secondY);
+        }
+      }
+
+      // 第三个字符暗绿色
+      var thirdY = col.y - fontSize * 2;
+      if (thirdY > 0) {
+        ctx.fillStyle = '#33aa33';
+        var si3 = Math.floor(thirdY / fontSize);
+        if (si3 >= 0 && si3 < col.chars.length) {
+          ctx.fillText(col.chars[si3], col.x, thirdY);
+        }
+      }
+
+      // 后续字符逐渐变暗
+      for (var j = 3; j < 12; j++) {
+        var charY = col.y - fontSize * j;
+        if (charY <= 0) break;
+        var alpha = 1 - j / 12;
+        if (alpha <= 0.05) break;
+        ctx.fillStyle = 'rgba(0, 180, 0, ' + alpha.toFixed(3) + ')';
+        var si = Math.floor(charY / fontSize);
+        if (si >= 0 && si < col.chars.length) {
+          ctx.fillText(col.chars[si], col.x, charY);
+        }
+      }
+
+      // 移动列
+      col.y += col.speed;
+
+      // 随机切换字符
+      col.nextSwitch--;
+      if (col.nextSwitch <= 0) {
+        var si = Math.floor(Math.random() * col.chars.length);
+        col.chars[si] = chars[Math.floor(Math.random() * chars.length)];
+        col.nextSwitch = Math.random() * 10 + 2;
+      }
+
+      // 重置到顶部
+      if (col.y > H + fontSize * 12) {
+        col.y = -Math.random() * H * 0.5;
+        col.speed = Math.random() * 3 + 2;
+      }
+    }
+
+    rafId = requestAnimationFrame(step);
+  }
+
+  function start() {
+    if (rafId === null && running) {
+      lastTime = 0;
+      rafId = requestAnimationFrame(step);
+    }
+  }
+
+  function stop() {
+    if (rafId !== null) {
+      cancelAnimationFrame(rafId);
+      rafId = null;
+    }
+  }
+
+  window.addEventListener('resize', resize);
+
+  document.addEventListener('visibilitychange', function () {
+    running = !document.hidden;
+    if (running) start(); else stop();
+  });
+
+  resize();
+  start();
+})();
+</script>
+</body>
+</html>

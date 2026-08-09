@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>海洋波浪动态壁纸</title>
+<style>
+  html, body {
+    margin: 0; padding: 0;
+    width: 100%; height: 100%;
+    overflow: hidden;
+    background: #0a1a3a;
+  }
+  #bg {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(1200px 600px at 50% 0%, rgba(20, 80, 160, 0.35), transparent 70%),
+      linear-gradient(180deg,
+        #0a1628 0%,
+        #0d1f3c 25%,
+        #0f2850 50%,
+        #0c1e40 75%,
+        #081428 100%);
+  }
+  canvas { position: absolute; inset: 0; display: block; }
+</style>
+</head>
+<body>
+<div id="bg"></div>
+<canvas id="c"></canvas>
+<script>
+(function () {
+  'use strict';
+
+  var canvas = document.getElementById('c');
+  var ctx = canvas.getContext('2d', { alpha: true });
+  var W = 0, H = 0, DPR = 1;
+  var rafId = null;
+  var running = true;
+  var time = 0;
+  var foamParticles = [];
+
+  // 波浪层定义
+  var waves = [
+    { amplitude: 30,  freq: 0.008, speed: 0.0008, phase: 0,    color: 'rgba(20, 80, 180, 0.5)',  yOff: 0.55 },
+    { amplitude: 35,  freq: 0.012, speed: 0.0010, phase: 1.2,  color: 'rgba(30, 100, 200, 0.45)', yOff: 0.52 },
+    { amplitude: 28,  freq: 0.010, speed: 0.0012, phase: 2.5,  color: 'rgba(40, 120, 220, 0.4)',  yOff: 0.49 },
+    { amplitude: 40,  freq: 0.006, speed: 0.0006, phase: 0.8,  color: 'rgba(15, 60, 150, 0.55)', yOff: 0.58 },
+    { amplitude: 22,  freq: 0.015, speed: 0.0015, phase: 3.2,  color: 'rgba(50, 140, 230, 0.35)', yOff: 0.46 }
+  ];
+
+  function resize() {
+    DPR = Math.min(window.devicePixelRatio || 1, 2);
+    W = window.innerWidth;
+    H = window.innerHeight;
+    canvas.width = Math.floor(W * DPR);
+    canvas.height = Math.floor(H * DPR);
+    canvas.style.width = W + 'px';
+    canvas.style.height = H + 'px';
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    seedFoam();
+  }
+
+  function seedFoam() {
+    foamParticles = [];
+    var count = Math.min(80, Math.max(30, Math.round(W / 20)));
+    for (var i = 0; i < count; i++) {
+      foamParticles.push({
+        x: Math.random() * W,
+        y: H * (0.35 + Math.random() * 0.45),
+        r: Math.random() * 3 + 1,
+        life: Math.random(),
+        decay: Math.random() * 0.003 + 0.002,
+        vx: (Math.random() - 0.5) * 0.3,
+        vy: -(Math.random() * 0.2 + 0.05)
+      });
+    }
+  }
+
+  function getWaveY(wave, x, t) {
+    return H * wave.yOff + Math.sin(x * wave.freq + t * wave.speed + wave.phase) * wave.amplitude
+      + Math.sin(x * wave.freq * 2.3 + t * wave.speed * 1.5 + wave.phase + 1) * wave.amplitude * 0.3
+      + Math.sin(x * wave.freq * 0.4 + t * wave.speed * 0.7 + wave.phase + 2) * wave.amplitude * 0.5;
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+
+    // 从后往前绘制波浪（深层到表层）
+    for (var w = waves.length - 1; w >= 0; w--) {
+      var wave = waves[w];
+
+      ctx.beginPath();
+      ctx.moveTo(0, H);
+
+      for (var x = 0; x <= W; x += 2) {
+        var y = getWaveY(wave, x, time);
+        ctx.lineTo(x, y);
+      }
+
+      ctx.lineTo(W, H);
+      ctx.closePath();
+
+      // 渐变填充
+      var grad = ctx.createLinearGradient(0, H * wave.yOff - wave.amplitude - 50, 0, H);
+      grad.addColorStop(0, wave.color.replace(/[\d.]+\)$/, '0.6)'));
+      grad.addColorStop(0.4, wave.color);
+      grad.addColorStop(1, wave.color.replace(/[\d.]+\)$/, '0.05)'));
+      ctx.fillStyle = grad;
+      ctx.fill();
+
+      // 波峰高光线
+      ctx.beginPath();
+      for (var x2 = 0; x2 <= W; x2 += 4) {
+        var y2 = getWaveY(wave, x2, time);
+        if (x2 === 0) ctx.moveTo(x2, y2);
+        else ctx.lineTo(x2, y2);
+      }
+      ctx.strokeStyle = wave.color.replace(/[\d.]+\)$/, '0.7)');
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+    }
+
+    // 绘制泡沫粒子
+    for (var i = 0; i < foamParticles.length; i++) {
+      var p = foamParticles[i];
+      p.x += p.vx;
+      p.y += p.vy;
+      p.life -= p.decay;
+
+      // 保持在水面附近
+      var targetY = H * 0.4;
+      if (p.y < targetY) p.y = targetY + Math.random() * H * 0.3;
+
+      // 重置
+      if (p.life <= 0 || p.x < -10 || p.x > W + 10) {
+        p.x = Math.random() * W;
+        p.y = H * (0.35 + Math.random() * 0.45);
+        p.life = 1;
+        p.r = Math.random() * 3 + 1;
+      }
+
+      var alpha = Math.max(0, p.life * 0.7);
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(200, 230, 255, ' + alpha.toFixed(3) + ')';
+      ctx.fill();
+    }
+  }
+
+  function step(timestamp) {
+    time = timestamp;
+    draw();
+    rafId = requestAnimationFrame(step);
+  }
+
+  function start() {
+    if (rafId === null && running) rafId = requestAnimationFrame(step);
+  }
+
+  function stop() {
+    if (rafId !== null) {
+      cancelAnimationFrame(rafId);
+      rafId = null;
+    }
+  }
+
+  window.addEventListener('resize', resize);
+
+  document.addEventListener('visibilitychange', function () {
+    running = !document.hidden;
+    if (running) start(); else stop();
+  });
+
+  resize();
+  start();
+})();
+</script>
+</body>
+</html>
