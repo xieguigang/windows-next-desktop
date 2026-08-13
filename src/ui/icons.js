@@ -197,8 +197,8 @@ const APP_GLYPHS = {
     <path d="M9.6 12.2 7.4 15l2.2 2.8M14.4 12.2l2.2 2.8-2.2 2.8M12.6 11.4l-1.2 7.2" stroke="#7C3AED" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="0.92"/>`,
 };
 
-/** Windows 徽标（开始按钮） */
-export const WIN_LOGO = `<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M3 5.9 10.3 4.9v6.8H3V5.9Zm0 12.2 7.3 1v-6.7H3v5.7Zm8.3 1.2L21 20.6v-8.4h-9.7v7.1Zm0-15.2v7.2H21V3.4l-9.7 1.3Z"/></svg>`;
+/** Windows 徽标（开始按钮），带亚克力底板 */
+export const WIN_LOGO = `<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><rect x="1.5" y="1.5" width="21" height="21" rx="5.6" fill="rgba(255,255,255,0.16)" stroke="rgba(255,255,255,0.30)" stroke-width="0.6"/><rect x="2.6" y="2.4" width="18.8" height="8.6" rx="4.2" fill="rgba(255,255,255,0.14)"/><path fill="currentColor" d="M3 5.9 10.3 4.9v6.8H3V5.9Zm0 12.2 7.3 1v-6.7H3v5.7Zm8.3 1.2L21 20.6v-8.4h-9.7v7.1Zm0-15.2v7.2H21V3.4l-9.7 1.3Z"/></svg>`;
 
 /**
  * 统一的亚克力（半透明磨砂玻璃）底板：圆角方块 + 顶部高光 + 细描边。

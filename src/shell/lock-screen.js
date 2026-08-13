@@ -144,10 +144,10 @@ export class LockScreen {
         <div class="ls-date" id="ls-date">${date}</div>
 
         <div class="ls-media" id="ls-media">
-          <span class="ls-media-logo">${getIcon('windows', 20)}</span>
-          <button class="ls-media-btn" data-act="prev" title="上一首" aria-label="上一首">${getIcon('prev', 20)}</button>
-          <button class="ls-media-btn" data-act="playpause" title="播放/暂停" aria-label="播放或暂停">${getIcon('pause', 20)}</button>
-          <button class="ls-media-btn" data-act="next" title="下一首" aria-label="下一首">${getIcon('next', 20)}</button>
+          <span class="ls-media-logo">${getIcon('windows', 20, { bare: true })}</span>
+          <button class="ls-media-btn" data-act="prev" title="上一首" aria-label="上一首">${getIcon('prev', 20, { bare: true })}</button>
+          <button class="ls-media-btn" data-act="playpause" title="播放/暂停" aria-label="播放或暂停">${getIcon('pause', 20, { bare: true })}</button>
+          <button class="ls-media-btn" data-act="next" title="下一首" aria-label="下一首">${getIcon('next', 20, { bare: true })}</button>
         </div>
 
         <div class="ls-hint">点击任意处或上滑解锁</div>
@@ -166,7 +166,7 @@ export class LockScreen {
       const act = btn.dataset.act;
       if (act === 'playpause') {
         this._playing = !this._playing;
-        btn.innerHTML = getIcon(this._playing ? 'pause' : 'play', 20);
+        btn.innerHTML = getIcon(this._playing ? 'pause' : 'play', 20, { bare: true });
       }
       // prev/next 仅视觉反馈（无真实播放器）
     });
