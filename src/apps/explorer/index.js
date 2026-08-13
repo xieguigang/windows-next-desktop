@@ -66,7 +66,6 @@ export default async function mount(ctx) {
           <button class="tb-btn" data-view="details" title="详细信息" aria-label="详细信息">${getIcon('details', 16)}</button>
         </div>
       </div>
-      <div class="ex-tabs"></div>
       <div class="ex-panes"></div>
       <div class="ex-status">
         <span class="ex-status-count">0 项</span>
@@ -76,8 +75,21 @@ export default async function mount(ctx) {
   ctx.root.appendChild(root);
 
   const sidebar = root.querySelector('.ex-sidebar');
-  const tabsEl = root.querySelector('.ex-tabs');
   const panesEl = root.querySelector('.ex-panes');
+
+  // 标签页行挂载到窗口标题栏插槽（Windows 11 风格一体化标题栏）
+  const tabsEl = document.createElement('div');
+  tabsEl.className = 'ex-tabs';
+  const newTabBtn = document.createElement('button');
+  newTabBtn.className = 'ex-tab-new';
+  newTabBtn.title = '新建标签页';
+  newTabBtn.setAttribute('aria-label', '新建标签页');
+  tabsEl.appendChild(newTabBtn);
+  ctx.window.setTitlebarSlot(tabsEl);
+  newTabBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    openInNewTab(SHELL_FOLDERS.home);
+  });
   const statusCount = root.querySelector('.ex-status-count');
   const statusInfo = root.querySelector('.ex-status-info');
   const addressInput = root.querySelector('.ex-address-input');
@@ -155,7 +167,10 @@ export default async function mount(ctx) {
   }
 
   function renderTabs() {
-    tabsEl.innerHTML = '';
+    // 仅移除「新建按钮」之前的标签节点，保留末尾的 + 按钮
+    while (tabsEl.firstChild && tabsEl.firstChild !== newTabBtn) {
+      tabsEl.removeChild(tabsEl.firstChild);
+    }
     panesEl.innerHTML = '';
     for (const t of tabs) {
       const tabEl = document.createElement('div');
@@ -174,7 +189,7 @@ export default async function mount(ctx) {
           activate(t);
         }
       });
-      tabsEl.appendChild(tabEl);
+      tabsEl.insertBefore(tabEl, newTabBtn);
 
       const pane = document.createElement('div');
       pane.className = 'ex-pane';
