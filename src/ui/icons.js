@@ -78,6 +78,9 @@ const GLYPHS = {
   window: '<rect x="3.5" y="5" width="17" height="14" rx="2" stroke="currentColor" stroke-width="1.3" fill="none"/><path d="M3.5 9h17" stroke="currentColor" stroke-width="1.3"/><circle cx="6.3" cy="7" r=".8" fill="currentColor"/><circle cx="8.9" cy="7" r=".8" fill="currentColor"/>',
   windows: '<path fill="currentColor" d="M3 5.9 10.3 4.9v6.8H3V5.9Zm0 12.2 7.3 1v-6.7H3v5.7Zm8.3 1.2L21 20.6v-8.4h-9.7v7.1Zm0-15.2v7.2H21V3.4l-9.7 1.3Z"/>',
 
+  /* 天气 */
+  weather: '<circle cx="8.5" cy="9" r="3.8" fill="#FFD45E"/><circle cx="8.5" cy="9" r="5.4" fill="#FFD45E" opacity=".35"/><path d="M7 18.5h9a3 3 0 0 0 0-6 4.2 4.2 0 0 0-8.1 1.1A3 3 0 0 0 7 18.5Z" fill="#E8EFF7"/>',
+
   /* 媒体控制 */
   play: '<path d="M8 5.5 18.5 12 8 18.5v-13Z" fill="currentColor"/>',
   pause: '<rect x="7" y="5.5" width="3.6" height="13" rx="1" fill="currentColor"/><rect x="13.4" y="5.5" width="3.6" height="13" rx="1" fill="currentColor"/>',

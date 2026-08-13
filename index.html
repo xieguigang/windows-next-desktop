@@ -14,6 +14,7 @@
 <link rel="stylesheet" href="src/styles/base.css">
 <link rel="stylesheet" href="src/styles/window.css">
 <link rel="stylesheet" href="src/styles/shell.css">
+<link rel="stylesheet" href="src/styles/lock-screen.css">
 <link rel="stylesheet" href="src/styles/bsod.css">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%230078D4' d='M3 5.5 10.2 4.5v6.9H3V5.5Zm0 13L10.2 19.5v-6.8H3v5.8Zm8.4 1.2L21 21V12.7h-9.6v7Zm0-15.4v7.1H21V3l-9.6 1.3Z'/%3E%3C/svg%3E">
 </head>
@@ -33,6 +34,9 @@
 
 <!-- 浮层：右键菜单、预览、对话框 -->
 <div id="overlay-layer" class="overlay-layer"></div>
+
+<!-- 锁屏层 -->
+<div id="lock-screen-layer" class="lock-screen-layer" aria-hidden="true"></div>
 
 <!-- 启动遮罩 -->
 <div id="boot-screen" class="boot-screen">
