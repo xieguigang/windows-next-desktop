@@ -99,110 +99,121 @@ const GLYPHS = {
   gear: '<circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.3" fill="none"/><path d="M12 2.8v2.4M12 18.8v2.4M21.2 12h-2.4M5.2 12H2.8M18.5 5.5l-1.7 1.7M7.2 16.8l-1.7 1.7M18.5 18.5l-1.7-1.7M7.2 7.2 5.5 5.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>',
 };
 
-/** 彩色应用/文件图标：完整 SVG 内容（24x24 视口） */
+/**
+ * 彩色应用/文件图标：半透明品牌色形状，叠在 getIcon 注入的亚克力底板上，
+ * 形成「彩色磨砂玻璃块」的 Fluent 亚克力风格。
+ */
 const APP_GLYPHS = {
   explorer: `
-    <path d="M2.5 7.2a2 2 0 0 1 2-2h5.1l2 2.4h10a2 2 0 0 1 2 2v9.2a2 2 0 0 1-2 2h-17a2 2 0 0 1-2-2V7.2Z" fill="#F7B84B"/>
-    <path d="M2.5 10.2a2 2 0 0 1 2-2h17a2 2 0 0 1 2 2v8.6a2 2 0 0 1-2 2h-17a2 2 0 0 1-2-2v-8.6Z" fill="#FFD166"/>
-    <path d="M2.5 10.2h21v2.2h-21z" fill="#FFDF94" opacity=".7"/>`,
+    <path d="M3 7.4a2 2 0 0 1 2-2h4.6l2 2.3h7.4a2 2 0 0 1 2 2v7.4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7.4Z" fill="#F7B84B" fill-opacity="0.92"/>
+    <path d="M3 11h18v6.4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V11Z" fill="#FFD166" fill-opacity="0.78"/>`,
   folder: `
-    <path d="M2.5 6.8a1.8 1.8 0 0 1 1.8-1.8h4.7l2 2.3h10.7a1.8 1.8 0 0 1 1.8 1.8v9.4a1.8 1.8 0 0 1-1.8 1.8H4.3a1.8 1.8 0 0 1-1.8-1.8V6.8Z" fill="#E8A72E"/>
-    <path d="M2.5 9.9a1.8 1.8 0 0 1 1.8-1.8h17.4a1.8 1.8 0 0 1 1.8 1.8v8.3a1.8 1.8 0 0 1-1.8 1.8H4.3a1.8 1.8 0 0 1-1.8-1.8V9.9Z" fill="#FFC845"/>`,
+    <path d="M2.5 6.8a1.8 1.8 0 0 1 1.8-1.8h4.7l2 2.3h10.7a1.8 1.8 0 0 1 1.8 1.8v9.4a1.8 1.8 0 0 1-1.8 1.8H4.3a1.8 1.8 0 0 1-1.8-1.8V6.8Z" fill="#E8A72E" fill-opacity="0.92"/>
+    <path d="M2.5 9.9a1.8 1.8 0 0 1 1.8-1.8h17.4a1.8 1.8 0 0 1 1.8 1.8v8.3a1.8 1.8 0 0 1-1.8 1.8H4.3a1.8 1.8 0 0 1-1.8-1.8V9.9Z" fill="#FFC845" fill-opacity="0.80"/>`,
   calculator: `
-    <rect x="3.5" y="2" width="17" height="20" rx="2.6" fill="#2B579A"/>
-    <rect x="5.8" y="4.4" width="12.4" height="4.2" rx="1.1" fill="#DCEAFB"/>
-    <g fill="#7FB2E8">
-      <rect x="5.8" y="10.2" width="2.9" height="2.6" rx=".8"/><rect x="10.5" y="10.2" width="2.9" height="2.6" rx=".8"/>
-      <rect x="15.2" y="10.2" width="3" height="2.6" rx=".8"/><rect x="5.8" y="14.2" width="2.9" height="2.6" rx=".8"/>
-      <rect x="10.5" y="14.2" width="2.9" height="2.6" rx=".8"/><rect x="5.8" y="18.2" width="2.9" height="2.4" rx=".8"/>
-      <rect x="10.5" y="18.2" width="2.9" height="2.4" rx=".8"/>
+    <rect x="4" y="2.6" width="16" height="18.8" rx="3" fill="#2B579A" fill-opacity="0.85"/>
+    <rect x="6.2" y="5" width="11.6" height="4" rx="1.2" fill="#DCEAFB" fill-opacity="0.9"/>
+    <g fill="#9FCBF5" fill-opacity="0.92">
+      <rect x="6.2" y="10.6" width="2.8" height="2.5" rx=".8"/><rect x="10.6" y="10.6" width="2.8" height="2.5" rx=".8"/>
+      <rect x="15" y="10.6" width="2.8" height="2.5" rx=".8"/><rect x="6.2" y="14.4" width="2.8" height="2.5" rx=".8"/>
+      <rect x="10.6" y="14.4" width="2.8" height="2.5" rx=".8"/><rect x="6.2" y="18.2" width="2.8" height="2.3" rx=".8"/>
+      <rect x="10.6" y="18.2" width="2.8" height="2.3" rx=".8"/>
     </g>
-    <rect x="15.2" y="14.2" width="3" height="6.4" rx=".9" fill="#F2A93B"/>`,
+    <rect x="15" y="14.4" width="2.8" height="6" rx=".9" fill="#F2A93B" fill-opacity="0.95"/>`,
   terminal: `
-    <rect x="2" y="3.5" width="20" height="17" rx="2.4" fill="#0E1116"/>
-    <rect x="2" y="3.5" width="20" height="3.4" rx="2.4" fill="#2A2F38"/>
-    <circle cx="5" cy="5.2" r=".8" fill="#FF5F57"/><circle cx="7.6" cy="5.2" r=".8" fill="#FEBC2E"/><circle cx="10.2" cy="5.2" r=".8" fill="#28C840"/>
-    <path d="M5.2 10.4 8.6 13l-3.4 2.6" stroke="#4CE08A" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-    <path d="M10.8 16h7" stroke="#4CE08A" stroke-width="1.5" stroke-linecap="round"/>`,
+    <rect x="2.4" y="4" width="19.2" height="16" rx="3" fill="#0E1116" fill-opacity="0.82"/>
+    <rect x="2.4" y="4" width="19.2" height="3.2" rx="3" fill="#2A2F38" fill-opacity="0.9"/>
+    <circle cx="5.4" cy="5.6" r=".8" fill="#FF5F57" fill-opacity="0.9"/><circle cx="8" cy="5.6" r=".8" fill="#FEBC2E" fill-opacity="0.9"/><circle cx="10.6" cy="5.6" r=".8" fill="#28C840" fill-opacity="0.9"/>
+    <path d="M5.6 11 9 13.6l-3.4 2.6" stroke="#4CE08A" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M11 16.6h6.4" stroke="#4CE08A" stroke-width="1.5" stroke-linecap="round"/>`,
   browser: `
-    <circle cx="12" cy="12" r="9.4" fill="#1E88E5"/>
-    <path d="M12 2.6c2.6 0 4.7 4.2 4.7 9.4s-2.1 9.4-4.7 9.4-4.7-4.2-4.7-9.4S9.4 2.6 12 2.6Z" fill="none" stroke="#BBDEFB" stroke-width="1.2"/>
-    <path d="M2.9 9h18.2M2.9 15h18.2M12 2.6v18.8" stroke="#BBDEFB" stroke-width="1.2"/>`,
+    <circle cx="12" cy="12" r="9" fill="#1E88E5" fill-opacity="0.85"/>
+    <path d="M12 3c2.5 0 4.5 4 4.5 9s-2 9-4.5 9-4.5-4-4.5-9S9.5 3 12 3Z" fill="none" stroke="#BBDEFB" stroke-width="1.2" stroke-opacity="0.9"/>
+    <path d="M3.4 9h17.2M3.4 15h17.2M12 3v18" stroke="#BBDEFB" stroke-width="1.2" stroke-opacity="0.9"/>`,
   mediaPlayer: `
-    <circle cx="12" cy="12" r="9.6" fill="#1F5FA8"/>
-    <circle cx="12" cy="12" r="7.4" fill="#F26522"/>
-    <circle cx="12" cy="12" r="5.4" fill="#fff"/>
-    <path d="M10.4 8.9 15.6 12l-5.2 3.1V8.9Z" fill="#1F5FA8"/>`,
+    <circle cx="12" cy="12" r="9.2" fill="#1F5FA8" fill-opacity="0.85"/>
+    <circle cx="12" cy="12" r="7" fill="#F26522" fill-opacity="0.88"/>
+    <circle cx="12" cy="12" r="5" fill="#ffffff" fill-opacity="0.9"/>
+    <path d="M10.4 9 15.2 12l-4.8 3V9Z" fill="#1F5FA8" fill-opacity="0.9"/>`,
   imageViewer: `
-    <rect x="2.4" y="4.2" width="19.2" height="15.6" rx="2" fill="#F7FBFF"/>
-    <rect x="2.4" y="4.2" width="19.2" height="15.6" rx="2" fill="none" stroke="#B9D6F2" stroke-width="1.1"/>
-    <circle cx="8.1" cy="9.4" r="1.9" fill="#FFC845"/>
-    <path d="M4 17.6l4.6-5.2 3.3 3.6 3-3.2 5.1 4.8H4Z" fill="#3A7BD5"/>
-    <path d="M11.9 16l3-3.2 5.1 4.8h-5.2L11.9 16Z" fill="#7FB2E8"/>`,
+    <rect x="3" y="4.6" width="18" height="14.8" rx="2.4" fill="#F7FBFF" fill-opacity="0.88"/>
+    <rect x="3" y="4.6" width="18" height="14.8" rx="2.4" fill="none" stroke="#B9D6F2" stroke-width="1.1" stroke-opacity="0.8"/>
+    <circle cx="8.4" cy="9.6" r="1.8" fill="#FFC845" fill-opacity="0.95"/>
+    <path d="M4.4 17.8 9 12.8l3.2 3.4 2.9-3.1 4.5 4.7H4.4Z" fill="#3A7BD5" fill-opacity="0.85"/>
+    <path d="M12.2 16.2l2.9-3.1 4.5 4.7h-4.9l-2.5-1.6Z" fill="#7FB2E8" fill-opacity="0.85"/>`,
   notepad: `
-    <path d="M5 2.6h9.4L19.6 8v13.4a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V3.6a1 1 0 0 1 1-1Z" fill="#F7FBFF"/>
-    <path d="M14.4 2.6 19.6 8h-4.6a.6.6 0 0 1-.6-.6V2.6Z" fill="#B9D6F2"/>
-    <path d="M4 2.6h2.6v20.8H5a1 1 0 0 1-1-1V3.6a1 1 0 0 1 1-1Z" fill="#3A7BD5"/>
-    <g stroke="#7FA9D8" stroke-width="1.1" stroke-linecap="round"><path d="M8.6 11h8M8.6 14h8M8.6 17h5.4"/></g>`,
+    <path d="M5 2.8h9.2L19.4 8.2v12.8a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V3.8a1 1 0 0 1 1-1Z" fill="#F7FBFF" fill-opacity="0.9"/>
+    <path d="M14.2 2.8 19.4 8h-4.4a.6.6 0 0 1-.6-.6V2.8Z" fill="#B9D6F2" fill-opacity="0.9"/>
+    <path d="M4 2.8h2.6v19.2H5a1 1 0 0 1-1-1V3.8a1 1 0 0 1 1-1Z" fill="#3A7BD5" fill-opacity="0.9"/>
+    <g stroke="#7FA9D8" stroke-width="1.1" stroke-linecap="round" stroke-opacity="0.9"><path d="M8.6 11.4h8M8.6 14.4h8M8.6 17.4h5.4"/></g>`,
   taskManager: `
-    <rect x="2.6" y="4" width="18.8" height="16" rx="2" fill="#1F2A37"/>
-    <rect x="2.6" y="4" width="18.8" height="3.2" rx="2" fill="#374151"/>
-    <path d="M5 16.4l3-4.4 2.6 2.8 3.2-5.6 2.8 4 2.6-2.6" stroke="#4ADE80" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-    <path d="M4.6 18.6h14.8" stroke="#4B5563" stroke-width="1"/>`,
+    <rect x="2.8" y="4.4" width="18.4" height="15.2" rx="2.4" fill="#1F2A37" fill-opacity="0.85"/>
+    <rect x="2.8" y="4.4" width="18.4" height="3" rx="2.4" fill="#374151" fill-opacity="0.9"/>
+    <path d="M5.4 16.6l3-4.4 2.6 2.8 3.2-5.6 2.8 4 2.6-2.6" stroke="#4ADE80" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="0.95"/>
+    <path d="M5 18.8h14" stroke="#4B5563" stroke-width="1" stroke-opacity="0.8"/>`,
   settings: `
-    <circle cx="12" cy="12" r="9.4" fill="#5B6470"/>
-    <path d="M12 4.6a7.4 7.4 0 0 1 2.5.44l.5 2.1 1.6.94 2.05-.7A7.4 7.4 0 0 1 19.4 12l-1.7 1.3.02 1.86 1.68 1.3a7.4 7.4 0 0 1-1.86 2.3l-2-.72-1.6.94-.52 2.1a7.4 7.4 0 0 1-3 0l-.52-2.1-1.6-.94-2 .72A7.4 7.4 0 0 1 4.6 12l1.7-1.3-.02-1.86L4.6 7.54a7.4 7.4 0 0 1 1.86-2.3l2 .72 1.6-.94.5-2.1A7.4 7.4 0 0 1 12 4.6Z" fill="#8B95A3"/>
-    <circle cx="12" cy="12" r="3.3" fill="#2C333D"/>`,
+    <circle cx="12" cy="12" r="9" fill="#5B6470" fill-opacity="0.85"/>
+    <path d="M12 4.8a7.2 7.2 0 0 1 2.4.4l.5 2 1.6.9 2-.7a7.2 7.2 0 0 1 1.7 1.8l-1.6 1.3.02 1.8 1.6 1.3a7.2 7.2 0 0 1-1.8 2.2l-2-.7-1.5.9-.5 2a7.2 7.2 0 0 1-2.9 0l-.5-2-1.6-.9-2 .7a7.2 7.2 0 0 1-1.8-2.2l1.6-1.3-.02-1.8L4.6 9.8a7.2 7.2 0 0 1 1.8-2.2l2 .7 1.6-.9.5-2Z" fill="#8B95A3" fill-opacity="0.9"/>
+    <circle cx="12" cy="12" r="3.2" fill="#2C333D" fill-opacity="0.92"/>`,
   hello: `
-    <rect x="2.5" y="3" width="19" height="18" rx="4" fill="#7C3AED"/>
-    <circle cx="9" cy="10.5" r="1.6" fill="#fff"/><circle cx="15" cy="10.5" r="1.6" fill="#fff"/>
-    <path d="M8 15.2a5 5 0 0 0 8 0" stroke="#fff" stroke-width="1.6" fill="none" stroke-linecap="round"/>`,
+    <rect x="2.8" y="3.4" width="18.4" height="17.2" rx="4.4" fill="#7C3AED" fill-opacity="0.88"/>
+    <circle cx="9" cy="10.6" r="1.5" fill="#fff" fill-opacity="0.95"/><circle cx="15" cy="10.6" r="1.5" fill="#fff" fill-opacity="0.95"/>
+    <path d="M8 15.4a5 5 0 0 0 8 0" stroke="#fff" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-opacity="0.95"/>`,
   recycleBin: `
-    <path d="M5 7.5h14l-1.2 12.2a2 2 0 0 1-2 1.8H8.2a2 2 0 0 1-2-1.8L5 7.5Z" fill="#BFD9F2" opacity=".9"/>
-    <path d="M3.6 5.4h16.8v2.2H3.6z" fill="#5B93D6"/>
-    <path d="M9.4 3h5.2v2.4H9.4z" fill="#5B93D6"/>
-    <g stroke="#4A7CB8" stroke-width="1.2" stroke-linecap="round"><path d="M9.6 10.5v7.2M12 10.5v7.2M14.4 10.5v7.2"/></g>`,
+    <path d="M5 7.6h14l-1.2 12a2 2 0 0 1-2 1.8H8.2a2 2 0 0 1-2-1.8L5 7.6Z" fill="#BFD9F2" fill-opacity="0.85"/>
+    <path d="M3.6 5.6h16.8v2h-16.8z" fill="#5B93D6" fill-opacity="0.9"/>
+    <path d="M9.4 3.2h5.2v2.4H9.4z" fill="#5B93D6" fill-opacity="0.9"/>
+    <g stroke="#4A7CB8" stroke-width="1.2" stroke-linecap="round" stroke-opacity="0.9"><path d="M9.6 10.6v7M12 10.6v7M14.4 10.6v7"/></g>`,
   thisPc: `
-    <rect x="2.4" y="4" width="19.2" height="12.6" rx="1.6" fill="#4A5568"/>
-    <rect x="3.8" y="5.4" width="16.4" height="9.4" rx=".8" fill="#63B3ED"/>
-    <path d="M7.4 19.6h9.2l1 2H6.4l1-2Z" fill="#4A5568"/>`,
+    <rect x="2.8" y="4.4" width="18.4" height="12" rx="2" fill="#4A5568" fill-opacity="0.85"/>
+    <rect x="4" y="5.8" width="16" height="8.8" rx="1" fill="#63B3ED" fill-opacity="0.85"/>
+    <path d="M7.6 19.6h8.8l1 2H6.6l1-2Z" fill="#4A5568" fill-opacity="0.9"/>`,
 
   /* 文件类型 */
   fileGeneric: `
-    <path d="M5.6 2.6h8.2L19.4 8.2v13.2a1 1 0 0 1-1 1H5.6a1 1 0 0 1-1-1V3.6a1 1 0 0 1 1-1Z" fill="#EFF3F8"/>
-    <path d="M13.8 2.6 19.4 8.2h-5a.6.6 0 0 1-.6-.6V2.6Z" fill="#C3D3E5"/>
-    <g stroke="#9FB4CC" stroke-width="1" stroke-linecap="round"><path d="M7.4 12h9M7.4 15h9M7.4 18h6"/></g>`,
+    <path d="M5.6 2.8h8.2L19.4 8.4v13a1 1 0 0 1-1 1H5.6a1 1 0 0 1-1-1V3.8a1 1 0 0 1 1-1Z" fill="#EFF3F8" fill-opacity="0.9"/>
+    <path d="M13.8 2.8 19.4 8.4h-5a.6.6 0 0 1-.6-.6V2.8Z" fill="#C3D3E5" fill-opacity="0.9"/>
+    <g stroke="#9FB4CC" stroke-width="1" stroke-linecap="round" stroke-opacity="0.9"><path d="M7.4 12.2h9M7.4 15.2h9M7.4 18.2h6"/></g>`,
   fileText: `
-    <path d="M5.6 2.6h8.2L19.4 8.2v13.2a1 1 0 0 1-1 1H5.6a1 1 0 0 1-1-1V3.6a1 1 0 0 1 1-1Z" fill="#F7FAFF"/>
-    <path d="M13.8 2.6 19.4 8.2h-5a.6.6 0 0 1-.6-.6V2.6Z" fill="#A8C8EC"/>
-    <g stroke="#5B93D6" stroke-width="1.1" stroke-linecap="round"><path d="M7.4 11.6h9M7.4 14.6h9M7.4 17.6h5.6"/></g>`,
+    <path d="M5.6 2.8h8.2L19.4 8.4v13a1 1 0 0 1-1 1H5.6a1 1 0 0 1-1-1V3.8a1 1 0 0 1 1-1Z" fill="#F7FAFF" fill-opacity="0.92"/>
+    <path d="M13.8 2.8 19.4 8.4h-5a.6.6 0 0 1-.6-.6V2.8Z" fill="#A8C8EC" fill-opacity="0.9"/>
+    <g stroke="#5B93D6" stroke-width="1.1" stroke-linecap="round" stroke-opacity="0.9"><path d="M7.4 11.8h9M7.4 14.8h9M7.4 17.8h5.6"/></g>`,
   fileImage: `
-    <path d="M5.6 2.6h8.2L19.4 8.2v13.2a1 1 0 0 1-1 1H5.6a1 1 0 0 1-1-1V3.6a1 1 0 0 1 1-1Z" fill="#F1FBF4"/>
-    <path d="M13.8 2.6 19.4 8.2h-5a.6.6 0 0 1-.6-.6V2.6Z" fill="#A8DFBB"/>
-    <circle cx="9.2" cy="12.4" r="1.5" fill="#F2B33D"/>
-    <path d="M5.6 19.4 9.6 15l2.4 2.6 3-3.4 4 5.2H5.6Z" fill="#3FA45E"/>`,
+    <path d="M5.6 2.8h8.2L19.4 8.4v13a1 1 0 0 1-1 1H5.6a1 1 0 0 1-1-1V3.8a1 1 0 0 1 1-1Z" fill="#F1FBF4" fill-opacity="0.92"/>
+    <path d="M13.8 2.8 19.4 8.4h-5a.6.6 0 0 1-.6-.6V2.8Z" fill="#A8DFBB" fill-opacity="0.9"/>
+    <circle cx="9.2" cy="12.6" r="1.5" fill="#F2B33D" fill-opacity="0.95"/>
+    <path d="M5.6 19.6 9.6 15.4l2.4 2.6 3-3.4 4 5.4H5.6Z" fill="#3FA45E" fill-opacity="0.9"/>`,
   fileAudio: `
-    <path d="M5.6 2.6h8.2L19.4 8.2v13.2a1 1 0 0 1-1 1H5.6a1 1 0 0 1-1-1V3.6a1 1 0 0 1 1-1Z" fill="#FDF3FB"/>
-    <path d="M13.8 2.6 19.4 8.2h-5a.6.6 0 0 1-.6-.6V2.6Z" fill="#E9B7DD"/>
-    <path d="M14.6 10.4v6.1a2 2 0 1 1-1.4-1.9v-3l-3.6.9v4.2a2 2 0 1 1-1.4-1.9v-4.6l6.4-1.6Z" fill="#B5439E"/>`,
+    <path d="M5.6 2.8h8.2L19.4 8.4v13a1 1 0 0 1-1 1H5.6a1 1 0 0 1-1-1V3.8a1 1 0 0 1 1-1Z" fill="#FDF3FB" fill-opacity="0.92"/>
+    <path d="M13.8 2.8 19.4 8.4h-5a.6.6 0 0 1-.6-.6V2.8Z" fill="#E9B7DD" fill-opacity="0.9"/>
+    <path d="M14.6 10.6v6a2 2 0 1 1-1.4-1.9v-3l-3.6.9v4.1a2 2 0 1 1-1.4-1.9v-4.6l6.4-1.6Z" fill="#B5439E" fill-opacity="0.92"/>`,
   fileVideo: `
-    <path d="M5.6 2.6h8.2L19.4 8.2v13.2a1 1 0 0 1-1 1H5.6a1 1 0 0 1-1-1V3.6a1 1 0 0 1 1-1Z" fill="#FFF4EE"/>
-    <path d="M13.8 2.6 19.4 8.2h-5a.6.6 0 0 1-.6-.6V2.6Z" fill="#F5C3A5"/>
-    <path d="M9.6 11.6 15.4 15l-5.8 3.4v-6.8Z" fill="#E2703A"/>`,
+    <path d="M5.6 2.8h8.2L19.4 8.4v13a1 1 0 0 1-1 1H5.6a1 1 0 0 1-1-1V3.8a1 1 0 0 1 1-1Z" fill="#FFF4EE" fill-opacity="0.92"/>
+    <path d="M13.8 2.8 19.4 8.4h-5a.6.6 0 0 1-.6-.6V2.8Z" fill="#F5C3A5" fill-opacity="0.9"/>
+    <path d="M9.6 11.8 15.4 15.2l-5.8 3.4v-6.8Z" fill="#E2703A" fill-opacity="0.92"/>`,
   fileCode: `
-    <path d="M5.6 2.6h8.2L19.4 8.2v13.2a1 1 0 0 1-1 1H5.6a1 1 0 0 1-1-1V3.6a1 1 0 0 1 1-1Z" fill="#F3F0FF"/>
-    <path d="M13.8 2.6 19.4 8.2h-5a.6.6 0 0 1-.6-.6V2.6Z" fill="#C4B5FD"/>
-    <path d="M9.6 12 7.4 14.8l2.2 2.8M14.4 12l2.2 2.8-2.2 2.8M12.6 11.2l-1.2 7.2" stroke="#7C3AED" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`,
+    <path d="M5.6 2.8h8.2L19.4 8.4v13a1 1 0 0 1-1 1H5.6a1 1 0 0 1-1-1V3.8a1 1 0 0 1 1-1Z" fill="#F3F0FF" fill-opacity="0.92"/>
+    <path d="M13.8 2.8 19.4 8.4h-5a.6.6 0 0 1-.6-.6V2.8Z" fill="#C4B5FD" fill-opacity="0.9"/>
+    <path d="M9.6 12.2 7.4 15l2.2 2.8M14.4 12.2l2.2 2.8-2.2 2.8M12.6 11.4l-1.2 7.2" stroke="#7C3AED" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="0.92"/>`,
 };
 
 /** Windows 徽标（开始按钮） */
 export const WIN_LOGO = `<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M3 5.9 10.3 4.9v6.8H3V5.9Zm0 12.2 7.3 1v-6.7H3v5.7Zm8.3 1.2L21 20.6v-8.4h-9.7v7.1Zm0-15.2v7.2H21V3.4l-9.7 1.3Z"/></svg>`;
 
 /**
+ * 统一的亚克力（半透明磨砂玻璃）底板：圆角方块 + 顶部高光 + 细描边。
+ * 注入到每个图标 SVG 内部，使所有图标呈现一致的半透明毛玻璃质感。
+ * 中性半透明白底，品牌色形状叠于其上即形成「彩色磨砂块」。
+ */
+const ACRYLIC_BASE =
+  '<rect x="1.5" y="1.5" width="21" height="21" rx="5.6" fill="rgba(255,255,255,0.16)" stroke="rgba(255,255,255,0.30)" stroke-width="0.6"/>' +
+  '<rect x="2.6" y="2.4" width="18.8" height="8.6" rx="4.2" fill="rgba(255,255,255,0.14)"/>';
+
+/**
  * 获取图标 SVG 字符串
  * @param {string} name 图标名
  * @param {number} [size=16]
- * @param {{class?:string, color?:string}} [opts]
+ * @param {{class?:string, color?:string, bare?:boolean}} [opts] bare=true 时不注入亚克力底板（用于已自带玻璃容器的媒体按钮等）
  * @returns {string}
  */
 export function getIcon(name, size = 16, opts = {}) {
@@ -213,7 +224,8 @@ export function getIcon(name, size = 16, opts = {}) {
   }
   const cls = opts.class ? ` class="${opts.class}"` : '';
   const style = opts.color ? ` style="color:${opts.color}"` : '';
-  return `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none"${cls}${style} aria-hidden="true" focusable="false">${inner}</svg>`;
+  const acrylic = opts.bare ? '' : ACRYLIC_BASE;
+  return `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none"${cls}${style} aria-hidden="true" focusable="false">${acrylic}${inner}</svg>`;
 }
 
 /**
