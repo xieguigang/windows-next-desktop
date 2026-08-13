@@ -1,0 +1,107 @@
+@import url('https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css');
+
+:root {
+  /* Color tokens */
+  --wn-primary: #0A84FF;
+  --wn-primary-2: #2D8CFF;
+  --wn-primary-3: #6FB3FF;
+  --wn-accent: #FF3B30;
+  --wn-success: #34C759;
+  --wn-warning: #FFCC00;
+  --wn-orange: #FF9F0A;
+
+  --wn-bg-dark-1: #1B1B1F;
+  --wn-bg-dark-2: #2A2A2E;
+  --wn-bg-light-1: #FFFFFF;
+  --wn-bg-light-2: #F3F3F8;
+
+  --wn-text-1: #FFFFFF;
+  --wn-text-2: #E8E8EA;
+  --wn-text-3: #1A1A1A;
+  --wn-text-muted: #8E8E93;
+
+  --wn-aero-light: rgba(255, 255, 255, 0.18);
+  --wn-aero-medium: rgba(255, 255, 255, 0.12);
+  --wn-aero-strong: rgba(255, 255, 255, 0.35);
+  --wn-aero-border: rgba(255, 255, 255, 0.28);
+  --wn-shadow-soft: 0 8px 32px rgba(0, 0, 0, 0.22);
+
+  --wn-radius-sm: 6px;
+  --wn-radius-md: 10px;
+  --wn-radius-lg: 16px;
+  --wn-radius-xl: 24px;
+
+  --wn-taskbar-height: 60px;
+  --wn-window-title-height: 42px;
+  --wn-transition-fast: 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+  --wn-transition-normal: 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+
+  --wn-font: "Segoe UI", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+
+  --wn-aero-strength: 18px;
+  --wn-saturation: 140%;
+  --wn-theme-color: #0A84FF;
+  --wn-mode: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: var(--wn-font);
+  font-size: 13px;
+  color: var(--wn-text-1);
+  user-select: none;
+}
+
+button, input {
+  font-family: inherit;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  color: inherit;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.glass {
+  background: var(--wn-aero-medium);
+  backdrop-filter: blur(var(--wn-aero-strength)) saturate(var(--wn-saturation));
+  -webkit-backdrop-filter: blur(var(--wn-aero-strength)) saturate(var(--wn-saturation));
+  border: 1px solid var(--wn-aero-border);
+}
+
+.glass-panel {
+  background: linear-gradient(135deg, var(--wn-aero-strong), var(--wn-aero-medium));
+  backdrop-filter: blur(var(--wn-aero-strength)) saturate(var(--wn-saturation));
+  -webkit-backdrop-filter: blur(var(--wn-aero-strength)) saturate(var(--wn-saturation));
+  border: 1px solid var(--wn-aero-border);
+  border-radius: var(--wn-radius-lg);
+  box-shadow: var(--wn-shadow-soft);
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.2);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255,255,255,0.35);
+}

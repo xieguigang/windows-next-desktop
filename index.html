@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WindowsNext</title>
+  <link rel="stylesheet" href="/src/styles/tokens.css" />
+  <link rel="stylesheet" href="/src/styles/window.css" />
+  <link rel="stylesheet" href="/src/styles/shell.css" />
+  <link rel="stylesheet" href="/src/styles/apps.css" />
+  <script type="module" src="/src/boot.js"></script>
+</head>
+<body>
+  <!-- 锁屏层 -->
+  <div id="lock-screen" class="lock-screen active">
+    <div class="lock-screen-content">
+      <div class="lock-weather">⛅ 28°</div>
+      <div class="lock-time" id="lock-time">12:00</div>
+      <div class="lock-date" id="lock-date">Friday, December 5</div>
+      <div class="lock-media">
+        <button class="lock-media-btn" data-action="prev">⏮</button>
+        <button class="lock-media-btn play" data-action="play">▶</button>
+        <button class="lock-media-btn" data-action="next">⏭</button>
+      </div>
+    </div>
+    <div class="lock-hint">点击任意处进入桌面</div>
+  </div>
+
+  <!-- 桌面壁纸层 -->
+  <div id="wallpaper-layer" class="wallpaper-layer"></div>
+
+  <!-- 桌面图标网格 -->
+  <div id="desktop" class="desktop">
+    <div id="desktop-icons" class="desktop-icons"></div>
+  </div>
+
+  <!-- 右键菜单 -->
+  <div id="context-menu" class="context-menu hidden"></div>
+
+  <!-- 窗口层 -->
+  <div id="window-layer" class="window-layer"></div>
+
+  <!-- Alt-Tab / 窗口管理平铺层 -->
+  <div id="window-overview" class="window-overview hidden">
+    <div class="overview-grid" id="overview-grid"></div>
+  </div>
+
+  <!-- 开始菜单 -->
+  <div id="start-menu" class="start-menu hidden">
+    <div class="start-search-row">
+      <div class="start-search-box">
+        <svg viewBox="0 0 24 24" width="16" height="16"><circle cx="11" cy="11" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.3-4.3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <input type="text" placeholder="Search anything" id="start-search-input" />
+      </div>
+    </div>
+    <div class="start-pinned-row" id="start-pinned-row"></div>
+    <div class="start-main">
+      <div class="start-section start-most-used">
+        <div class="section-title">Most Used</div>
+        <div class="section-grid" id="start-most-used"></div>
+        <div class="section-title">Recently added</div>
+        <div class="section-grid" id="start-recently"></div>
+        <div class="section-title">Productivity</div>
+        <div class="section-grid" id="start-productivity"></div>
+      </div>
+      <div class="start-section start-widgets">
+        <div class="widget weather-widget" id="weather-widget">
+          <div class="widget-header"><span class="widget-temp">27°</span><span class="widget-loc">Jakarta, ID</span></div>
+          <div class="widget-days" id="weather-days"></div>
+        </div>
+        <div class="widget notes-widget">
+          <div class="widget-date">15</div>
+          <div class="widget-day">Sunday</div>
+          <div class="widget-month">August</div>
+          <div class="widget-note">Meet friends at Mall<br/>8am</div>
+          <div class="widget-note">Learn coding<br/>5.30pm</div>
+        </div>
+        <div class="widget alarm-widget">
+          <div class="alarm-title">Hero</div>
+          <div class="alarm-artist">Assassination</div>
+          <div class="alarm-controls">
+            <button>⏮</button><button>▶</button><button>⏭</button>
+          </div>
+        </div>
+      </div>
+      <div class="start-section start-all-apps">
+        <div class="apps-list" id="start-apps-list"></div>
+      </div>
+    </div>
+    <div class="start-footer">
+      <div class="start-user">
+        <img src="/assets/icons/icons8-bash-96.png" alt="User" onerror="this.style.display='none'" class="start-avatar" />
+        <div class="start-user-info">
+          <div class="start-username" id="start-username">User</div>
+          <div class="start-email" id="start-email">user@windowsnext.local</div>
+        </div>
+      </div>
+      <div class="start-footer-actions">
+        <button class="icon-btn" data-action="settings" title="Settings">⚙</button>
+        <button class="icon-btn" data-action="power" title="Power">⏻</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 搜索弹框 -->
+  <div id="search-overlay" class="search-overlay hidden">
+    <div class="search-panel">
+      <div class="search-input-row">
+        <svg viewBox="0 0 24 24" width="20" height="20"><circle cx="11" cy="11" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.3-4.3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <input type="text" placeholder="Search desktop, files, apps..." id="search-input" />
+      </div>
+      <div class="search-results" id="search-results"></div>
+    </div>
+  </div>
+
+  <!-- 任务栏 -->
+  <div id="taskbar" class="taskbar">
+    <div class="taskbar-left">
+      <div class="taskbar-pins" id="taskbar-pins"></div>
+      <div class="taskbar-divider"></div>
+      <div class="taskbar-active" id="taskbar-active"></div>
+    </div>
+    <div class="taskbar-center">
+      <button class="taskbar-btn" data-action="overview" title="Window overview">
+        <svg viewBox="0 0 24 24" width="18" height="18"><rect x="3" y="3" width="7" height="7" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><rect x="14" y="3" width="7" height="7" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><rect x="3" y="14" width="7" height="7" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><rect x="14" y="14" width="7" height="7" rx="2" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+      </button>
+      <button class="start-btn" data-action="start" title="Start">
+        <svg viewBox="0 0 24 24" width="22" height="22"><path d="M3 5.5A2.5 2.5 0 015.5 3h4A2.5 2.5 0 0112 5.5v4a2.5 2.5 0 01-2.5 2.5h-4A2.5 2.5 0 013 9.5v-4zM14.5 3h4A2.5 2.5 0 0121 5.5v4a2.5 2.5 0 01-2.5 2.5h-4A2.5 2.5 0 0114 9.5v-4A2.5 2.5 0 0114.5 3zM3 14.5A2.5 2.5 0 015.5 12h4a2.5 2.5 0 012.5 2.5v4A2.5 2.5 0 019.5 21h-4A2.5 2.5 0 013 18.5v-4zM14.5 12h4a2.5 2.5 0 012.5 2.5v4a2.5 2.5 0 01-2.5 2.5h-4a2.5 2.5 0 01-2.5-2.5v-4A2.5 2.5 0 0114.5 12z" fill="currentColor"/></svg>
+      </button>
+      <button class="taskbar-btn" data-action="search" title="Search">
+        <svg viewBox="0 0 24 24" width="18" height="18"><circle cx="11" cy="11" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.3-4.3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <div class="taskbar-right">
+      <div class="tray-group">
+        <button class="tray-icon" data-action="language" title="EN">EN</button>
+        <button class="tray-icon" data-action="volume" title="Volume">🔊</button>
+        <button class="tray-icon" data-action="wifi" title="Wi-Fi">📶</button>
+        <button class="tray-icon" data-action="battery" title="Battery">🔋</button>
+      </div>
+      <div class="clock" id="taskbar-clock">
+        <div class="clock-time" id="clock-time">12:00</div>
+        <div class="clock-date" id="clock-date">Fri 5</div>
+      </div>
+      <button class="show-desktop" data-action="show-desktop" title="Show Desktop"></button>
+    </div>
+  </div>
+
+  <!-- Toast 通知容器 -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- 电源菜单 -->
+  <div id="power-menu" class="power-menu hidden">
+    <button data-action="lock">🔒 锁屏</button>
+    <button data-action="restart">🔄 重启</button>
+    <button data-action="shutdown">⏻ 关机</button>
+  </div>
+</body>
+</html>
