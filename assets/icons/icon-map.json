@@ -3,6 +3,6 @@
     "_comment": "图标名 → PNG 图片 URL 映射。URL 可为本地路径（如 assets/icons/foo.png）或 http(s) 远程地址。加载后 getIcon(name) 将优先渲染该 PNG，取代同名内联 SVG 图标。",
     "explorer": "/assets/icons/icons8-file-explorer-new-96.png",
     "notepad": "https://placehold.co/64x64/FFB900/000000/png?text=Nt",
-    "terminal": "https://placehold.co/64x64/1F1F1F/00FF90/png?text=Tm"
+    "terminal": "/assets/icons/icons8-bash-96.png"
   }
 }

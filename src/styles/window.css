@@ -26,15 +26,18 @@
    ------------------------------------------------------------ */
 .window[data-state="normal"],
 .window[data-state="snapped"] {
+  border-radius: var(--radius-lg; );
   border-radius: var(--radius-lg);
   background-color: var(--aero-window-bg);
   -webkit-backdrop-filter: var(--aero-window-filter);
   backdrop-filter: var(--aero-window-filter);
   border: 1px solid var(--aero-window-border);
-  box-shadow: var(--shadow-window);
+  box-shadow:
+    var(--shadow-window),
+    inset 0 1px 0 var(--aero-highlight);
 }
 
-/* 玻璃高光内描边 */
+/* 玻璃高光内描边 + 亚克力淡彩反光 */
 .window[data-state="normal"]::before,
 .window[data-state="snapped"]::before {
   content: "";
@@ -42,7 +45,11 @@
   inset: 0;
   border-radius: inherit;
   pointer-events: none;
-  box-shadow: inset 0 1px 0 var(--aero-highlight);
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0.04) 32%, transparent 60%),
+    radial-gradient(120% 80% at 88% 0%, rgba(168, 85, 247, 0.10), transparent 55%),
+    radial-gradient(120% 80% at 8% 100%, rgba(76, 194, 255, 0.10), transparent 55%);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.28);
   z-index: 3;
 }
 

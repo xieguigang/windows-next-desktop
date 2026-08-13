@@ -53,9 +53,9 @@
   --stroke-focus: var(--accent);
 
   /* ---------- Aero 毛玻璃参数（设置可调） ---------- */
-  --aero-blur: 30px;
-  --aero-saturate: 180%;
-  --aero-opacity: 0.62;
+  --aero-blur: 34px;
+  --aero-saturate: 190%;
+  --aero-opacity: 0.55;
 
   /* ---------- 逐层透明度（设置 → 个性化 → 透明度） ----------
      由 settings-store.js 的 CSS_VAR_MAP 实时写入，滑动即生效。
@@ -67,8 +67,8 @@
 
   --aero-window-bg: rgba(255, 255, 255, var(--aero-opacity));
   --aero-window-filter: blur(var(--aero-blur)) saturate(var(--aero-saturate));
-  --aero-window-border: rgba(255, 255, 255, 0.38);
-  --aero-highlight: rgba(255, 255, 255, 0.55);
+  --aero-window-border: rgba(255, 255, 255, 0.5);
+  --aero-highlight: rgba(255, 255, 255, 0.65);
 
   --aero-taskbar-bg: rgba(252, 252, 252, var(--taskbar-opacity));
   --aero-taskbar-filter: blur(calc(var(--aero-blur) + 10px)) saturate(var(--aero-saturate));
@@ -90,8 +90,8 @@
   --radius-xs: 2px;
   --radius-sm: 4px;
   --radius-md: 6px;
-  --radius-lg: 8px;
-  --radius-xl: 12px;
+  --radius-lg: 12px;
+  --radius-xl: 14px;
   --radius-round: 999px;
 
   /* ---------- 阴影 ---------- */
@@ -113,8 +113,8 @@
 
   /* ---------- 尺寸 ---------- */
   --taskbar-height: 48px;
-  --titlebar-height: 38px;
-  --caption-btn-width: 46px;
+  --titlebar-height: 44px;
+  --caption-btn-width: 40px;
   --resize-edge: 6px;
   --icon-cell-w: 88px;
   --icon-cell-h: 96px;
