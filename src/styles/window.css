@@ -212,6 +212,14 @@
   pointer-events: none;
 }
 
+/* 标题栏插槽有内容（如 Explorer 的 Tab 行）时，隐藏固定标题文字，
+   由插槽内的标签承担标题职责，形成一体化标题栏 */
+@supports selector(:has(*)) {
+  .window-titlebar:has(.window-titlebar-slot:not(:empty)) .window-title {
+    display: none;
+  }
+}
+
 .window-caption {
   display: flex;
   flex: 0 0 auto;
