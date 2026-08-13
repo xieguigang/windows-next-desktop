@@ -557,6 +557,20 @@ body[data-has-maximized="true"] .start-menu {
   to   { opacity: 0; transform: translateY(18px) scale(0.98); }
 }
 
+/* ---- PNG 图片图标（来自 JSON 配置的位图图标） ---- */
+.app-icon-png {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  object-fit: contain;
+  border-radius: 4px;
+  vertical-align: middle;
+  /* 与彩色 SVG 图标一致的柔和描边，避免位图边缘割裂 */
+  box-shadow: inset 0 0 0 0.5px rgba(255, 255, 255, 0.18);
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
 .start-menu[data-align="left"].is-opening { animation: startmenu-in-left 220ms var(--ease-decel) both; }
 .start-menu[data-align="left"].is-closing { animation: startmenu-out-left 150ms var(--ease-accel) both; }
 

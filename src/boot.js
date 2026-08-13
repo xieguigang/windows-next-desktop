@@ -31,6 +31,7 @@ import { taskbarPreview } from './shell/taskbar-preview.js';
 import { startMenu } from './shell/start-menu.js';
 import { lockScreen } from './shell/lock-screen.js';
 import { BUILTIN_APPS } from './apps/manifests.js';
+import { loadIconMap } from './ui/icons.js';
 
 const log = createLogger('Boot');
 
@@ -87,6 +88,14 @@ async function boot() {
     } catch (e) {
       log.warn('示例应用加载失败', e);
     }
+  }
+
+  // ---------- 5.5 加载 PNG 图标映射（JSON 配置，失败静默降级） ----------
+  try {
+    const res = await fetch('assets/icons/icon-map.json', { cache: 'no-cache' });
+    if (res.ok) loadIconMap(await res.json());
+  } catch (e) {
+    log.warn('PNG 图标映射加载失败，将仅使用内联 SVG 图标', e);
   }
 
   // ---------- 6. Shell ----------
