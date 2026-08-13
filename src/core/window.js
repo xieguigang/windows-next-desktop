@@ -105,13 +105,17 @@ export class WinWindow {
     titleEl.className = 'window-title';
     titleEl.textContent = this.title;
 
+    // 标题栏可注入插槽：应用（如 Explorer 的多标签）可将自定义节点挂载至此
+    const titlebarSlot = document.createElement('div');
+    titlebarSlot.className = 'window-titlebar-slot';
+
     const caption = document.createElement('div');
     caption.className = 'window-caption';
     if (this.minimizable) caption.appendChild(this._captionBtn('minimize', '最小化'));
     if (this.maximizable) caption.appendChild(this._captionBtn('maximize', '最大化'));
     caption.appendChild(this._captionBtn('close', '关闭'));
 
-    titlebar.append(iconEl, titleEl, caption);
+    titlebar.append(iconEl, titleEl, titlebarSlot, caption);
 
     // 内容区 + Shadow DOM 宿主
     const body = document.createElement('div');
@@ -136,6 +140,7 @@ export class WinWindow {
     this.titlebarEl = titlebar;
     this.iconEl = iconEl;
     this.titleEl = titleEl;
+    this.titlebarSlotEl = titlebarSlot;
     this.bodyEl = body;
     this.hostEl = host;
     this.captionEl = caption;
@@ -186,6 +191,7 @@ export class WinWindow {
     // 双击标题栏切换最大化
     this.titlebarEl.addEventListener('dblclick', (e) => {
       if (e.target.closest('.caption-btn')) return;
+      if (e.target.closest('.window-titlebar-slot')) return;
       if (this.maximizable) this.toggleMaximize();
     });
 
@@ -224,6 +230,7 @@ export class WinWindow {
   _onTitlebarPointerDown(e) {
     if (e.button !== 0) return;
     if (e.target.closest('.caption-btn')) return;
+    if (e.target.closest('.window-titlebar-slot')) return;
     if (this.state === 'minimized') return;
 
     e.preventDefault();
@@ -549,6 +556,20 @@ export class WinWindow {
     this.icon = icon;
     this.iconEl.innerHTML = this._renderIcon(16);
     bus.emit('window:icon-changed', { window: this });
+  }
+
+  /**
+   * 将自定义节点注入标题栏中间插槽（如 Explorer 的 Tab 行）。
+   * 传入 null 会清空插槽。
+   * @param {Node|null} node
+   */
+  setTitlebarSlot(node) {
+    this.titlebarSlotEl.replaceChildren(node || null);
+  }
+
+  /** @returns {HTMLElement} 标题栏插槽容器，便于应用复用 */
+  getTitlebarSlot() {
+    return this.titlebarSlotEl;
   }
 
   /** @param {boolean} active */

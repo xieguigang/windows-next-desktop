@@ -26,7 +26,6 @@
    ------------------------------------------------------------ */
 .window[data-state="normal"],
 .window[data-state="snapped"] {
-  border-radius: var(--radius-lg; );
   border-radius: var(--radius-lg);
   background-color: var(--aero-window-bg);
   -webkit-backdrop-filter: var(--aero-window-filter);
@@ -146,11 +145,11 @@
   position: relative;
   z-index: 2;
   display: flex;
-  align-items: center;
+  align-items: stretch;
   height: var(--titlebar-height);
   flex: 0 0 var(--titlebar-height);
   padding-left: 12px;
-  gap: 8px;
+  gap: 6px;
   cursor: default;
   touch-action: none;
   user-select: none;
@@ -192,6 +191,15 @@
   pointer-events: none;
 }
 
+/* 标题栏可注入插槽（如 Explorer 的 Tab 行）：占据剩余空间并垂直居中 */
+.window-titlebar-slot {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+
 .window-title {
   flex: 1 1 auto;
   min-width: 0;
@@ -217,11 +225,18 @@
   justify-content: center;
   width: var(--caption-btn-width);
   height: 100%;
+  padding: 0;
   border: none;
   background: transparent;
   color: var(--fg-primary);
   cursor: default;
-  transition: background-color var(--dur-fast) linear, color var(--dur-fast) linear;
+  transition: background-color var(--dur-fast) var(--ease-standard), color var(--dur-fast) var(--ease-standard);
+}
+
+.caption-btn svg {
+  display: block;
+  width: 12px;
+  height: 12px;
 }
 
 .caption-btn:hover {

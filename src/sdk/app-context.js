@@ -129,6 +129,14 @@ export function createAppContext(deps) {
        * @param {{x?:number,y?:number,width?:number,height?:number}} rect
        */
       setRect: (rect) => win.setRect(rect),
+      /**
+       * 将自定义节点注入窗口标题栏中间插槽（如多标签浏览器把 Tab 行挂到标题栏）。
+       * 传入 null 可清空插槽。
+       * @param {Node|null} node
+       */
+      setTitlebarSlot: (node) => win.setTitlebarSlot(node),
+      /** @returns {HTMLElement} 标题栏插槽容器 */
+      getTitlebarSlot: () => win.getTitlebarSlot(),
       /** 可用工作区（已扣除任务栏） @returns {{width:number,height:number}} */
       getWorkArea: () => ({ ...win.manager.workArea }),
       /**
