@@ -413,7 +413,10 @@ export class StartMenu {
           id: 'lock',
           label: '锁定',
           icon: 'lock',
-          onClick: () => notifications.toast({ title: '锁定', body: '该演示环境不支持锁屏', type: 'info' }),
+          onClick: () => {
+            this.close();
+            bus.emit('lockscreen:lock');
+          },
         },
         {
           id: 'restart',

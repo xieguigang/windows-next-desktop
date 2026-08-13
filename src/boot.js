@@ -29,6 +29,7 @@ import { desktop } from './shell/desktop.js';
 import { taskbar } from './shell/taskbar.js';
 import { taskbarPreview } from './shell/taskbar-preview.js';
 import { startMenu } from './shell/start-menu.js';
+import { lockScreen } from './shell/lock-screen.js';
 import { BUILTIN_APPS } from './apps/manifests.js';
 
 const log = createLogger('Boot');
@@ -94,8 +95,9 @@ async function boot() {
   taskbar.init(layers.shell);
   startMenu.init(layers.overlay);
   await desktop.init(layers.desktop);
+  lockScreen.init();
 
-  disposables.push(desktop, taskbar, taskbarPreview, startMenu, wallpaper, contextMenu);
+  disposables.push(desktop, taskbar, taskbarPreview, startMenu, lockScreen, wallpaper, contextMenu);
 
   // ---------- 7. 全局交互 ----------
   installGlobalHandlers();
