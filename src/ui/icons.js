@@ -4,7 +4,19 @@
  * 全部为手绘路径，零外部依赖、无 FOUC。
  * `getIcon(name, size, options)` 返回 SVG 字符串。
  * 彩色应用图标使用固定配色，单色 UI 图标用 currentColor 继承父级颜色。
+ *
+ * 另外支持 PNG 图片图标：通过 `loadIconMap(json)` 从 JSON 配置中
+ * 注入「图标名 → 图片 URL」映射；命中映射时 `getIcon` 优先返回
+ * `<img>` 而非 SVG，URL 可为本地路径（如 assets/icons/foo.png）
+ * 或任意 http(s) 远程地址。
  */
+
+/**
+ * PNG 图标映射：图标名 → 图片 URL。
+ * 由 loadIconMap 从 JSON 配置填充，运行时可动态扩展。
+ * @type {Map<string, string>}
+ */
+const PNG_ICONS = new Map();
 
 /** 单色 UI 图标：24x24 视口的路径数据 */
 const GLYPHS = {
@@ -217,6 +229,11 @@ const ACRYLIC_BASE =
  * @returns {string}
  */
 export function getIcon(name, size = 16, opts = {}) {
+  // 1) PNG 图片图标优先（来自 JSON 配置 / 运行时注入）
+  const pngUrl = PNG_ICONS.get(name);
+  if (pngUrl) return getSvgPngIcon(pngUrl, size, opts);
+
+  // 2) 内联 SVG（彩色应用图标 / 单色 UI 图标）
   const inner = APP_GLYPHS[name] || GLYPHS[name];
   if (!inner) {
     // 未知图标兜底：一个中性文件图标，避免布局塌陷
@@ -229,11 +246,44 @@ export function getIcon(name, size = 16, opts = {}) {
 }
 
 /**
+ * 以 <img> 形式渲染 PNG 图标，保留与 SVG 一致的尺寸与无障碍属性。
+ * 加载失败时 onerror 静默清除自身，避免破图占位。
+ */
+function getSvgPngIcon(url, size, opts) {
+  const cls = opts.class ? ` ${opts.class}` : '';
+  const style = opts.color ? ` style="color:${opts.color}"` : '';
+  return `<img class="app-icon-png${cls}" src="${url}" width="${size}" height="${size}" alt="" loading="lazy" decoding="async"${style} aria-hidden="true" focusable="false" onerror="this.onerror=null;this.remove();">`;
+}
+
+/**
+ * 从 JSON 配置加载 PNG 图标映射。
+ * 支持两种结构：{ "icons": { name: url } } 或直接 { name: url }。
+ * 重复的名字会覆盖先前的值。
+ * @param {Object} json
+ */
+export function loadIconMap(json) {
+  if (!json || typeof json !== 'object') return;
+  const map = json.icons && typeof json.icons === 'object' ? json.icons : json;
+  for (const [name, url] of Object.entries(map)) {
+    if (typeof url === 'string' && url.trim()) PNG_ICONS.set(name, url.trim());
+  }
+}
+
+/**
+ * 运行时直接注册单个 PNG 图标（程序化注入，便于动态应用）。
+ * @param {string} name
+ * @param {string} url
+ */
+export function setPngIcon(name, url) {
+  if (typeof url === 'string' && url.trim()) PNG_ICONS.set(name, url.trim());
+}
+
+/**
  * 判断某图标名是否存在
  * @param {string} name
  */
 export function hasIcon(name) {
-  return Boolean(APP_GLYPHS[name] || GLYPHS[name]);
+  return Boolean(PNG_ICONS.has(name) || APP_GLYPHS[name] || GLYPHS[name]);
 }
 
 /**
@@ -265,4 +315,4 @@ export function iconEl(name, size = 16) {
   return span;
 }
 
-export default { getIcon, hasIcon, iconEl, iconForExtension, WIN_LOGO };
+export default { getIcon, hasIcon, iconEl, iconForExtension, loadIconMap, setPngIcon, WIN_LOGO };
